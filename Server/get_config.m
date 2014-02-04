@@ -8,5 +8,6 @@ function out = get_config(caseString)
 			out.db = 'matlab';
 		case 'process'
 			out.max_threads = 1;
+			out.max_inputbuffer = 30000;
     end
 end
