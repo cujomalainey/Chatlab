@@ -6,6 +6,7 @@ function [] = LaunchClient()
 % 	main_client();
 
 AddPath('Client/UI');
+AddPath('Client/UI/GUIItems');
 AddPath('Common/UI');
 AddPath('Common/UI/GUIItems');
 ChatWindow('David');

@@ -88,6 +88,7 @@ function [] = LoginWindow()
 
 	function performLogin()
 		%% TODO: LOGIN
+		disp('Loggin in...');
 	end
 
 %% Login Callbacks

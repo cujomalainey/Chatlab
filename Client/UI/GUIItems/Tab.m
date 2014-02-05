@@ -8,6 +8,10 @@ classdef Tab < GUIItem
 		Callback;
 	end
 	
+	properties
+		Name;
+	end
+	
 	methods
 		%% Constructor
 		function T = Tab(Text, ClickCallback)
@@ -15,11 +19,13 @@ classdef Tab < GUIItem
 			
 			% Create the pane
 			T.Pane = GUIManager.instance().newPane(0);
+			T.Pane.getPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(2, 0, 0, -3));
 			
+			T.Name = Text;
 			% Create the label
-			T.Label = javax.swing.JLabel(Text);
+			T.Label = javax.swing.JLabel([Text ' ']);
 			T.Pane.add(T.Label);
-			T.Label.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 0, 0, 5));
+			T.Label.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
 			
 			% Create the button
 			T.Button = javax.swing.JButton('x');
@@ -34,7 +40,7 @@ classdef Tab < GUIItem
 			T.Button.setForeground(java.awt.Color.red);
 			
 			%%
-			% Hide the deprecated warning for now. Will contact mathworks to
+			% Hide the deprecation warning for now. Will contact mathworks to
 			% find a solution soon.
 			warning('off', 'MATLAB:hg:PossibleDeprecatedJavaSetHGProperty')
 			set(T.Button,	'MouseEnteredCallback', @T.mouseOver,...
@@ -46,6 +52,14 @@ classdef Tab < GUIItem
 		
 		function tab = getTab(this)
 			tab = this.Pane;
+		end
+		
+		function alert(this)
+			this.Label.setForeground(java.awt.Color.magenta);
+		end
+		
+		function hideAlert(this)
+			this.Label.setForeground(java.awt.Color.black);
 		end
 		
 		function mouseOver(this, ~, ~)

@@ -22,6 +22,11 @@ classdef TextPane < GUIItem
 			P = this.JavaScrollPane;
 		end
 		
+		%% Print a message to the window
+		function print(this, message)
+			this.JavaTextPane.setText(sprintf('%s\n%s', char(this.JavaTextPane.getText()), message));
+		end
+		
 		%% Destructor
 		function delete(this)
 			this.JavaTextPane.setText('');

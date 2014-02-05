@@ -4,7 +4,6 @@ classdef TabPanel < GUIItem
 	properties (Hidden)
 		JavaTabPane;
 		TabPane;
-		Tabs;
 		Panes;
 	end
 	
@@ -16,59 +15,26 @@ classdef TabPanel < GUIItem
 		end
 	end
 	
-	methods (Access = private)
-		%% Callbacks
-% 		function closeTabPressed(this, src, event)
-% 			
-% 		end
-	end
-	
 	methods
 		%% Tab related (Numbers)
-% 		function tab = getCurrentTab(this)
-% 			
-% 		end
-% 		
-% 		function setCurrentTab(this)
-% 			
-% 		end
+		function index = getCurrentTabIndex(this)
+			index = this.JavaTabPane.getSelectedIndex();
+		end
+		
 		%% Tab related (tab objects)
-		function addTab(this, tabName)
+		function addTab(this, tabName, panel)
 			index = this.JavaTabPane.getTabCount() + 1;
-			
-			this.Tabs{index} = Tab(tabName, @this.removeTab);
-			this.Panes{index} = TextPane();
-			
-			this.JavaTabPane.addTab([], this.Panes{index}.getPane());
-			this.JavaTabPane.setTabComponentAt(index - 1, this.Tabs{index}.getTab().getJavaPane());
+			this.Panes{index} = panel();
+			this.JavaTabPane.addTab(tabName, this.Panes{index}.getPane());
 		end
 		
-		function removeTab(this, tab)
-			i = 1;
-			while (i <= length(this.Tabs))
-				if (this.Tabs{i} == tab)
-					this.JavaTabPane.remove(i-1);
-					this.Tabs(i) = [];
-					delete(this.Panes{i});
-					this.Panes(i) = [];
-				else
-					i = i + 1;
-				end
-			end
-			delete(tab);
+		function removeTab(this, index)
+			this.JavaTabPane.remove(index-1);
 		end
-		
-% 		function tab = getTabWindow(this)
-% 			
-% 		end
 		
 		%% Cleanup
 		function delete(this)
 			delete(this.JavaTabPane);
-			
-			for i = 1:1:length(this.Tabs)
-				delete(this.Tabs{i})
-			end
 			
 			for i = 1:1:length(this.Panes)
 				delete(this.Panes{i})
