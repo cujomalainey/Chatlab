@@ -1,6 +1,5 @@
 %main client file
-function [] = main()
-	
+function [] = main_client()
 	%% Add folders to the path
 	AddPath('Client/UI');
 	AddPath('Common/UI');
@@ -8,7 +7,4 @@ function [] = main()
 	
 	%% Create and show the LoginWindow
 	LoginWindow();
-	
-	
-	
 end

@@ -3,6 +3,6 @@ function [] = LaunchServer()
 	
 	AddPath('Server');
 	AddPath('Common');
-	main();
+	main_server();
 	
 end

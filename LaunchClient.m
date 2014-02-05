@@ -3,11 +3,11 @@ function [] = LaunchClient()
 
 	AddPath('Client');
 	AddPath('Common');
-% 	main();
+% 	main_client();
 
 AddPath('Client/UI');
 AddPath('Common/UI');
 AddPath('Common/UI/GUIItems');
-ChatWindow();
+ChatWindow('David');
 
 end
