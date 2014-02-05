@@ -13,7 +13,6 @@ classdef Button < GUIItem
 		function B = Button(Parent, Position, Text, PressCallback, EscapeCallback)
 			% Initialize the JButton withing MATLAB
 			[B.JavaButton, B.ControlButton] = javacomponent('javax.swing.JButton', Position, Parent);
-			B.JavaButton.setFocusable(true);
 			
 			B.PressCallback = PressCallback;
 			B.EscapeCallback = EscapeCallback;
@@ -24,6 +23,14 @@ classdef Button < GUIItem
 					'MouseClickedCallback', @B.click,...
 					'KeyPressedCallback', @B.keyPress...
 					);
+		end
+		
+		function b = javaButton(this)
+			b = this.JavaButton;
+		end
+		
+		function b = matlabButton(this)
+			b = this.ControlButton;
 		end
 	end
 	

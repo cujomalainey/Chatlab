@@ -18,6 +18,13 @@ classdef GUIItem < handle
 		function setTag(this, tag)
 			this.Tag = tag;
 		end
+		
+		%% Enable/Disable
+		function disable(~)
+		end
+		
+		function enable(~)
+		end
 	end
 	
 end

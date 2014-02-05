@@ -38,27 +38,51 @@ classdef GUIManager < handle
 	
 	methods
 		%% Create a text field
-		function textField = newTextField(this, Parent, Position, EnterCallback)
+		function textField = newTextField(this, Parent, Position, EnterCallback, Managed)
 			textField = TextField(Parent, Position, 0, EnterCallback, @this.escape);
-			this.Elements{length(this.Elements) + 1} = textField;
+			if (Managed)
+				this.Elements{length(this.Elements) + 1} = textField;
+			end
 		end
 		
 		%% Create a password field
-		function passwordField = newPasswordField(this, Parent, Position, EnterCallback)
+		function passwordField = newPasswordField(this, Parent, Position, EnterCallback, Managed)
 			passwordField = TextField(Parent, Position, 1, EnterCallback, @this.escape);
-			this.Elements{length(this.Elements) + 1} = passwordField;
+			if (Managed)
+				this.Elements{length(this.Elements) + 1} = passwordField;
+			end
 		end
 		
 		%% Create a button
-		function button = newButton(this, Parent, Position, Text, PressCallback)
+		function button = newButton(this, Parent, Position, Text, PressCallback, Managed)
 			button = Button(Parent, Position, Text, PressCallback, @this.escape);
-			this.Elements{length(this.Elements) + 1} = button;
+			if (Managed)
+				this.Elements{length(this.Elements) + 1} = button;
+			end
 		end
 		
 		%% Create a label
-		function label = newLabel(this, Parent, Position, Text)
+		function label = newLabel(this, Parent, Position, Text, Managed)
 			label = Label(Parent, Position, Text, 12);
-			this.Elements{length(this.Elements) + 1} = label;
+			if (Managed)
+				this.Elements{length(this.Elements) + 1} = label;
+			end
+		end
+		
+		%% Create a TabPanel
+		function tabPanel = newTabPanel(this, Parent, Position, Managed)
+			tabPanel = TabPanel(Parent, Position);
+			if (Managed)
+				this.Elements{length(this.Elements) + 1} = tabPanel;
+			end
+		end
+		
+		%% Create a Pane
+		function pane = newPane(this, Managed)
+			pane = Pane();
+			if (Managed)
+				this.Elements{length(this.Elements) + 1} = pane;
+			end
 		end
 		
 		%% Remove objects
@@ -92,4 +116,3 @@ classdef GUIManager < handle
 	end
 	
 end
-

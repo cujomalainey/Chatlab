@@ -70,7 +70,7 @@ classdef TextField < GUIItem
 			if (this.isPassword)
 				text = (this.JavaTextField.getPassword())';
 			else
-				text = this.JavaTextField.getText();
+				text = char(this.JavaTextField.getText());
 			end
 		end
 		
@@ -82,6 +82,9 @@ classdef TextField < GUIItem
 		%% Cleanup
 		function delete(this)
 			delete(this.JavaTextField);
+% 			delete(this.EditField);
+% 			delete(this.EnterCallback);
+% 			delete(this.EscapeCallback);
 		end
 	end
 	
