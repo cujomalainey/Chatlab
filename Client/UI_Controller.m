@@ -1,6 +1,6 @@
 %UI Model
 
-classdef UI_Controller
+classdef UI_Controller > Handle
 
 % UI MEMBER HERE
 

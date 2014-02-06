@@ -15,15 +15,12 @@ classdef Server < handle
 		network
 	end
 	% Define an event called InsufficientFunds
-	events
-		InsufficientFunds
-	end
 	methods
 		function obj = Server()
 			obj.db = AccountNumber;
 			obj.network = InitialBalance;
 		end
-		function deposit(BA,amt)
+		function run()
 			BA.AccountBalance = BA.AccountBalance + amt;
 			if BA.AccountBalance > 0
 				BA.AccountStatus = 'open';
@@ -38,9 +35,6 @@ classdef Server < handle
 			BA.AccountBalance = newbal;
 			% If a withdrawal results in a negative balance,
 			% trigger the InsufficientFunds event using notify
-			if newbal < 0
-				notify(BA,'InsufficientFunds')
-			end
 		end % withdraw
 	end % methods
 end % classdef
