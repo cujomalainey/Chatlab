@@ -19,9 +19,6 @@ classdef UI_Controller > Handle
 		AccountBalance = 0;
 	end
 	% Define an event called InsufficientFunds
-	events
-		InsufficientFunds
-	end
 	methods
 		function obj = UI_Controller(AccountNumber,InitialBalance)
 			%Constructor
@@ -47,3 +44,5 @@ classdef UI_Controller > Handle
 		end % withdraw
 	end % methods
 end % classdef
+
+
