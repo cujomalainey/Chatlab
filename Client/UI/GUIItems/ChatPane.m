@@ -81,4 +81,3 @@ classdef ChatPane < TabPanel
 	end
 	
 end
-

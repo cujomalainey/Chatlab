@@ -20,4 +20,3 @@ function [ window ] = NewWindow( Name, Width, Height, CloseCallback )
 						);
 
 end
-

@@ -30,4 +30,3 @@ classdef Pane < GUIItem
 	end
 	
 end
-

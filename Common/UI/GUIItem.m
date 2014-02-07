@@ -28,4 +28,3 @@ classdef GUIItem < handle
 	end
 	
 end
-

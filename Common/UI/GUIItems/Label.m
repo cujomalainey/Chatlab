@@ -33,4 +33,3 @@ classdef Label < GUIItem
 	end
 	
 end
-

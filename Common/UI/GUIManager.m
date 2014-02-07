@@ -3,10 +3,6 @@ classdef GUIManager < handle
 	%   Detailed explanation goes here
 	
 	properties (Hidden)
-		
-	end
-	
-	properties
 		Elements;
 	end
 	
@@ -82,6 +78,22 @@ classdef GUIManager < handle
 			pane = Pane();
 			if (Managed)
 				this.Elements{length(this.Elements) + 1} = pane;
+			end
+		end
+		
+		%% Create a TreePane
+		function treepane = newTreePane(this, Parent, Position, Managed)
+			treepane = TreePane(Parent, Position);
+			if (Managed)
+				this.Elements{length(this.Elements) + 1} = treepane;
+			end
+		end
+		
+		%% Create a ListBox
+		function listbox = newListBox(this, Parent, Position, Callback,  Managed)
+			listbox = ListBox(Parent, Position, Callback);
+			if (Managed)
+				this.Elements{length(this.Elements) + 1} = listbox;
 			end
 		end
 		

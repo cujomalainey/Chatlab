@@ -30,7 +30,7 @@ function [] = LoginWindow()
 	Login.PassField = GUI.newPasswordField(Login.window, PassPosition, @enter, 1);
 
 	% Button
-	ButtonPosition = [50 10 100 25];
+	ButtonPosition = [50 7 100 25];
 	Login.Button = GUI.newButton(Login.window, ButtonPosition, 'Login', @login, 1);
 
 	% Create the PostInit Timer
@@ -89,11 +89,18 @@ function [] = LoginWindow()
 	function performLogin()
 		%% TODO: LOGIN
 		disp('Loggin in...');
+		loginSuccess();
 	end
 
 %% Login Callbacks
+	% Move to chat window
 	function loginSuccess()
-		%% Move to chat window
+		AddPath('Client/UI');
+		AddPath('Client/UI/GUIItems');
+		AddPath('Common/UI');
+		AddPath('Common/UI/GUIItems');
+		ChatWindow(Login.UserField.getText());
+		
 		close(Login.window);
 	end
 

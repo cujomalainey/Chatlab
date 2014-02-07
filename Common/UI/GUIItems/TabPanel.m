@@ -24,8 +24,8 @@ classdef TabPanel < GUIItem
 		%% Tab related (tab objects)
 		function addTab(this, tabName, panel)
 			index = this.JavaTabPane.getTabCount() + 1;
-			this.Panes{index} = panel();
-			this.JavaTabPane.addTab(tabName, this.Panes{index}.getPane());
+			this.Panes{index} = panel;
+			this.JavaTabPane.addTab(tabName, panel);
 		end
 		
 		function removeTab(this, index)
@@ -34,8 +34,6 @@ classdef TabPanel < GUIItem
 		
 		%% Cleanup
 		function delete(this)
-			delete(this.JavaTabPane);
-			
 			for i = 1:1:length(this.Panes)
 				delete(this.Panes{i})
 			end

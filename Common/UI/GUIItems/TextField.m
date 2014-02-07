@@ -82,9 +82,6 @@ classdef TextField < GUIItem
 		%% Cleanup
 		function delete(this)
 			delete(this.JavaTextField);
-% 			delete(this.EditField);
-% 			delete(this.EnterCallback);
-% 			delete(this.EscapeCallback);
 		end
 	end
 	

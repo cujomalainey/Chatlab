@@ -5,4 +5,3 @@ function [] = AddPath( subDir )
 	path(fullfile(basePath, subDir), path);
 	
 end
-

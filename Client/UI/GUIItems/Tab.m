@@ -39,10 +39,6 @@ classdef Tab < GUIItem
 			T.Button.setBorderPainted(false);
 			T.Button.setForeground(java.awt.Color.red);
 			
-			%%
-			% Hide the deprecation warning for now. Will contact mathworks to
-			% find a solution soon.
-			warning('off', 'MATLAB:hg:PossibleDeprecatedJavaSetHGProperty')
 			set(T.Button,	'MouseEnteredCallback', @T.mouseOver,...
 							'MouseExitedCallback', @T.mouseOut,...
 							'MouseClickedCallback', @T.click...
