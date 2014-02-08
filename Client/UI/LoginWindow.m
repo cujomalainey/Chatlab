@@ -3,7 +3,9 @@ function [] = LoginWindow()
 
 %% Get a window
 	Login.window = NewWindow('Login', 200, 140, @windowWillClose);
-	set(Login.window, 'WindowStyle','modal'); % Make sure it has priority
+	set(Login.window,	'WindowStyle', 'modal',...
+						'Color', [0.93, 0.93, 0.93]...
+					); % Make sure it has priority
 
 %% Get the GUI Manager
 	GUI = GUIManager.instance();
@@ -99,9 +101,12 @@ function [] = LoginWindow()
 		AddPath('Client/UI/GUIItems');
 		AddPath('Common/UI');
 		AddPath('Common/UI/GUIItems');
-		ChatWindow(Login.UserField.getText());
+		
+		a = Login.UserField.getText();
 		
 		close(Login.window);
+		
+		ChatWindow(a);
 	end
 
 	function loginFailed(reason)

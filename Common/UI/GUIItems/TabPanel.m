@@ -30,6 +30,8 @@ classdef TabPanel < GUIItem
 		
 		function removeTab(this, index)
 			this.JavaTabPane.remove(index-1);
+			delete(this.Panes{index});
+			this.Panes(index) = [];
 		end
 		
 		%% Cleanup

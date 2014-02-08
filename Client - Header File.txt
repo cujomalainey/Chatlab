@@ -1,0 +1,52 @@
+TODO:
+	LoginWindow Outs
+	LoginWindow Ins
+	
+	ChatWindow Arguments
+	ChatWindow Outs
+	ChatWindow Ins
+
+
+Start
+	main_client - The Main file to start the client
+
+Windows
+	LoginWindow - The Login Window
+	- Start
+		LoginWindow()
+	- Out
+		~performLogin()
+	- In
+		~loginSuccess()
+		~loginFailed(reason)
+
+	ChatWindow  - The Window for Chat
+	- Start
+		~ChatWindow(name, token)
+	- Out
+		~startChat()
+		~inviteToChat()
+	- In
+		~messageReceived()
+		~userJoiningRoom()
+		~newUserList()
+		~inviteReceived()
+		~...
+
+
+ChatPane < TabPanel
+	Constructor
+		ChatPane(Parent, Position)
+	Methods
+		addTab(tabName)
+		removeTab(tab)
+		printText(chatName, message) - Display message as a new line
+
+Tab < GUIItem
+	Constructor
+		Tab(Text, ClickCallback)
+	Methods
+		Pane getTab()
+		
+		alert()
+		hideAlert()

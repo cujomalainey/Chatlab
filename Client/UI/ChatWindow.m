@@ -48,8 +48,6 @@ function [] = ChatWindow( name, token )
 	Chat.ChatPane.printText('hello', 'message');
 	Chat.ChatPane.printText('fdsf', 'color changed because of new text while not in focus');
 	
-% 	Chat.TabPanel.alert('hello');
-	
 	%% Initialize some state values
 	Chat.SelectedPerson = '';
 	Chat.Menu = uicontextmenu;

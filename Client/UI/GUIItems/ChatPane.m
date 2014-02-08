@@ -47,9 +47,10 @@ classdef ChatPane < TabPanel
 			this.Panes{index} = TextPane();
 			
 			this.JavaTabPane.addTab([], this.Panes{index}.getPane());
-			this.JavaTabPane.setTabComponentAt(index - 1, this.Tabs{index}.getTab().getJavaPane());
+			this.JavaTabPane.setTabComponentAt(index - 1, this.Tabs{index}.getTab().getPane());
 		end
 		
+		%% Callback
 		function removeTab(this, tab)
 			i = 1;
 			while (i <= length(this.Tabs))

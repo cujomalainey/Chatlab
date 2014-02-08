@@ -24,7 +24,6 @@ classdef TextField < GUIItem
 				TextFieldName = 'javax.swing.JTextField';
 			end
 			% Create the matlab objects
-			
 			[TF.JavaTextField, TF.EditField] = javacomponent(TextFieldName, Position, Parent);
 			TF.JavaTextField.setFocusable(true);
 			% Set the callback

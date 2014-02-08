@@ -4,7 +4,6 @@ function [] = main_client()
 	AddPath('Client/UI');
 	AddPath('Common/UI');
 	AddPath('Common/UI/GUIItems');
-	
 	%% Create and show the LoginWindow
 	LoginWindow();
 end
