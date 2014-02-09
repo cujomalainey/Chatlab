@@ -2,12 +2,12 @@
 
 classdef encryptor
 
-	properties (SetAccess = private)
+	properties (Access = private)
 		key = [1 2 3; 2 5 3; 2 3 1];
     end
 	methods
 
-		function obj = UI_Controller()
+		function obj = encryptor()
 			%init key handler
 		end
 
