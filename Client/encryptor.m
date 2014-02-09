@@ -32,11 +32,11 @@ classdef encryptor
                     end
                 end
             end
-            encryption = obj.key*response;
+            encryption = obj.serialize(obj.key*response);
 		end % encrypt
 
         function message = decrypt(obj, encode, groupId)
-            arr = inv(obj.key)*encode;
+            arr = inv(obj.key)*obj.unserialize(encode);
             columns = size(arr);
             columns = columns(2);
             for n = 1:columns
