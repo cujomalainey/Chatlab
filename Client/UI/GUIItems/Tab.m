@@ -43,7 +43,6 @@ classdef Tab < GUIItem
 							'MouseExitedCallback', @T.mouseOut,...
 							'MouseClickedCallback', @T.click...
 							);
-			%%
 		end
 		
 		function tab = getTab(this)
@@ -58,6 +57,7 @@ classdef Tab < GUIItem
 			this.Label.setForeground(java.awt.Color.black);
 		end
 		
+		%% Callbacks
 		function mouseOver(this, ~, ~)
 			this.Button.setBorderPainted(true);
 			this.Button.repaint();

@@ -19,14 +19,6 @@ classdef Pane < GUIItem
 		function add(this, Component)
 			this.JavaPane.add(Component);
 		end
-		
-		function pane = getJavaPane(this)
-			pane = this.JavaPane;
-		end
-		
-		%% Destuctor
-		function delete(~)
-		end
 	end
 	
 end

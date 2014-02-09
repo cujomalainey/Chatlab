@@ -9,5 +9,4 @@ warning('off', 'MATLAB:hg:PossibleDeprecatedJavaSetHGProperty')
 	AddPath('Client');
 	AddPath('Common');
 	main_client();
-
 end
