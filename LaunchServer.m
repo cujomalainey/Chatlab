@@ -5,9 +5,7 @@ function [] = LaunchServer()
 % 	main_server();
 	
 %% Imports for testing
-AddPath('Common/Communications');
-AddPath('Common/Communications/Encryption');
-AddPath('Common/Communications/MatrixEncoding');
+
 
 %% Do Testing stuff Here
 
