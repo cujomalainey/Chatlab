@@ -73,6 +73,10 @@ classdef TextField < GUIItem
 			end
 		end
 		
+		function setText(this, string)
+			this.JavaTextField.setText(string);
+		end
+		
 		%% Manipulate Java Element
 		function setFocus(this)
 			this.JavaTextField.requestFocus();

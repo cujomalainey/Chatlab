@@ -54,6 +54,7 @@ function [] = ChatWindow( name, token )
 	
 %% Text Field Callback
 	function textFieldEnter(src, event)
+		Chat.InputTextField.setText('');
 		disp('enter');
 	end
 	

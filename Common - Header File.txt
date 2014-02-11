@@ -41,6 +41,7 @@ TextField < GUIItem
 		char getText()
 		
 		setFocus()
+		setText(string)
 
 Button < GUIItem
 	Constructor
