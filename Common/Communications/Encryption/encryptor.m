@@ -50,34 +50,11 @@ classdef encryptor
         end %decrypt
 
         function serial = serialize(obj, matrix)
-            columns = size(matrix);
-            columns = columns(2);
-            str = '';
-            for n = 1:columns
-                for i = 1:3 
-                    if ~(n == columns && i == 3)
-                        str = strcat(str, int2str(matrix(i, n)), ',');
-                    else
-                        str = strcat(str, int2str(matrix(i, n)));
-                    end
-                end
-            end
-            serial = str;
+            serial = encodeMatrix(matrix);
         end
 
         function unserial = unserialize(obj, str)
-            str = str2num(char(strsplit(str, ',')));
-            rows = size(str);
-            for n = 1:rows(1)
-                i = mod(n, 3);
-                if i == 0
-                    columns = (n - i)/3;
-                    i = 3;
-                else
-                    columns = (n - i)/3 + 1;
-                end
-                unserial(i,columns) = str(n, 1);
-            end
+            unserial = decodeMatrix(str);
         end
 
 	end % methods
