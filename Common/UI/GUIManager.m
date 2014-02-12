@@ -73,6 +73,13 @@ classdef GUIManager < handle
 			end
 		end
 		
+		function panel = newPanel(this, Parent, Position, Title, Managed)
+			panel = Panel(Parent, Position, Title, 12);
+			if (Managed)
+				this.Elements{length(this.Elements) + 1} = panel;
+			end
+		end
+		
 		%% Create a TabPanel
 		function tabPanel = newTabPanel(this, Parent, Position, Managed)
 			tabPanel = TabPanel(Parent, Position);

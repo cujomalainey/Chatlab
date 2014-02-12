@@ -18,9 +18,9 @@ classdef Label < GUIItem
 										);
 		end
 		
-% 		function setText(this, Text)
-% 			set(this.ControlLabel, 'String', Text);
-% 		end
+		function setText(this, Text)
+			set(this.ControlLabel, 'String', Text);
+		end
 		
 		function setAlignment(this, Alignment) % left | {center} | right
 			set(this.ControlLabel, 'HorizontalAlignment', Alignment);

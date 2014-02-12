@@ -3,7 +3,6 @@ function [] = ChatWindow( name, token )
 
 %% Get a window
 	Chat.window = NewWindow(['Chat : Logged in as ', name], 670, 461, @windowWillClose);
-	set(Chat.window, 'Color', [0.93, 0.93, 0.93]);
 	
 %% Get the GUI Manager
 	GUI = GUIManager.instance();

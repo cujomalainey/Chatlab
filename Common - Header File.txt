@@ -16,6 +16,7 @@ GUIManager < handle
 		TextField newPasswordField(Parent, Position, EnterCallback, Managed)
 		Button newButton(Parent, Position, Text, PressCallback, Managed)
 		Pane newPane(Managed)
+		Panel newPanel(this, Parent, Position, Title, Managed)
 		TabPanel newTabPanel(Parent, Position, Managed)
 		ListBox newListBox(Parent, Position, Callback,  Managed)
 		
@@ -32,7 +33,8 @@ Label < GUIItem
 	Constructor
 		Label(Parent, Position, Text, FontSize)
 	Methods
-		void setAlignment(Alignment) - (left | {center} | right)
+		setAlignment(Alignment) - (left | {center} | right)
+		setText(text)
 
 TextField < GUIItem
 	Constructor
@@ -71,6 +73,11 @@ Pane < GUIItem
 		javax.swing.JPanel getPane(this)
 		
 		add(javax.swing.Component)
+
+Panel < GUIItem
+	Constructor
+		Panel(Parent, Position, Title, FontSize)
+	Methods
 
 ListBox < GUIItem
 	Constructor

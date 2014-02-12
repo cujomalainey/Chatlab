@@ -1,0 +1,14 @@
+TODO:
+	Connection Hangling
+
+Start
+	main_server - The Main file to start the server
+
+Windows
+	ServerWindow - The Server Window
+	- Start
+		ServerWindow()
+	- Out
+	
+	- In
+	
