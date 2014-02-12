@@ -1,0 +1,84 @@
+Start
+	LaunchClient - Launches The Client
+	LaunchServer - Launches The Server
+
+Utility
+	AddPath      - Add a subpath to the search directory
+	NewWindow    - Create a new figure window that is initialized
+
+
+GUIManager < handle
+	Constructor - Singleton
+		instance()
+	Methods - ('Managed' by GUIManager?)
+		Label newLabel(Parent, Position, Text, Managed)
+		TextField newTextField(Parent, Position, EnterCallback, Managed)
+		TextField newPasswordField(Parent, Position, EnterCallback, Managed)
+		Button newButton(Parent, Position, Text, PressCallback, Managed)
+		Pane newPane(Managed)
+		TabPanel newTabPanel(Parent, Position, Managed)
+		ListBox newListBox(Parent, Position, Callback,  Managed)
+		
+		removeItem(item) - Delete Managed Items
+
+GUIItem < handle
+	Constructor
+		NULL
+	Methods
+		enable()
+		disable()
+
+Label < GUIItem
+	Constructor
+		Label(Parent, Position, Text, FontSize)
+	Methods
+		void setAlignment(Alignment) - (left | {center} | right)
+
+TextField < GUIItem
+	Constructor
+		TextField(Parent, Position, isPassword, EnterCallback, EscapeCallback)
+	Methods
+		char getText()
+		
+		setFocus()
+		setText(string)
+
+Button < GUIItem
+	Constructor
+		Button(Parent, Position, Text, PressCallback, EscapeCallback)
+
+TabPanel < GUIItem
+	Constructor
+		TabPanel(Parent, Position)
+	Methods
+		int getCurrentTabIndex()
+		
+		addTab(tabName, javax.swing.JPanel)
+		removeTab(index)
+
+TextPane < GUIItem
+	Constructor
+		TextPane()
+	Methods
+		javax.swing.JTextPane getPane()
+		
+		print(message)
+
+Pane < GUIItem
+	Constructor
+		Pane()
+	Methods
+		javax.swing.JPanel getPane(this)
+		
+		add(javax.swing.Component)
+
+ListBox < GUIItem
+	Constructor
+		ListBox(Parent, Position, Callback)
+	Methods
+		int getSelectedIndex()
+		int getSelectedValue()
+		
+		setData(data) - CellArray or char
+		deselect()
+		selectIndexAtPosition(point)

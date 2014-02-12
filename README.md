@@ -6,3 +6,6 @@ MATLAB-Chat is a Client/Server encrypted chat system for communications between 
 1. Obtain a copy of the scripts
 2. Copy the ENTIRE MATLAB-Chat folder to the MATLAB directory or navigate to it from within MATLAB
 3. From MATLAB, run either `LaunchClient.m` or `LaunchServer.m`. Its that easy!
+	OR
+1. Obtain a copy of the scripts
+2. Drag the LaunchClient.m or LaunchServer.m file into the MATLAB Editor and run it.  Select "Move to folder" when the popup appears.

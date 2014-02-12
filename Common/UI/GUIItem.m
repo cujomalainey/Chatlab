@@ -3,7 +3,7 @@ classdef GUIItem < handle
 	
 	properties (SetAccess = private)
 		% These have setters/getters
-		Tag;			% The tag of this text field
+% 		Tag;			% The tag of this text field
 	end
 	
 	methods
@@ -11,14 +11,20 @@ classdef GUIItem < handle
 	
 	methods
 		%% Tag
-		function [t] = tag(this)
-			t = this.Tag;
+% 		function [t] = tag(this)
+% 			t = this.Tag;
+% 		end
+		
+% 		function setTag(this, tag)
+% 			this.Tag = tag;
+% 		end
+		
+		%% Enable/Disable
+		function disable(~)
 		end
 		
-		function setTag(this, tag)
-			this.Tag = tag;
+		function enable(~)
 		end
 	end
 	
 end
-

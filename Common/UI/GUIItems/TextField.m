@@ -24,7 +24,6 @@ classdef TextField < GUIItem
 				TextFieldName = 'javax.swing.JTextField';
 			end
 			% Create the matlab objects
-			
 			[TF.JavaTextField, TF.EditField] = javacomponent(TextFieldName, Position, Parent);
 			TF.JavaTextField.setFocusable(true);
 			% Set the callback
@@ -70,8 +69,12 @@ classdef TextField < GUIItem
 			if (this.isPassword)
 				text = (this.JavaTextField.getPassword())';
 			else
-				text = this.JavaTextField.getText();
+				text = char(this.JavaTextField.getText());
 			end
+		end
+		
+		function setText(this, string)
+			this.JavaTextField.setText(string);
 		end
 		
 		%% Manipulate Java Element
