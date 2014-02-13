@@ -89,3 +89,10 @@ ListBox < GUIItem
 		setData(data) - CellArray or char
 		deselect()
 		selectIndexAtPosition(point)
+
+JSON < handle
+	Constructor
+		* USE METHODS
+	Methods -> Class Methods
+		Struct parse(jsonString)
+		String create(struct)

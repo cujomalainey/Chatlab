@@ -1,5 +1,11 @@
 TODO:
-	Connection Hangling
+	ServerWindow Outs
+	ServerWindow Ins
+	
+	ServerLogWindow Outs
+	ServerLogWindow Ins
+	
+	Connection Handling
 
 Start
 	main_server - The Main file to start the server
@@ -12,3 +18,10 @@ Windows
 	
 	- In
 	
+	ServerLogWindow - The log window for the server
+	- Start
+		ServerLogWindow()
+	- Out
+		
+	- In
+		
