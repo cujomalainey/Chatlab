@@ -1,5 +1,5 @@
 function [] = ServerWindow()
-%ServerWindow() Create and display 
+%ServerWindow() Create and display the window
 
 	%% Get a window
 	ServerUI.window = NewWindow('Chat Server', 170, 240, @windowWillClose);

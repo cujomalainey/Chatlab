@@ -5,7 +5,7 @@ function [] = LaunchClient()
 % Hide the deprecation warning for now. Will contact mathworks to
 % find a solution soon.
 warning('off', 'MATLAB:hg:PossibleDeprecatedJavaSetHGProperty')
-
+	ClearPath();
 	AddPath('Client');
 	AddPath('Common');
 	main_client();

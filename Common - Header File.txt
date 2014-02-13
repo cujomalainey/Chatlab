@@ -4,6 +4,7 @@ Start
 
 Utility
 	AddPath      - Add a subpath to the search directory
+	ClearPath	 - Removes every path elements that is linked to a toolbox
 	NewWindow    - Create a new figure window that is initialized
 
 
