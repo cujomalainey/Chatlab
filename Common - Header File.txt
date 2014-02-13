@@ -18,6 +18,7 @@ GUIManager < handle
 		Button newButton(Parent, Position, Text, PressCallback, Managed)
 		Pane newPane(Managed)
 		Panel newPanel(this, Parent, Position, Title, Managed)
+		TextPane newTextPane(Managed)
 		TabPanel newTabPanel(Parent, Position, Managed)
 		ListBox newListBox(Parent, Position, Callback,  Managed)
 		

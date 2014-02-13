@@ -80,6 +80,14 @@ classdef GUIManager < handle
 			end
 		end
 		
+		%% Create a TextPane
+		function textPane = newTextPane(this, Managed)
+			textPane = TextPane();
+			if (Managed)
+				this.Elements{length(this.Elements) + 1} = textPane;
+			end
+		end
+		
 		%% Create a TabPanel
 		function tabPanel = newTabPanel(this, Parent, Position, Managed)
 			tabPanel = TabPanel(Parent, Position);
