@@ -2,7 +2,7 @@ function [] = ServerWindow()
 %ServerWindow() Create and display the window
 
 	%% Get a window
-	ServerUI.window = NewWindow('Chat Server', 170, 240, @windowWillClose);
+	ServerUI.window = NewWindow('Chat Server', 470, 240, @windowWillClose);
 	
 	%% Get the GUI Manager
 	GUI = GUIManager.instance();
@@ -49,6 +49,12 @@ function [] = ServerWindow()
 	ToggleButtonPosition = [10, 10, 150, 30];
 	ServerUI.ToggleButton = GUI.newButton(ServerUI.window, ToggleButtonPosition, 'Toggle Server', @toggle, 1);
 	
+	% Log Secion
+	TabPanelPosition = [170, 0, 300, 210];
+	ServerUI.TabPanel = GUI.newTabPanel(ServerUI.window, TabPanelPosition, 1);
+	ServerUI.TextPane = GUI.newTextPane(1);
+	ServerUI.TabPanel.addTab('Log', ServerUI.TextPane.getPane());
+	
 	%% Window Callback
 	function windowWillClose(~,~)
 		GUI.removeItem(ServerUI.IPNameLabel);
@@ -66,6 +72,9 @@ function [] = ServerWindow()
 		GUI.removeItem(ServerUI.UserPanel);
 		
 		GUI.removeItem(ServerUI.ToggleButton);
+		
+		GUI.removeItem(ServerUI.TabPanel);
+		GUI.removeItem(ServerUI.TextPane);
 		
 		delete(ServerUI.window);
 	end

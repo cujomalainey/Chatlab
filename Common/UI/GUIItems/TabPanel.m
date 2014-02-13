@@ -22,10 +22,10 @@ classdef TabPanel < GUIItem
 		end
 		
 		%% Tab related (tab objects)
-		function addTab(this, tabName, panel)
+		function addTab(this, tabName, javaPanel)
 			index = this.JavaTabPane.getTabCount() + 1;
-			this.Panes{index} = panel;
-			this.JavaTabPane.addTab(tabName, panel);
+			this.Panes{index} = javaPanel;
+			this.JavaTabPane.addTab(tabName, javaPanel);
 		end
 		
 		function removeTab(this, index)
@@ -34,12 +34,12 @@ classdef TabPanel < GUIItem
 			this.Panes(index) = [];
 		end
 		
-		%% Cleanup
-		function delete(this)
-			for i = 1:1:length(this.Panes)
-				delete(this.Panes{i})
-			end
-		end
+% 		%% Cleanup
+% 		function delete(this)
+% 			for i = 1:1:length(this.Panes)
+% 				delete(this.Panes{i})
+% 			end
+% 		end
 	end
 	
 end
