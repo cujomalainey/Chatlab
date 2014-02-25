@@ -50,7 +50,7 @@ function [] = ServerWindow()
 	ServerUI.ToggleButton = GUI.newButton(ServerUI.window, ToggleButtonPosition, 'Toggle Server', @toggle, 1);
 	
 	% Log Secion
-	TabPanelPosition = [170, 0, 300, 210];
+	TabPanelPosition = [170, 0, 300, 220];
 	ServerUI.TabPanel = GUI.newTabPanel(ServerUI.window, TabPanelPosition, 1);
 	ServerUI.TextPane = GUI.newTextPane(1);
 	ServerUI.TabPanel.addTab('Log', ServerUI.TextPane.getPane());

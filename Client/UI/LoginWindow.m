@@ -97,6 +97,7 @@ function [] = LoginWindow()
 	function loginSuccess()
 		AddPath('Client/UI');
 		AddPath('Client/UI/GUIItems');
+		AddPath('Client/Communication/Encryption');
 		AddPath('Common/UI');
 		AddPath('Common/UI/GUIItems');
 		
