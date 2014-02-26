@@ -9,9 +9,9 @@ classdef JString < handle
 		end
 		
 		%% Decode
-		function string = decode(bytes)
-			js = java.lang.String(bytes);
-			string = char(js);
-		end
+% 		function string = decode(bytes)
+% 			js = java.lang.String(bytes);
+% 			string = char(js);
+% 		end
 	end
 end

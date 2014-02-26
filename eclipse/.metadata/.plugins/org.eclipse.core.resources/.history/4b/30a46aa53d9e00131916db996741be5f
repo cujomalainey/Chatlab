@@ -1,0 +1,30 @@
+package ca.Skrundz.Communications;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.nio.channels.SocketChannel;
+import java.util.concurrent.ConcurrentHashMap;
+
+public class Factory {
+	private static ConcurrentHashMap<String, SocketManager> sockets = new ConcurrentHashMap<String, SocketManager>();
+	
+	public static void connectToServer(String host, int port) {
+		try {
+			// The address object
+			InetSocketAddress address = new InetSocketAddress(host, port);
+			// The actual connection object
+			SocketChannel channel = SocketChannel.open();
+			channel.configureBlocking(false);
+			// The socket object
+			Socket socket = channel.socket();
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void startServer() {
+		
+	}
+}

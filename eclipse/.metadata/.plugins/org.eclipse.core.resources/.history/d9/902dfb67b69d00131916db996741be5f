@@ -1,0 +1,9 @@
+package ca.Skrundz.Communications;
+
+import java.util.concurrent.ConcurrentHashMap;
+
+public class Factory extends Thread {
+	private static ConcurrentHashMap<String, SocketManager> sockets = new ConcurrentHashMap<String, SocketManager>();
+	
+	
+}

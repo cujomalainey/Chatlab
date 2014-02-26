@@ -1,0 +1,79 @@
+package ca.Skrundz.Communications;
+
+import java.io.IOException;
+import java.nio.channels.Selector;
+import java.nio.channels.SocketChannel;
+import java.util.concurrent.ConcurrentHashMap;
+
+
+public class SocketManager extends Thread {
+	
+	private static ConcurrentHashMap<String, SocketManager> socketManagers = new ConcurrentHashMap<String, SocketManager>();
+	
+	//====================================================================
+	// MATLAB Event callback
+	//====================================================================
+	private java.util.Vector<SocketListener> eventListeners	= new java.util.Vector<SocketListener>(4,1);
+	
+	public synchronized void addListener(SocketListener lis) {
+		eventListeners.addElement(lis);
+	}
+	
+	public synchronized void removeListener(SocketListener lis) {
+		eventListeners.removeElement(lis);
+	}
+	
+	public interface SocketListener extends java.util.EventListener {
+		void receiveMessage(String messageStructure);
+		void acceptConnection(SocketChannel channel);
+	}
+	// End ================================================================
+	
+	public static class UniqueInt {
+		private static int id	= 0;
+		public static int get() {
+			id = (id == Integer.MAX_VALUE) ? 1 : id+1;
+			return id;
+		}
+	}
+	
+	private Selector selector = null;
+	
+	private boolean shutdown = false;
+	
+	public static SocketManager init() {
+		String name = String.valueOf(UniqueInt.get());
+		SocketManager manager = new SocketManager(name);
+		manager.start();
+		socketManagers.put(name, manager);
+		return manager;
+	}
+	
+	private SocketManager(String name) {
+		super(name);
+		try {
+			selector = Selector.open();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void run() {
+		try {
+			while (true) {
+				// Select the next channel
+				selector.select();
+				
+				if(shutdown == true) {
+					break;
+				}
+			}
+		}
+	}
+	
+	public void close() {
+		shutdown	= true;
+		selector.wakeup();
+	}
+	
+}
