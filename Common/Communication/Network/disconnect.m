@@ -2,7 +2,8 @@ function disconnect(channel)
 %disconnect Closes the channel
 	try
 		pause(1);
-		sockChannel.close();
+		channel.close();
 	catch
+		rethrow(lasterror);
 	end
 end

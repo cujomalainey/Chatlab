@@ -81,6 +81,7 @@ function [] = ServerWindow()
 	
 	%% Callbacks
 	function toggle(~)
+		serverTest();
 		disp('toggled')
 	end
 	

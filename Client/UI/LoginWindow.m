@@ -89,6 +89,7 @@ function [] = LoginWindow()
 	function performLogin()
 		%% TODO: LOGIN
 		disp('Loggin in...');
+		serverTest();
 		loginSuccess();
 	end
 
@@ -97,9 +98,8 @@ function [] = LoginWindow()
 	function loginSuccess()
 		AddPath('Client/UI');
 		AddPath('Client/UI/GUIItems');
+		AddPath('Client/Communication');
 		AddPath('Client/Communication/Encryption');
-		AddPath('Common/UI');
-		AddPath('Common/UI/GUIItems');
 		
 		a = Login.UserField.getText();
 		

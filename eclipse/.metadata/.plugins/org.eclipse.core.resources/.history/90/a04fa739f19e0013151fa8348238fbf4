@@ -99,7 +99,7 @@ public class SocketManager extends Thread {
 	
 	public static void closeAll() {
 		for (Entry<String, SocketManager> entry : socketManagers.entrySet()) {
-			entry.getValue().close();
+			
 		}
 	}
 	

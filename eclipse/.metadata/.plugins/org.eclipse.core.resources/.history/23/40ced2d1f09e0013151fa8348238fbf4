@@ -15,7 +15,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -97,12 +96,6 @@ public class SocketManager extends Thread {
 		return manager;
 	}
 	
-	public static void closeAll() {
-		for (Entry<String, SocketManager> entry : socketManagers.entrySet()) {
-			entry.getValue().close();
-		}
-	}
-	
 	private SocketManager(String name) {
 		super(name);
 		try {
@@ -160,6 +153,7 @@ public class SocketManager extends Thread {
 							SocketChannel keyChannel = (SocketChannel)key.channel();
 							ByteBuffer buffer = buffers.get(keyChannel);
 							
+//							int capacity = buffer.capacity();
 							int length	= 0;
 							
 							try {
