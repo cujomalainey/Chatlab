@@ -7,6 +7,12 @@ Utility
 	ClearPath	 - Removes every path elements that is linked to a toolbox
 	NewWindow    - Create a new figure window that is initialized
 
+Network
+	connect(host, port, receiveCallback)	- Creates a channel and connects to the server
+	bindServer(host, port, receiveCallback, acceptCallback) - Binds a channel to a port. Accepts all incoming connections
+	disconnect(channel)						- Disconnects the channel from the other end and performs the cleanup
+	sendMessage(channel, string)			- Send the string across the channel
+
 
 GUIManager < handle
 	Constructor - Singleton
@@ -98,3 +104,9 @@ JSON < handle
 	Methods -> Class Methods
 		Struct parse(jsonString)
 		String create(struct)
+
+JString < handle
+	Constructor
+		* USE METHODS
+	Methods -> Class Methods
+		byte[] encode(string)

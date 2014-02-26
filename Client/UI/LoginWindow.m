@@ -51,7 +51,10 @@ function [] = LoginWindow()
 
 %% Window Callback
 	function windowWillClose(~,~)
-		disconnect(Login.channel);
+		try
+			disconnect(Login.channel);
+		catch
+		end
 		ca.Skrundz.Communications.SocketManager.closeAll();
 		
 		GUI.removeItem(Login.ServerLabel);
@@ -97,7 +100,7 @@ function [] = LoginWindow()
 % 		serverTest();
 		port = 10101;
 		Login.channel = connect('localhost', port, @receiveMessage);
-		sendMessage(Login.channel, sprintf('I want to login.\nUsername: %s\nPassword: %s', Login.UserField.getText(), Login.PassField.getText()));
+		sendMessage(Login.channel, sprintf('I want to login.\nUsername: %s\nPassword: %s', Login.UserField.getText(), MD5.hash(Login.PassField.getText())));
 % 		loginSuccess();
 	end
 	
@@ -111,8 +114,6 @@ function [] = LoginWindow()
 	function loginSuccess()
 		AddPath('Client/UI');
 		AddPath('Client/UI/GUIItems');
-		AddPath('Client/Communication');
-		AddPath('Client/Communication/Encryption');
 		
 		a = Login.UserField.getText();
 		

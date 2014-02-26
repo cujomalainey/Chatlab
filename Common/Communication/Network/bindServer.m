@@ -1,8 +1,8 @@
 function [channel] = bindServer(host, port, receiveCallback, acceptCallback)
 %bindServer Create a socket on a port at the local address
-% 	channel = connect(char(java.net.InetAddress.getLocalHost().getHostAddress()), port, 1);
 	try
 		%% Create the address
+		%char(java.net.InetAddress.getLocalHost().getHostAddress())
 		address = java.net.InetSocketAddress(host, port);
 		%% Create The Channel
 		channel = java.nio.channels.ServerSocketChannel.open();
