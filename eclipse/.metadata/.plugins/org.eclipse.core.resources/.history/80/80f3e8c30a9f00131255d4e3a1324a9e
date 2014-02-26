@@ -80,7 +80,7 @@ public class SocketManager extends Thread {
 		public MessageEvent(Object source, SocketChannel channel, byte[] data) {
 			super(source);
 			this.channel = channel;
-			this.message = new String(data);
+			this.message = data;
 		}
 	}
 	// End ================================================================
@@ -135,7 +135,7 @@ public class SocketManager extends Thread {
 	private void fireReceiveEvent(SocketChannel channel, byte[] data) {
 		for( SocketListener listener : eventListeners ) {
 			if( listener != null ) {
-				listener.receiveMessage(new MessageEvent(this, channel, data));
+				listener.receiveMessage(channel, new String(data));
 			}
 		}
 	}

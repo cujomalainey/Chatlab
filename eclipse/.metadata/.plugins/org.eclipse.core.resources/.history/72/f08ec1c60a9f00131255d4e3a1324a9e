@@ -80,7 +80,7 @@ public class SocketManager extends Thread {
 		public MessageEvent(Object source, SocketChannel channel, byte[] data) {
 			super(source);
 			this.channel = channel;
-			this.message = new String(data);
+			this.message = data;
 		}
 	}
 	// End ================================================================

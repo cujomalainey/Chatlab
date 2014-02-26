@@ -55,8 +55,13 @@ function [] = ServerWindow()
 	ServerUI.TextPane = GUI.newTextPane(1);
 	ServerUI.TabPanel.addTab('Log', ServerUI.TextPane.getPane());
 	
+	Server.server = [];
+	
 	%% Window Callback
 	function windowWillClose(~,~)
+		disconnect(Server.server);
+		ca.Skrundz.Communications.SocketManager.closeAll();
+		
 		GUI.removeItem(ServerUI.IPNameLabel);
 		GUI.removeItem(ServerUI.ServerActiveNameLabel);
 		GUI.removeItem(ServerUI.RoomCountNameLabel);
@@ -81,8 +86,25 @@ function [] = ServerWindow()
 	
 	%% Callbacks
 	function toggle(~)
-		serverTest();
+% 		serverTest();
+		
+		hostName = 'localhost';
+		port = int32(10101);
+		Server.server = bindServer(hostName, port, @receive, @accept);
+		
 		disp('toggled')
+	end
+	
+	function accept(~, socket)
+		disp('Accept:');
+		disp(socket);
+	end
+	
+	function receive(~, event)
+		disp('Receive:');
+		disp(char(event.message));
+		pause(0.1);
+		sendMessage(event.channel, 'Hello');
 	end
 	
 end

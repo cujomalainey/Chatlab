@@ -18,7 +18,7 @@ function serverTest()
 		sock = socket;
 	end
 	
-	function receive(id, string)
+	function receive(id, channel, string)
 		disp('Receive:');
 		disp(char(string));
 	end

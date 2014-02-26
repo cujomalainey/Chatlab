@@ -68,20 +68,8 @@ public class SocketManager extends Thread {
 	}
 	
 	public interface SocketListener extends java.util.EventListener {
-		void receiveMessage(MessageEvent event);
+		void receiveMessage(SocketChannel channel, String messageStructure);
 		void acceptConnection(SocketChannel channel);
-	}
-	
-	public class MessageEvent extends java.util.EventObject {
-		private static final long serialVersionUID = 1L;
-		public SocketChannel channel = null;
-		public String message = null;
-
-		public MessageEvent(Object source, SocketChannel channel, byte[] data) {
-			super(source);
-			this.channel = channel;
-			this.message = new String(data);
-		}
 	}
 	// End ================================================================
 	
@@ -135,7 +123,7 @@ public class SocketManager extends Thread {
 	private void fireReceiveEvent(SocketChannel channel, byte[] data) {
 		for( SocketListener listener : eventListeners ) {
 			if( listener != null ) {
-				listener.receiveMessage(new MessageEvent(this, channel, data));
+				listener.receiveMessage(new String(data));
 			}
 		}
 	}
@@ -187,7 +175,7 @@ public class SocketManager extends Thread {
 								while( buffer.remaining() > 0) {
 									byte[] data = new byte[buffer.remaining()];
 									buffer.get(data);
-									fireReceiveEvent(keyChannel, data);
+									fireReceiveEvent(data);
 								}
 								buffer.compact();
 							} else if (length < 0) {

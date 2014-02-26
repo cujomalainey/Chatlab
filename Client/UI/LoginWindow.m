@@ -39,7 +39,9 @@ function [] = LoginWindow()
 		'StartDelay', 0.01...
 		);
 	start(Login.initTimer);
-
+	
+	Login.channel = [];
+	
 %% Timer Callback for PostInit
 	function postInit(~,~)
 		stop(Login.initTimer);
@@ -49,6 +51,9 @@ function [] = LoginWindow()
 
 %% Window Callback
 	function windowWillClose(~,~)
+		disconnect(Login.channel);
+		ca.Skrundz.Communications.SocketManager.closeAll();
+		
 		GUI.removeItem(Login.ServerLabel);
 		GUI.removeItem(Login.PassLabel);
 		GUI.removeItem(Login.UserLabel);
@@ -89,10 +94,18 @@ function [] = LoginWindow()
 	function performLogin()
 		%% TODO: LOGIN
 		disp('Loggin in...');
-		serverTest();
-		loginSuccess();
+% 		serverTest();
+		port = 10101;
+		Login.channel = connect('localhost', port, @receiveMessage);
+		sendMessage(Login.channel, sprintf('I want to login.\nUsername: %s\nPassword: %s', Login.UserField.getText(), Login.PassField.getText()));
+% 		loginSuccess();
 	end
-
+	
+	function receiveMessage(~, event)
+		string = char(event.message);
+		disp(string);
+	end
+	
 %% Login Callbacks
 	% Move to chat window
 	function loginSuccess()
