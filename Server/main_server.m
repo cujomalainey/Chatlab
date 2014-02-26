@@ -4,6 +4,8 @@ function [] = main_client()
 	AddPath('Server/UI');
 	AddPath('Common/Communication');
 	AddPath('Common/Communication/Network');
+	AddPath('Common/Communication/Network/Interface');
+	AddPath('Common/Communication/Network/Packets');
 	AddPath('Common/UI');
 	AddPath('Common/UI/GUIItems');
 	%% Install Java Bits
