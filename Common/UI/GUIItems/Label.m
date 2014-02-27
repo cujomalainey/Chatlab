@@ -26,6 +26,10 @@ classdef Label < GUIItem
 			set(this.ControlLabel, 'HorizontalAlignment', Alignment);
 		end
 		
+		function setColor(this, Color)
+			set(this.ControlLabel, 'ForegroundColor', Color);
+		end
+		
 		%% Cleanup
 		function delete(this)
 			delete(this.ControlLabel);

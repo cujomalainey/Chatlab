@@ -26,11 +26,12 @@ function [] = ServerWindow()
 	ServerUI.OnlineUsersNameLabel.setAlignment('left');
 	% Label (Values)
 	IPLabelPosition = [50, 185, 100, 20];
-	ServerUI.IPLabel = GUI.newLabel(ServerUI.window, IPLabelPosition, '255.255.255.255', 1);
+	ServerUI.IPLabel = GUI.newLabel(ServerUI.window, IPLabelPosition, char(java.net.InetAddress.getLocalHost().getHostAddress()), 1);
 	ServerUI.IPLabel.setAlignment('right');
 	ServerActiveLabelPosition = [100, 160, 50, 20];
 	ServerUI.ServerActiveLabel = GUI.newLabel(ServerUI.window, ServerActiveLabelPosition, 'Inactive', 1);
 	ServerUI.ServerActiveLabel.setAlignment('right');
+	ServerUI.ServerActiveLabel.setColor([1.0, 0, 0]);
 	RoomCountLabelPosition = [100, 130, 50, 20];
 	ServerUI.RoomCountLabel = GUI.newLabel(ServerUI.window, RoomCountLabelPosition, '0', 1);
 	ServerUI.RoomCountLabel.setAlignment('right');
@@ -56,10 +57,23 @@ function [] = ServerWindow()
 	ServerUI.TabPanel.addTab('Log', ServerUI.TextPane.getPane());
 	
 	Server.server = [];
+	Server.active = 0;
+	
+	Server.users = [];
 	
 	%% Window Callback
 	function windowWillClose(~,~)
-		disconnect(Server.server);
+		try
+			disconnect(Server.server);
+		catch
+		end
+		for i = 1:1:length(Server.users)
+			try
+				disconnect(Server.users{i});
+				Server.users(i) = [];
+			catch
+			end
+		end
 		ca.Skrundz.Communications.SocketManager.closeAll();
 		
 		GUI.removeItem(ServerUI.IPNameLabel);
@@ -86,25 +100,55 @@ function [] = ServerWindow()
 	
 	%% Callbacks
 	function toggle(~)
-% 		serverTest();
-		
-		hostName = 'localhost';
-		port = int32(10101);
-		Server.server = bindServer(hostName, port, @receive, @accept);
-		
-		disp('toggled')
+		if ~Server.active
+			ServerUI.TextPane.clear();
+			ServerUI.TextPane.print('Starting Server...');
+			hostName = 'localhost';
+			port = int32(10101);
+			try
+				Server.server = bindServer(hostName, port, @receive, @accept);
+				ServerUI.ServerActiveLabel.setText('Active');
+				ServerUI.ServerActiveLabel.setColor([0, 0.8, 0]);
+				Server.active = 1;
+			catch e
+				ServerUI.TextPane.print('Could not bind the port');
+				ServerUI.TextPane.print('Server Not started');
+				rethrow(e);
+			end
+			ServerUI.TextPane.clear();
+			ServerUI.TextPane.print('Server Started');
+		else
+			ServerUI.TextPane.print('Stopping Server...');
+			try
+				disconnect(Server.server);
+				ca.Skrundz.Communications.SocketManager.closeAll();
+				ServerUI.ServerActiveLabel.setText('Inactive');
+				ServerUI.ServerActiveLabel.setColor([1.0, 0, 0]);
+				Server.active = 0;
+			catch e
+				ServerUI.TextPane.print('Could not stop server?!?!?!?!');
+				rethrow(e);
+			end
+			ServerUI.TextPane.print('Stopped');
+		end
 	end
 	
-	function accept(~, socket)
+	function accept(~, channel)
+		ServerUI.TextPane.print(sprintf('Client connected from: %s', char(channel.socket().getRemoteSocketAddress().toString())));
+		
 		disp('Accept:');
-		disp(socket);
+		Server.users{end+1} = channel;
+		disp(Server.users);
+		disp(channel);
+		disp(channel.socket().getRemoteSocketAddress());
 	end
 	
 	function receive(~, event)
 		disp('Receive:');
-		disp(char(event.message));
+		structure = JSON.parse(char(event.message));
+		disp(structure);
 		pause(0.1);
-		sendMessage(event.channel, 'Hello');
+		sendMessage(event.channel, struct('title', 'hello'));
 	end
 	
 end

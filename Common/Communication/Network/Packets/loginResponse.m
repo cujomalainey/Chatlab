@@ -1,0 +1,6 @@
+function [structure] = loginResponse(success)
+%loginRequest Create a request to log into the server
+	structure = struct(	'Type', 'LoginResponse',...
+						'Success', success...
+						);
+end

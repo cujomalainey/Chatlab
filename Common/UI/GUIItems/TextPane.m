@@ -24,7 +24,15 @@ classdef TextPane < GUIItem
 		
 		%% Print a message to the window
 		function print(this, message)
-			this.JavaTextPane.setText(sprintf('%s\n%s', char(this.JavaTextPane.getText()), message));
+			if isempty(char(this.JavaTextPane.getText()))
+				this.JavaTextPane.setText(sprintf('%s', char(this.JavaTextPane.getText()), message));
+			else
+				this.JavaTextPane.setText(sprintf('%s\n%s', char(this.JavaTextPane.getText()), message));
+			end
+		end
+		
+		function clear(this)
+			this.JavaTextPane.setText('');
 		end
 		
 		%% Destructor

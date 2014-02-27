@@ -1,9 +1,9 @@
 function disconnect(channel)
 %disconnect Closes the channel
 	try
-		pause(1);
+		pause(0.1);
 		channel.close();
-	catch
-		rethrow(lasterror);
+	catch e
+		rethrow(e);
 	end
 end

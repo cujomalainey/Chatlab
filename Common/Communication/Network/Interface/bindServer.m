@@ -23,6 +23,5 @@ function [channel] = bindServer(host, port, receiveCallback, acceptCallback)
 			channel.close();
 		catch
 		end
-		rethrow(lasterror);
 	end
 end

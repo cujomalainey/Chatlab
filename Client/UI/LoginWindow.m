@@ -100,13 +100,12 @@ function [] = LoginWindow()
 % 		serverTest();
 		port = 10101;
 		Login.channel = connect('localhost', port, @receiveMessage);
-		sendMessage(Login.channel, sprintf('I want to login.\nUsername: %s\nPassword: %s', Login.UserField.getText(), MD5.hash(Login.PassField.getText())));
+		sendMessage(Login.channel, loginRequest(Login.UserField.getText(), Login.PassField.getText()));
 % 		loginSuccess();
 	end
 	
 	function receiveMessage(~, event)
-		string = char(event.message);
-		disp(string);
+		disp(JSON.parse(char(event.message)));
 	end
 	
 %% Login Callbacks

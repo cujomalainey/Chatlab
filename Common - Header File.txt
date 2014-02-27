@@ -13,6 +13,10 @@ Network
 	disconnect(channel)						- Disconnects the channel from the other end and performs the cleanup
 	sendMessage(channel, string)			- Send the string across the channel
 
+Packets
+	handshake(key, step)				- Create a handshake packet. step = Init, Response, Complete --> Client sends response
+	loginRequest(username, password)	- Attempt to login
+	loginResponse(success)				- The response from the server. success = True, False
 
 GUIManager < handle
 	Constructor - Singleton
@@ -43,6 +47,7 @@ Label < GUIItem
 	Methods
 		setAlignment(Alignment) - (left | {center} | right)
 		setText(text)
+		setColor(Color)
 
 TextField < GUIItem
 	Constructor
@@ -73,6 +78,7 @@ TextPane < GUIItem
 		javax.swing.JTextPane getPane()
 		
 		print(message)
+		clear()
 
 Pane < GUIItem
 	Constructor

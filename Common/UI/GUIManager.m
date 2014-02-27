@@ -1,23 +1,9 @@
 classdef GUIManager < handle
 	%GUIManager A class that manages the GUI
-	%   Detailed explanation goes here
 	
 	properties (Hidden)
 		Elements;
 	end
-	
-	%% The static singleton methods
-% 	methods (Static)
-% % 		guiManager;
-% 	end
-	
-	%% The contructor (private use only!)
-% 	methods (Access=private)
-% 		% Use instance() instead
-% % 		function manager = GUIManager()
-% % 			manager.Elements = cell(0);
-% % 		end
-% 	end
 	
 	%% The designated public contructor
 	methods(Static)
