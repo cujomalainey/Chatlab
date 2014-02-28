@@ -1,5 +1,0 @@
-package ca.Skrundz.Communications;
-
-public class SocketManager extends Thread {
-
-}

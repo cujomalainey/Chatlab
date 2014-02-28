@@ -1,7 +1,0 @@
-package ca.Skrundz.Communications.Events;
-
-public class SocketEvents extends java.util.EventListener {
-	
-	
-	
-}

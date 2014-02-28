@@ -1,9 +1,0 @@
-package ca.Skrundz.Communications;
-
-public class SocketManager extends Thread {
-	
-	public interface SocketEvents extends java.util.EventListener {
-		void receiveMessage(String messageStructure);
-	}
-	
-}
