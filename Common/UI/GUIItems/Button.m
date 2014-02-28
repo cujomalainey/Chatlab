@@ -10,19 +10,24 @@ classdef Button < GUIItem
 	
 	methods
 		%% Constructor
-		function B = Button(Parent, Position, Text, PressCallback, EscapeCallback)
+		function B = Button(Parent, Position, Text, PressCallback)%, EscapeCallback)
 			% Initialize the JButton withing MATLAB
 			[B.JavaButton, B.ControlButton] = javacomponent('javax.swing.JButton', Position, Parent);
 			
 			B.PressCallback = PressCallback;
-			B.EscapeCallback = EscapeCallback;
+% 			B.EscapeCallback = EscapeCallback;
 			
 			set(B.JavaButton,...
 					'Text', Text,...
 					'Opaque', false,...
-					'MouseClickedCallback', @B.click,...
-					'KeyPressedCallback', @B.keyPress...
+					'MouseClickedCallback', @B.click...
+					...'KeyPressedCallback', @B.keyPress...
 					);
+			B.JavaButton.setFocusable(false);
+		end
+		
+		function setText(this, text)
+			this.JavaButton.setText(text);
 		end
 		
 % 		function b = javaButton(this)
@@ -36,9 +41,9 @@ classdef Button < GUIItem
 	
 	methods (Access = private)
 		%% Callbacks
-		function click(this, src, event) % First argument is 'this'
-			this.disable();
-			this.enable();
+		function click(this, ~, ~) % First argument is 'this'
+% 			this.disable();
+% 			this.enable();
 			this.PressCallback(this);
 		end
 		
@@ -56,9 +61,9 @@ classdef Button < GUIItem
 	
 	methods
 		%% Enable/Disable
-		function disable(this)
-			this.JavaButton.setFocusable(false);
-		end
+% 		function disable(this)
+% 			this.JavaButton.setFocusable(false);
+% 		end
 		
 % 		function enable(this)
 % 			this.JavaButton.setFocusable(true);

@@ -45,7 +45,7 @@ classdef GUIManager < handle
 		
 		%% Create a button
 		function button = newButton(this, Parent, Position, Text, PressCallback, Managed)
-			button = Button(Parent, Position, Text, PressCallback, @this.escape);
+			button = Button(Parent, Position, Text, PressCallback);%, @this.escape);
 			if (Managed)
 				this.Elements{length(this.Elements) + 1} = button;
 			end

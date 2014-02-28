@@ -22,7 +22,6 @@ function [ channel ] = connect(host, port, receiveCallback)
 			pause(0.1);
 		end
 	catch
-		disp('failed to connect');
 		try
 			channel.close();
 		catch

@@ -95,12 +95,17 @@ function [] = LoginWindow()
 	end
 
 	function performLogin()
-		%% TODO: LOGIN
-		disp('Loggin in...');
-% 		serverTest();
+		Login.Button.setText('Connecting');
 		port = 10101;
-		Login.channel = connect('localhost', port, @receiveMessage);
-		sendMessage(Login.channel, loginRequest(Login.UserField.getText(), Login.PassField.getText()));
+		host = 'localhost';
+		Login.channel = connect(host, port, @receiveMessage);
+		% Make sure the connection is successful
+		if (isempty(Login.channel))
+			errordlg(sprintf('Could not connect to %s', host), 'Error', 'modal');
+			Login.Button.setText('Login');
+		else
+			sendMessage(Login.channel, loginRequest(Login.UserField.getText(), Login.PassField.getText()));
+		end
 % 		loginSuccess();
 	end
 	

@@ -61,6 +61,8 @@ TextField < GUIItem
 Button < GUIItem
 	Constructor
 		Button(Parent, Position, Text, PressCallback, EscapeCallback)
+	Methods
+		setText(string)
 
 TabPanel < GUIItem
 	Constructor

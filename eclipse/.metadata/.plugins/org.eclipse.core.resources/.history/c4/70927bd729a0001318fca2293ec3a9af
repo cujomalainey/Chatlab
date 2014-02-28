@@ -121,7 +121,7 @@ public class SocketManager extends Thread {
 		try {
 			selector = Selector.open();
 		} catch (IOException e) {
-//			e.printStackTrace();
+			e.printStackTrace();
 		}
 	}
 	
@@ -243,7 +243,7 @@ public class SocketManager extends Thread {
 		} catch (ClosedSelectorException cse) {
 			
 		} catch (IOException e) {
-//			e.printStackTrace();
+			e.printStackTrace();
 		} finally {
 			shutdown();
 		}
@@ -268,7 +268,7 @@ public class SocketManager extends Thread {
 		try {
 			selector.close();
 		} catch (IOException e) {
-//			e.printStackTrace();
+			e.printStackTrace();
 		}
 		socketManagers.remove(this);
 	}
@@ -310,7 +310,7 @@ public class SocketManager extends Thread {
 		try {
 			channel.register(selector, selectionKeys);
 		} catch (ClosedChannelException e) {
-//			e.printStackTrace();
+			e.printStackTrace();
 		}
 	}
 	
@@ -322,14 +322,14 @@ public class SocketManager extends Thread {
 			channel.register(selector, selectionKeys);
 			buffers.put(channel, ByteBuffer.allocate(1024*1024*2));
 		} catch (ClosedChannelException e) {
-//			e.printStackTrace();
+			
 		} catch (IOException e) {
 			try {
 				channel.close();
 			} catch (IOException e1) {
 				
 			}
-//			e.printStackTrace();
+			e.printStackTrace();
 		}
 	}
 	

@@ -121,7 +121,7 @@ public class SocketManager extends Thread {
 		try {
 			selector = Selector.open();
 		} catch (IOException e) {
-//			e.printStackTrace();
+			e.printStackTrace();
 		}
 	}
 	
@@ -243,7 +243,7 @@ public class SocketManager extends Thread {
 		} catch (ClosedSelectorException cse) {
 			
 		} catch (IOException e) {
-//			e.printStackTrace();
+			e.printStackTrace();
 		} finally {
 			shutdown();
 		}
@@ -268,7 +268,7 @@ public class SocketManager extends Thread {
 		try {
 			selector.close();
 		} catch (IOException e) {
-//			e.printStackTrace();
+			e.printStackTrace();
 		}
 		socketManagers.remove(this);
 	}
@@ -295,7 +295,7 @@ public class SocketManager extends Thread {
 	// register()
 	// Private methods only to be called by the selector thread.
 	//==========================================================
-	private void register(RegisterRequest request) {
+	private void register(RegisterRequest request) throws IOException {
 		if(request.channel instanceof SocketChannel) {
 			SocketChannel channel = (SocketChannel) request.channel;
 			register(channel, selector, SelectionKey.OP_READ );
@@ -310,26 +310,25 @@ public class SocketManager extends Thread {
 		try {
 			channel.register(selector, selectionKeys);
 		} catch (ClosedChannelException e) {
-//			e.printStackTrace();
+			e.printStackTrace();
 		}
 	}
 	
 	//NOTE: you can NOT register a blocking socket with a selector.  If you try 
 	// to do it an IllegalBlockingModeException will be thrown.
-	private void register(SocketChannel channel, Selector selector, int selectionKeys) {
+	private void register(SocketChannel channel, Selector selector, int selectionKeys) throws IOException {
 		try {
 			channel.configureBlocking(false);
 			channel.register(selector, selectionKeys);
 			buffers.put(channel, ByteBuffer.allocate(1024*1024*2));
 		} catch (ClosedChannelException e) {
-//			e.printStackTrace();
+			throw e;
 		} catch (IOException e) {
 			try {
 				channel.close();
 			} catch (IOException e1) {
-				
 			}
-//			e.printStackTrace();
+			throw e;
 		}
 	}
 	

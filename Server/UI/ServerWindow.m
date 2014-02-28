@@ -57,7 +57,6 @@ function [] = ServerWindow()
 	ServerUI.TabPanel.addTab('Log', ServerUI.TextPane.getPane());
 	
 	Server.server = [];
-	Server.active = 0;
 	
 	Server.users = [];
 	
@@ -100,7 +99,7 @@ function [] = ServerWindow()
 	
 	%% Callbacks
 	function toggle(~)
-		if ~Server.active
+		if isempty(Server.server)
 			ServerUI.TextPane.clear();
 			ServerUI.TextPane.print('Starting Server...');
 			hostName = 'localhost';
@@ -109,7 +108,6 @@ function [] = ServerWindow()
 				Server.server = bindServer(hostName, port, @receive, @accept);
 				ServerUI.ServerActiveLabel.setText('Active');
 				ServerUI.ServerActiveLabel.setColor([0, 0.8, 0]);
-				Server.active = 1;
 			catch e
 				ServerUI.TextPane.print('Could not bind the port');
 				ServerUI.TextPane.print('Server Not started');
@@ -121,10 +119,10 @@ function [] = ServerWindow()
 			ServerUI.TextPane.print('Stopping Server...');
 			try
 				disconnect(Server.server);
+				Server.server = [];
 				ca.Skrundz.Communications.SocketManager.closeAll();
 				ServerUI.ServerActiveLabel.setText('Inactive');
 				ServerUI.ServerActiveLabel.setColor([1.0, 0, 0]);
-				Server.active = 0;
 			catch e
 				ServerUI.TextPane.print('Could not stop server?!?!?!?!');
 				rethrow(e);
@@ -135,12 +133,6 @@ function [] = ServerWindow()
 	
 	function accept(~, channel)
 		ServerUI.TextPane.print(sprintf('Client connected from: %s', char(channel.socket().getRemoteSocketAddress().toString())));
-		
-		disp('Accept:');
-		Server.users{end+1} = channel;
-		disp(Server.users);
-		disp(channel);
-		disp(channel.socket().getRemoteSocketAddress());
 	end
 	
 	function receive(~, event)
