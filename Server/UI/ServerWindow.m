@@ -2,7 +2,7 @@ function [] = ServerWindow()
 %ServerWindow() Create and display the window
 
 	%% Get a window
-	ServerUI.window = NewWindow('Chat Server', 470, 240, @windowWillClose);
+	ServerUI.window = NewWindow('Chat Server', 500, 240, @windowWillClose);
 	
 	%% Get the GUI Manager
 	GUI = GUIManager.instance();
@@ -25,25 +25,25 @@ function [] = ServerWindow()
 	ServerUI.OnlineUsersNameLabel = GUI.newLabel(ServerUI.window, OnlineUsersNameLabelPosition, 'Online: ', 1);
 	ServerUI.OnlineUsersNameLabel.setAlignment('left');
 	% Label (Values)
-	IPLabelPosition = [50, 185, 100, 20];
+	IPLabelPosition = [40, 185, 120, 20];
 	ServerUI.IPLabel = GUI.newLabel(ServerUI.window, IPLabelPosition, char(java.net.InetAddress.getLocalHost().getHostAddress()), 1);
 	ServerUI.IPLabel.setAlignment('right');
-	ServerActiveLabelPosition = [100, 160, 50, 20];
+	ServerActiveLabelPosition = [100, 160, 60, 20];
 	ServerUI.ServerActiveLabel = GUI.newLabel(ServerUI.window, ServerActiveLabelPosition, 'Inactive', 1);
 	ServerUI.ServerActiveLabel.setAlignment('right');
 	ServerUI.ServerActiveLabel.setColor([1.0, 0, 0]);
-	RoomCountLabelPosition = [100, 130, 50, 20];
+	RoomCountLabelPosition = [100, 130, 60, 20];
 	ServerUI.RoomCountLabel = GUI.newLabel(ServerUI.window, RoomCountLabelPosition, '0', 1);
 	ServerUI.RoomCountLabel.setAlignment('right');
-	RegisteredUsersLabelPosition = [100, 80, 50, 20];
+	RegisteredUsersLabelPosition = [100, 80, 60, 20];
 	ServerUI.RegisteredUsersLabel = GUI.newLabel(ServerUI.window, RegisteredUsersLabelPosition, '0', 1);
 	ServerUI.RegisteredUsersLabel.setAlignment('right');
-	OnlineUsersLabelPosition = [100, 55, 50, 20];
+	OnlineUsersLabelPosition = [100, 55, 60, 20];
 	ServerUI.OnlineUsersLabel = GUI.newLabel(ServerUI.window, OnlineUsersLabelPosition, '0', 1);
 	ServerUI.OnlineUsersLabel.setAlignment('right');
 	
 	% Panels
-	UserPanelPosition = [10, 50, 150, 75];
+	UserPanelPosition = [10, 50, 160, 75];
 	ServerUI.UserPanel = GUI.newPanel(ServerUI.window, UserPanelPosition, 'Users', 1);
 	
 	% Buttons
@@ -51,7 +51,7 @@ function [] = ServerWindow()
 	ServerUI.ToggleButton = GUI.newButton(ServerUI.window, ToggleButtonPosition, 'Toggle Server', @toggle, 1);
 	
 	% Log Secion
-	TabPanelPosition = [170, 0, 300, 220];
+	TabPanelPosition = [170, 0, 330, 220];
 	ServerUI.TabPanel = GUI.newTabPanel(ServerUI.window, TabPanelPosition, 1);
 	ServerUI.TextPane = GUI.newTextPane(1);
 	ServerUI.TabPanel.addTab('Log', ServerUI.TextPane.getPane());
@@ -113,6 +113,7 @@ function [] = ServerWindow()
 				Server.Servers.localhost = bindServer(char(java.net.InetAddress.getLoopbackAddress().getHostAddress())	, Server.Port, @receive, @accept);
 				Server.Servers.localIP   = bindServer(char(java.net.InetAddress.getLocalHost().getHostAddress())		, Server.Port, @receive, @accept);
 				ServerUI.ServerActiveLabel.setText('Active');
+				ServerUI.IPLabel.setText(sprintf('%s:%d', char(java.net.InetAddress.getLocalHost().getHostAddress()), Server.Port));
 				ServerUI.ServerActiveLabel.setColor([0, 0.8, 0]);
 			catch e
 				ServerUI.TextPane.print('Could not bind the port');
@@ -130,6 +131,7 @@ function [] = ServerWindow()
 				Server.Servers.localIP = [];
 				ca.Skrundz.Communications.SocketManager.closeAll();
 				ServerUI.ServerActiveLabel.setText('Inactive');
+				ServerUI.IPLabel.setText(char(java.net.InetAddress.getLocalHost().getHostAddress()));
 				ServerUI.ServerActiveLabel.setColor([1.0, 0, 0]);
 				ServerUI.TextPane.print('Stopped');
 			catch e
