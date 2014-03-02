@@ -142,6 +142,13 @@ public class SocketManager extends Thread {
 	}
 	
 	private void fireDisconnectEvent(SocketChannel channel) {
+		synchronized(registerRequests) {
+			for (RegisterRequest request : registerRequests) {
+				if (request.channel.equals(channel)) {
+					registerRequests.remove(request);
+				}
+			}
+		}
 		for (SocketListener listener : eventListeners) {
 			if (listener != null) {
 				listener.disconnected(channel);
@@ -229,8 +236,8 @@ public class SocketManager extends Thread {
 						}
 					}
 					synchronized(registerRequests) {
-						while(!registerRequests.isEmpty()) {
-							RegisterRequest request 	= registerRequests.remove(0);
+						while (!registerRequests.isEmpty()) {
+							RegisterRequest request = registerRequests.remove(0);
 							register(request);
 						}
 					}
@@ -296,14 +303,13 @@ public class SocketManager extends Thread {
 	// Private methods only to be called by the selector thread.
 	//==========================================================
 	private void register(RegisterRequest request) {
-		if(request.channel instanceof SocketChannel) {
+		if (request.channel instanceof SocketChannel) {
 			SocketChannel channel = (SocketChannel) request.channel;
 			register(channel, selector, SelectionKey.OP_READ );
 		} else if (request.channel instanceof ServerSocketChannel) {
 			ServerSocketChannel channel = (ServerSocketChannel) request.channel;
 			register(channel, selector, SelectionKey.OP_ACCEPT);
 		}
-		
 	}
 	
 	private void register(ServerSocketChannel channel, Selector selector, int selectionKeys) {
@@ -341,7 +347,7 @@ public class SocketManager extends Thread {
 	//==========================================================
 	public void register(SocketChannel channel) {
 		RegisterRequest request = new RegisterRequest(channel);
-		synchronized( registerRequests ) {
+		synchronized(registerRequests) {
 			registerRequests.add(request);
 		}
 		//notify the selector
@@ -350,7 +356,7 @@ public class SocketManager extends Thread {
 	
 	public void register(SocketChannel channel, int msgSizePosition ) {
 		RegisterRequest request = new RegisterRequest(channel);
-		synchronized( registerRequests ) {
+		synchronized(registerRequests) {
 			registerRequests.add(request);
 		}
 		//notify the selector
@@ -359,7 +365,7 @@ public class SocketManager extends Thread {
 	
 	public void register(ServerSocketChannel channel) {
 		RegisterRequest request = new RegisterRequest(channel);
-		synchronized( registerRequests ) {
+		synchronized(registerRequests) {
 			registerRequests.add(request);
 		}
 		selector.wakeup();
@@ -367,7 +373,7 @@ public class SocketManager extends Thread {
 	
 	public void register(ServerSocketChannel channel, boolean autoRegister) {
 		RegisterRequest request = new RegisterRequest(channel);
-		synchronized( registerRequests ) {
+		synchronized(registerRequests) {
 			registerRequests.add(request);
 		}
 		selector.wakeup();
@@ -375,7 +381,7 @@ public class SocketManager extends Thread {
 	
 	public void register(ServerSocketChannel channel, int msgSizePosition) {
 		RegisterRequest request = new RegisterRequest(channel);
-		synchronized( registerRequests ) {
+		synchronized(registerRequests) {
 			registerRequests.add(request);
 		}
 		selector.wakeup();
