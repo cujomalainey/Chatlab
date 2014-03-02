@@ -262,7 +262,9 @@ public class SocketManager extends Thread {
 		} catch (IOException e) {
 			
 		}
-		fireDisconnectEvent(channel);
+		if (channel instanceof SocketChannel) {
+			fireDisconnectEvent(channel);
+		}
 		buffers.remove(channel);
 	}
 	
