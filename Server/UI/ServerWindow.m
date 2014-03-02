@@ -137,14 +137,20 @@ function [] = ServerWindow()
 	
 	function receive(~, event)
 		disp('Receive:');
+		disp(char(event.message));
 		structure = JSON.parse(char(event.message));
 		disp(structure);
 		pause(0.1);
 		sendMessage(event.channel, struct('title', 'hello'));
 	end
 	
-	function disconnect(~, channel)
-		%% TODO: CONNECTION LOST
+	function disconnect(channel)
+		if (~isempty(channel))
+			set(channel)
+% 			ServerUI.TextPane.print(sprintf('Client disconnected from: %s', char(channel.socket().getRemoteSocketAddress().toString())));
+		end
+% 		disp(varargin)
+% 		ServerUI.TextPane.print(sprintf('Client disconnected from: %s', char(channel.socket().getRemoteSocketAddress().toString())));
 	end
 	
 end
