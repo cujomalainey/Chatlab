@@ -70,7 +70,6 @@ public class SocketManager extends Thread {
 	public interface SocketListener extends java.util.EventListener {
 		void receiveMessage(MessageEvent event);
 		void acceptConnection(SocketChannel channel);
-		void disconnected(SocketChannel channel);
 	}
 	
 	public class MessageEvent extends java.util.EventObject {
@@ -137,21 +136,6 @@ public class SocketManager extends Thread {
 		for (SocketListener listener : eventListeners) {
 			if (listener != null) {
 				listener.receiveMessage(new MessageEvent(this, channel, data));
-			}
-		}
-	}
-	
-	private void fireDisconnectEvent(SocketChannel channel) {
-		synchronized(registerRequests) {
-			for (RegisterRequest request : registerRequests) {
-				if (request.channel.equals(channel)) {
-					registerRequests.remove(request);
-				}
-			}
-		}
-		for (SocketListener listener : eventListeners) {
-			if (listener != null) {
-				listener.disconnected(channel);
 			}
 		}
 	}
@@ -261,9 +245,6 @@ public class SocketManager extends Thread {
 			channel.close();
 		} catch (IOException e) {
 			
-		}
-		if (channel instanceof SocketChannel) {
-			fireDisconnectEvent(channel);
 		}
 		buffers.remove(channel);
 	}

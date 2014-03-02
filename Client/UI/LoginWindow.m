@@ -132,7 +132,7 @@ function [] = LoginWindow()
 		Login.Button.setText('Connecting');
 		GUI.disableAll();
 		getHost();
-		Login.channel = connect(Login.Host, Login.Port, @receiveMessage, @disconnect);
+		Login.channel = connect(Login.Host, Login.Port, @receiveMessage);
 		% Make sure the connection is successful
 		if (isempty(Login.channel))
 			errordlg(sprintf('Could not connect to %s:%d', Login.Host, Login.Port), 'Error', 'modal');
@@ -146,10 +146,6 @@ function [] = LoginWindow()
 	
 	function receiveMessage(~, event)
 		disp(JSON.parse(char(event.message)));
-	end
-	
-	function disconnect(~, channel)
-		%% TODO: CONNECTION LOST
 	end
 	
 %% Login Callbacks
