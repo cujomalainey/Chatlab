@@ -142,7 +142,9 @@ function [] = ServerWindow()
 		disp(structure);
 		pause(0.1);
 		pause(10);
-		sendMessage(event.channel, struct('title', 'hello'));
+		if (~sendMessage(event.channel, struct('title', 'hello')))
+			disp('Client has disconnected');
+		end
 	end
 	
 end

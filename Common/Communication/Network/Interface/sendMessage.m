@@ -1,4 +1,4 @@
-function [lengthWritten] = sendMessage(channel, structure)
+function [success] = sendMessage(channel, structure)
 %sendMessage Send a message though the socket
 	string = JSON.create(structure);
 	
@@ -7,5 +7,10 @@ function [lengthWritten] = sendMessage(channel, structure)
 	
 	bytes = JString.encode(string);
 	buffer = java.nio.ByteBuffer.wrap(bytes);
-	lengthWritten = channel.write(buffer);
+	try
+		channel.write(buffer);
+		success = 1;
+	catch
+		success = 0;
+	end
 end

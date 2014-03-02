@@ -140,7 +140,9 @@ function [] = LoginWindow()
 			GUI.enableAll();
 		else
 			
-			sendMessage(Login.channel, loginRequest(Login.UserField.getText(), Login.PassField.getText()));
+			if (~sendMessage(Login.channel, loginRequest(Login.UserField.getText(), Login.PassField.getText())))
+				disp('Disconnected from server');
+			end
 		end
 	end
 	
