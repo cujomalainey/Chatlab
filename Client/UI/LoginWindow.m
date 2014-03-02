@@ -41,6 +41,8 @@ function [] = LoginWindow()
 	start(Login.initTimer);
 	
 	Login.channel = [];
+	Login.Host = 'localhost';
+	Login.Port = 10101;
 	
 %% Timer Callback for PostInit
 	function postInit(~,~)
@@ -72,8 +74,8 @@ function [] = LoginWindow()
 
 %% Callback Functions
 	function enter(src)
-		if (src == Login.ServerField && ~isempty(Login.ServerField.getText()))
-			Login.UserField.setFocus();
+		if (src == Login.ServerField)
+			getHost();
 		elseif (src == Login.UserField && ~isempty(Login.UserField.getText()))
 			Login.PassField.setFocus();
 		elseif (src == Login.PassField)
@@ -93,24 +95,61 @@ function [] = LoginWindow()
 			performLogin();
 		end
 	end
-
+	
+	function getHost()
+		str = strsplit(Login.ServerField.getText(), ':');
+		%% Get the port
+		if (length(str) == 2)
+			if (str2double(char(str(2))) > 0 && str2double(char(str(2))) < 50000)
+				Login.Port = str2double(char(str(2)));
+			else
+				Login.UserField.setFocus();
+				Login.ServerField.setFocus();
+				return;
+			end
+		end
+		%% Get the host name
+		ip = regexp(str(1), '^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$', 'once');
+		url = regexp(str(1), '^[a-zA-Z0-9\-\.]+\.(ca|com|org|net|info|edu|CA|COM|ORG|NET|INFO|EDU)$', 'once');
+		local = regexp(str(1), '^(localhost)$', 'once');
+		if (ip{1} == 1)
+			Login.Host = char(str(1));
+			Login.UserField.setFocus();
+		elseif (url{1} == 1)
+			Login.Host = char(str(1));
+			Login.UserField.setFocus();
+		elseif (local{1} == 1)
+			Login.Host = char(str(1));
+			Login.UserField.setFocus();
+		else
+			Login.UserField.setFocus();
+			Login.ServerField.setFocus();
+			return;
+		end
+	end
+	
 	function performLogin()
 		Login.Button.setText('Connecting');
-		port = 10101;
-		host = 'localhost';
-		Login.channel = connect(host, port, @receiveMessage);
+		GUI.disableAll();
+		getHost();
+		Login.channel = connect(Login.Host, Login.Port, @receiveMessage, @disconnect);
 		% Make sure the connection is successful
 		if (isempty(Login.channel))
-			errordlg(sprintf('Could not connect to %s', host), 'Error', 'modal');
+			errordlg(sprintf('Could not connect to %s:%d', Login.Host, Login.Port), 'Error', 'modal');
 			Login.Button.setText('Login');
+			GUI.enableAll();
 		else
+			
 			sendMessage(Login.channel, loginRequest(Login.UserField.getText(), Login.PassField.getText()));
 		end
-% 		loginSuccess();
 	end
 	
 	function receiveMessage(~, event)
 		disp(JSON.parse(char(event.message)));
+	end
+	
+	function disconnect(~, channel)
+		%% TODO: CONNECTION LOST
 	end
 	
 %% Login Callbacks

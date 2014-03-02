@@ -143,4 +143,8 @@ function [] = ServerWindow()
 		sendMessage(event.channel, struct('title', 'hello'));
 	end
 	
+	function disconnect(~, channel)
+		%% TODO: CONNECTION LOST
+	end
+	
 end

@@ -1,4 +1,4 @@
-function [ channel ] = connect(host, port, receiveCallback)
+function [ channel ] = connect(host, port, receiveCallback, disconnectCallback)
 %connect Creates a SocketChannel and connect it to the host:port
 	try
 		%% Create the address
@@ -16,6 +16,7 @@ function [ channel ] = connect(host, port, receiveCallback)
 		%% Register the connection so it can run in the background
 		socketManager = ca.Skrundz.Communications.SocketManager.init();
 		set(socketManager, 'ReceiveMessageCallback', receiveCallback);
+		set(socketManager, 'DisconnectedCallback', disconnectCallback);
 		socketManager.register(channel);
 		%% Wait for the connection to complete (or fail)
 		while ~channel.finishConnect()

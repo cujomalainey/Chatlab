@@ -8,10 +8,10 @@ Utility
 	NewWindow    - Create a new figure window that is initialized
 
 Network
-	connect(host, port, receiveCallback)	- Creates a channel and connects to the server
-	bindServer(host, port, receiveCallback, acceptCallback) - Binds a channel to a port. Accepts all incoming connections
-	disconnect(channel)						- Disconnects the channel from the other end and performs the cleanup
-	sendMessage(channel, string)			- Send the string across the channel
+	connect(host, port, receiveCallback, disconnectCallback)	- Creates a channel and connects to the server
+	bindServer(host, port, receiveCallback, acceptCallback)		- Binds a channel to a port. Accepts all incoming connections
+	disconnect(channel)											- Disconnects the channel from the other end and performs the cleanup
+	sendMessage(channel, string)								- Send the string across the channel
 
 Packets
 	handshake(key, step)				- Create a handshake packet. step = Init, Response, Complete --> Client sends response
@@ -33,6 +33,8 @@ GUIManager < handle
 		ListBox newListBox(Parent, Position, Callback,  Managed)
 		
 		removeItem(item) - Delete Managed Items
+		disableAll()
+		enableAll()
 
 GUIItem < handle
 	Constructor

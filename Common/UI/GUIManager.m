@@ -103,20 +103,27 @@ classdef GUIManager < handle
 			delete(item);
 		end
 		
+		function disableAll(this)
+			for i = 1:1:length(this.Elements)
+				this.Elements{i}.disable();
+			end
+		end
+		
+		function enableAll(this)
+			for i = 1:1:length(this.Elements)
+				this.Elements{i}.enable();
+			end
+		end
+		
 	end
 	
 	methods (Access = private)
 		%% Callback
 		function escape(this, ~)
 			% Disable all controls
-			for i = 1:1:length(this.Elements)
-				this.Elements{i}.disable();
-			end
-			
+			this.disableAll();
 			% Enable all controls
-			for i = 1:1:length(this.Elements)
-				this.Elements{i}.enable();
-			end
+			this.enableAll();
 		end
 	end
 	
