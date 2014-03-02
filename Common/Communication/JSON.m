@@ -5,8 +5,8 @@ classdef JSON < handle
 	
 	properties (Access = private)
 		%% For parsing
-		json % the string
-		index % position in the string
+		json = ''; % the string
+		index = 0; % position in the string
 	end
 	
 	%% Constructor

@@ -30,7 +30,7 @@ function [] = LoginWindow()
 	Login.PassField = GUI.newPasswordField(Login.window, PassPosition, @enter, 1);
 
 	% Button
-	ButtonPosition = [50 7 100 25];
+	ButtonPosition = [40 7 120 25];
 	Login.Button = GUI.newButton(Login.window, ButtonPosition, 'Login', @login, 1);
 
 	% Create the PostInit Timer
@@ -139,15 +139,26 @@ function [] = LoginWindow()
 			Login.Button.setText('Login');
 			GUI.enableAll();
 		else
-			
-			if (~sendMessage(Login.channel, loginRequest(Login.UserField.getText(), Login.PassField.getText())))
-				disp('Disconnected from server');
-			end
+			Login.Button.setText('Authenticating');
+			%username Login.UserField.getText()
+			%password Login.PassField.getText()
+% 			if (~sendMessage(Login.channel, loginRequest(Login.UserField.getText(), Login.PassField.getText()))
+% 				disp('Disconnected from server');
+% 			end
 		end
 	end
 	
 	function receiveMessage(~, event)
-		disp(JSON.parse(char(event.message)));
+		%% TODO: Decode Message
+		
+% 		disp(JSON.parse(char(event.message)));
+		packet = JSON.parse(char(event.message));
+		disp(packet);
+		if (strcmp(packet.Type, 'Shake'))
+			disp('Hand Shake 1 DONE!');
+		else
+			errordlg(sprintf('Communication got mixed up somehow.\nPlease login again later.'), 'Error', 'modal');
+		end
 	end
 	
 %% Login Callbacks

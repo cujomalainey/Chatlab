@@ -56,14 +56,21 @@ function [] = ServerWindow()
 	ServerUI.TextPane = GUI.newTextPane(1);
 	ServerUI.TabPanel.addTab('Log', ServerUI.TextPane.getPane());
 	
-	Server.server = [];
+	Server.Servers.localhost = [];
+	Server.Servers.localIP = [];
 	
 	Server.users = [];
+	
+	Server.Port = 10101;
 	
 	%% Window Callback
 	function windowWillClose(~,~)
 		try
-			disconnect(Server.server);
+			disconnect(Server.Servers.localhost);
+		catch
+		end
+		try
+			disconnect(Server.Servers.localIP);
 		catch
 		end
 		for i = 1:1:length(Server.users)
@@ -99,13 +106,12 @@ function [] = ServerWindow()
 	
 	%% Callbacks
 	function toggle(~)
-		if isempty(Server.server)
+		if (isempty(Server.Servers.localhost) && isempty(Server.Servers.localIP))
 			ServerUI.TextPane.clear();
 			ServerUI.TextPane.print('Starting Server...');
-			hostName = 'localhost';
-			port = int32(10101);
 			try
-				Server.server = bindServer(hostName, port, @receive, @accept);
+				Server.Servers.localhost = bindServer(char(java.net.InetAddress.getLoopbackAddress().getHostAddress())	, Server.Port, @receive, @accept);
+				Server.Servers.localIP   = bindServer(char(java.net.InetAddress.getLocalHost().getHostAddress())		, Server.Port, @receive, @accept);
 				ServerUI.ServerActiveLabel.setText('Active');
 				ServerUI.ServerActiveLabel.setColor([0, 0.8, 0]);
 			catch e
@@ -118,21 +124,34 @@ function [] = ServerWindow()
 		else
 			ServerUI.TextPane.print('Stopping Server...');
 			try
-				disconnect(Server.server);
-				Server.server = [];
+				disconnect(Server.Servers.localhost);
+				disconnect(Server.Servers.localIP);
+				Server.Servers.localhost = [];
+				Server.Servers.localIP = [];
 				ca.Skrundz.Communications.SocketManager.closeAll();
 				ServerUI.ServerActiveLabel.setText('Inactive');
 				ServerUI.ServerActiveLabel.setColor([1.0, 0, 0]);
+				ServerUI.TextPane.print('Stopped');
 			catch e
 				ServerUI.TextPane.print('Could not stop server?!?!?!?!');
-				rethrow(e);
+% 				rethrow(e);
+				ServerUI.TextPane.print(e.message);
 			end
-			ServerUI.TextPane.print('Stopped');
 		end
 	end
 	
 	function accept(~, channel)
-		ServerUI.TextPane.print(sprintf('Client connected from: %s', char(channel.socket().getRemoteSocketAddress().toString())));
+		clientIP = char(channel.socket().getRemoteSocketAddress().toString());
+		ServerUI.TextPane.print(sprintf('Client connected from: %s', clientIP(2:end)));
+		% Initialize the handshake
+		
+		% FAKE DATA ---
+		key = [1,2;3,4];
+		% END FAKE ----
+		
+		if (~sendMessage(channel, handshake(key, 1)))
+			disconnectClient(event.channel);
+		end
 	end
 	
 	function receive(~, event)
@@ -143,8 +162,12 @@ function [] = ServerWindow()
 		pause(0.1);
 		pause(10);
 		if (~sendMessage(event.channel, struct('title', 'hello')))
-			disp('Client has disconnected');
+			disconnectClient(event.channel);
 		end
+	end
+	
+	function disconnectClient(channel)
+		fprintf('Client has disconnected (%s)', char(channel.socket().getRemoteSocketAddress().toString()));
 	end
 	
 end
