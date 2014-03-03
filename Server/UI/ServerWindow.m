@@ -74,13 +74,14 @@ function [] = ServerWindow()
 			disconnect(Server.Servers.localIP);
 		catch
 		end
-		for i = 1:1:length(Server.users)
-			try
-				disconnect(Server.users{i});
-				Server.users(i) = [];
-			catch
-			end
-		end
+		%% Fix later. Use the USER model class
+% 		for i = 1:1:length(Server.Users)
+% 			try
+% 				disconnect(Server.Users{i});
+% 				Server.Users(i) = [];
+% 			catch
+% 			end
+% 		end
 		ca.Skrundz.Communications.SocketManager.closeAll();
 		
 		GUI.removeItem(ServerUI.IPNameLabel);
