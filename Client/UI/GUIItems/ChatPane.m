@@ -40,10 +40,10 @@ classdef ChatPane < TabPanel
 % 		end
 
 %% Tab related (tab objects)
-		function addTab(this, tabName)
+		function addTab(this, tabName, tabID)
 			index = this.JavaTabPane.getTabCount() + 1;
 			
-			this.Tabs{index} = Tab(tabName, @this.removeTab);
+			this.Tabs{index} = Tab(tabName, tabID, @this.removeTab);
 			this.Panes{index} = TextPane();
 			
 			this.JavaTabPane.addTab([], this.Panes{index}.getPane());

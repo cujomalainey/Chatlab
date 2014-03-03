@@ -10,11 +10,12 @@ classdef Tab < GUIItem
 	
 	properties
 		Name;
+		ID;
 	end
 	
 	methods
 		%% Constructor
-		function T = Tab(Text, ClickCallback)
+		function T = Tab(Text, ID, ClickCallback)
 			T.Callback = ClickCallback;
 			
 			% Create the pane
@@ -22,6 +23,7 @@ classdef Tab < GUIItem
 			T.Pane.getPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(2, 0, 0, -3));
 			
 			T.Name = Text;
+			T.ID = ID;
 			% Create the label
 			T.Label = javax.swing.JLabel([Text ' ']);
 			T.Pane.add(T.Label);
@@ -55,6 +57,20 @@ classdef Tab < GUIItem
 		
 		function hideAlert(this)
 			this.Label.setForeground(java.awt.Color.black);
+		end
+		
+		%% Get/Set
+		function setName(this, name)
+			this.Name = name;
+			this.Label.setText(name);
+		end
+		
+		function name = getName(this)
+			name = this.Name;
+		end
+		
+		function id = getID(this)
+			id = this.ID;
 		end
 		
 		%% Callbacks

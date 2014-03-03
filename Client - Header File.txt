@@ -47,6 +47,9 @@ Tab < GUIItem
 		Tab(Text, ClickCallback)
 	Methods
 		Pane getTab()
+		String getName()
+		String getID()
 		
 		alert()
 		hideAlert()
+		setName(name)
