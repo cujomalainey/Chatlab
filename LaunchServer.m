@@ -1,7 +1,7 @@
 function [] = LaunchServer()
 %LaunchServer Start the server process
-	ClearPath();
 	AddPath('Server');
 	AddPath('Common');
+	ClearPath();
 	main_server();
 end
