@@ -1,0 +1,9 @@
+function [success] = sendLoginRequestPacket(channel, username, password)
+%sendLoginRequestPacket Create a request to log into the server and send it
+	password = MD5.hash(password);
+	packet = struct(	'Type', 'Login',...
+						'Username', username,...
+						'Password', password...
+						);
+	success = sendMessage(channel, packet);
+end

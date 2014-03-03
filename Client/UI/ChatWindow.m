@@ -1,8 +1,13 @@
-function [] = ChatWindow( name, token )
+function [] = ChatWindow(name, channel, key)
 %CHATWINDOW Create and display a chat window for the user.
 
 %% Get a window
 	Chat.window = NewWindow(['Chat : Logged in as ', name], 670, 461, @windowWillClose);
+	
+%% Get the channel for communication
+	Chat.Channel = channel;
+%% Get the key for encryption
+	Chat.Keys.Server = key;
 	
 %% Get the GUI Manager
 	GUI = GUIManager.instance();

@@ -2,36 +2,36 @@ function [] = LoginWindow()
 %LoginWindow() Create and display the window to authenticate into a server
 
 %% Get a window
-	Login.window = NewWindow('Login', 200, 140, @windowWillClose);
-	set(Login.window, 'WindowStyle', 'modal'); % Make sure it has priority
+	Login.Window = NewWindow('Login', 200, 140, @windowWillClose);
+	set(Login.Window, 'WindowStyle', 'modal'); % Make sure it has priority
 
 %% Get the GUI Manager
 	GUI = GUIManager.instance();
 %% Create the GUI
 	% Labels
 	ServerLabelPosition = [10, 82, 100, 20];
-	Login.ServerLabel = GUI.newLabel(Login.window, ServerLabelPosition, 'Server IP:', 1);
+	Login.ServerLabel = GUI.newLabel(Login.Window, ServerLabelPosition, 'Server IP:', 1);
 	Login.ServerLabel.setAlignment('left');
 	UserLabelPosition = [10, 60, 100, 20];
-	Login.UserLabel = GUI.newLabel(Login.window, UserLabelPosition, 'Username:', 1);
+	Login.UserLabel = GUI.newLabel(Login.Window, UserLabelPosition, 'Username:', 1);
 	Login.UserLabel.setAlignment('left');
 	PassLabelPosition = [10, 38, 100, 20];
-	Login.PassLabel = GUI.newLabel(Login.window, PassLabelPosition, 'Password:', 1);
+	Login.PassLabel = GUI.newLabel(Login.Window, PassLabelPosition, 'Password:', 1);
 	Login.PassLabel.setAlignment('left');
 
 	% Text Fields
 	ServerPosition = [80, 84, 110, 20];
-	Login.ServerField = GUI.newTextField(Login.window, ServerPosition, @enter, 1);
+	Login.ServerField = GUI.newTextField(Login.Window, ServerPosition, @enter, 1);
 	UserPosition = [80, 62, 110, 20];
-	Login.UserField = GUI.newTextField(Login.window, UserPosition, @enter, 1);
+	Login.UserField = GUI.newTextField(Login.Window, UserPosition, @enter, 1);
 
 	% Password Field
 	PassPosition = [80, 40, 110, 20];
-	Login.PassField = GUI.newPasswordField(Login.window, PassPosition, @enter, 1);
+	Login.PassField = GUI.newPasswordField(Login.Window, PassPosition, @enter, 1);
 
 	% Button
 	ButtonPosition = [40 7 120 25];
-	Login.Button = GUI.newButton(Login.window, ButtonPosition, 'Login', @login, 1);
+	Login.Button = GUI.newButton(Login.Window, ButtonPosition, 'Login', @login, 1);
 
 	% Create the PostInit Timer
 	Login.initTimer = timer('TimerFcn', @postInit,...
@@ -40,7 +40,10 @@ function [] = LoginWindow()
 		);
 	start(Login.initTimer);
 	
-	Login.channel = [];
+	Login.Success = 0;
+	
+	Login.Key = [];
+	Login.Channel = [];
 	Login.Host = 'localhost';
 	Login.Port = 10101;
 	
@@ -53,9 +56,11 @@ function [] = LoginWindow()
 
 %% Window Callback
 	function windowWillClose(~,~)
-		try
-			disconnect(Login.channel);
-		catch
+		if (~Login.Success)
+			try
+				disconnect(Login.Channel);
+			catch
+			end
 		end
 		ca.Skrundz.Communications.SocketManager.closeAll();
 		
@@ -69,7 +74,7 @@ function [] = LoginWindow()
 		
 		GUI.removeItem(Login.Button);
 		
-		delete(Login.window);
+		delete(Login.Window);
 	end
 
 %% Callback Functions
@@ -132,46 +137,75 @@ function [] = LoginWindow()
 		Login.Button.setText('Connecting');
 		GUI.disableAll();
 		getHost();
-		Login.channel = connect(Login.Host, Login.Port, @receiveMessage);
+		Login.Channel = connect(Login.Host, Login.Port, @receiveMessage);
 		% Make sure the connection is successful
-		if (isempty(Login.channel))
-			errordlg(sprintf('Could not connect to %s:%d', Login.Host, Login.Port), 'Error', 'modal');
-			Login.Button.setText('Login');
-			GUI.enableAll();
+		if (isempty(Login.Channel))
+			serverDisconnected();
 		else
 			Login.Button.setText('Authenticating');
-			%username Login.UserField.getText()
-			%password Login.PassField.getText()
-% 			if (~sendMessage(Login.channel, loginRequest(Login.UserField.getText(), Login.PassField.getText()))
-% 				disp('Disconnected from server');
-% 			end
 		end
 	end
 	
 	function receiveMessage(~, event)
 		%% TODO: Decode Message
 		
-% 		disp(JSON.parse(char(event.message)));
 		packet = JSON.parse(char(event.message));
-		disp(packet);
 		if (strcmp(packet.Type, 'Shake'))
-			disp('Hand Shake 1 DONE!');
+			if (packet.Step == 1) % Reply to the server
+				
+				% FAKE DATA ---
+				key = [5,6;7,8];
+				% END FAKE ----
+				
+				if (~sendHandshakePacket(event.channel, key, 2))
+					serverDisconnected();
+				end
+			elseif (packet.Step == 3) % Finalize handshake - Login to the server now
+				%% TODO FINALIZE THIS TOO...
+				Login.Button.setText('Logging in...');
+				if (~sendLoginRequestPacket(event.channel, Login.UserField.getText(), Login.PassField.getText()))
+					serverDisconnected();
+				end
+			end
+		elseif (strcmp(packet.Type, 'Login')) % We got a response from the login server
+			if (packet.Success) % We made it
+				loginSuccess(Login.UserField.getText(), Login.Channel, Login.Key);
+			else % Password denied
+				try
+					Login.Channel.close();
+				catch
+				end
+				errordlg('Invalid Password', 'Error', 'modal');
+				Login.Button.setText('Login');
+				GUI.enableAll();
+				Login.PassField.setFocus();
+			end
 		else
 			errordlg(sprintf('Communication got mixed up somehow.\nPlease login again later.'), 'Error', 'modal');
 		end
 	end
 	
+	function serverDisconnected()
+		try
+			Login.Channel.close();
+		catch
+		end
+		errordlg(sprintf('Could not connect to %s:%d', Login.Host, Login.Port), 'Error', 'modal');
+		Login.Button.setText('Login');
+		GUI.enableAll();
+	end
+	
 %% Login Callbacks
 	% Move to chat window
-	function loginSuccess()
+	function loginSuccess(username, channel, key)
+		Login.Success = 1;
+		
 		AddPath('Client/UI');
 		AddPath('Client/UI/GUIItems');
 		
-		a = Login.UserField.getText();
+		close(Login.Window);
 		
-		close(Login.window);
-		
-		ChatWindow(a);
+		ChatWindow(username, channel, key);
 	end
 
 	function loginFailed(reason)

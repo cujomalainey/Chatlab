@@ -5,6 +5,8 @@ function [] = main_client()
 	AddPath('Client/Communication');
 	AddPath('Client/Communication/Encryption');
 	AddPath('Client/Communication/Hash');
+	AddPath('Client/Communication/Network');
+	AddPath('Client/Communication/Network/Packets');
 	AddPath('Common/Communication');
 	AddPath('Common/Communication/Network');
 	AddPath('Common/Communication/Network/Interface');

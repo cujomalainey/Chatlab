@@ -59,7 +59,8 @@ function [] = ServerWindow()
 	Server.Servers.localhost = [];
 	Server.Servers.localIP = [];
 	
-	Server.users = [];
+	Server.Users = [];
+	Server.ChatRooms = [];
 	
 	Server.Port = 10101;
 	
@@ -151,24 +152,69 @@ function [] = ServerWindow()
 		key = [1,2;3,4];
 		% END FAKE ----
 		
-		if (~sendMessage(channel, handshake(key, 1)))
+		if (~sendHandshakePacket(channel, key, 1))
 			disconnectClient(event.channel);
 		end
 	end
 	
 	function receive(~, event)
-		disp('Receive:');
-		disp(char(event.message));
-		structure = JSON.parse(char(event.message));
-		disp(structure);
-		pause(0.1);
-		pause(10);
-		if (~sendMessage(event.channel, struct('title', 'hello')))
-			disconnectClient(event.channel);
+		packet = JSON.parse(char(event.message));
+		if (strcmp(packet.Type, 'Shake'))
+			handleHandshake(event.channel, packet);
+		elseif (strcmp(packet.Type, 'Login'))
+			handleLogin(event.channel, packet);
 		end
 	end
 	
+	function handleLogin(channel, packet)
+		%% TODO FINISH THIS...
+% 		if (packet.Username exists)
+% 			if (packet.Password matches)
+% 				if (~sendLoginResponsePacket(channel, 1))
+% 					disconnectClient(channel);
+% 				end
+% 				add the client to the list
+% 				update the UI
+% 			else
+% 				if (~sendLoginResponsePacket(channel, 0))
+% 					disconnectClient(channel);
+% 				end
+% 				log the invalid password attempt
+% 				disconnectClient(channel);
+% 			end
+% 		else
+% 			create the username with the password
+% 			add the client to the list
+% 			update the UI
+% 		end
+		%% ACCCEPT ANY CONNECTIONS FOR NOW
+		if (~sendLoginResponsePacket(channel, 1))
+			disconnectClient(channel);
+		end
+	end
+	
+	function handleHandshake(channel, packet)
+		if (packet.Step == 2) % Reply to the client
+				
+				% FAKE DATA ---
+				key = [9,10;11,12];
+				% END FAKE ----
+				
+				if (~sendHandshakePacket(channel, key, 3))
+					disconnectClient(event.channel);
+				end
+			else
+				% Something went wrong with the handshake on the client side
+				disconnectClient(event.channel);
+			end
+	end
+	
 	function disconnectClient(channel)
+		try
+			channel.close();
+		catch
+		end
+		%% TODO FINISH DISCONNECTING
 		fprintf('Client has disconnected (%s)', char(channel.socket().getRemoteSocketAddress().toString()));
 	end
 	
