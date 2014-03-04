@@ -1,30 +1,33 @@
-function [] = ChatWindow(name, channel, key)
+function [] = ChatWindow(name, channelManager, key)
 %CHATWINDOW Create and display a chat window for the user.
 
 %% Get a window
-	Chat.window = NewWindow(['Chat : Logged in as ', name], 670, 461, @windowWillClose);
+	Chat.Window = NewWindow(['Chat : Logged in as ', name], 670, 461, @windowWillClose);
 	
 %% Get the channel for communication
-	Chat.Channel = channel;
+	Chat.ChannelManager = channelManager;
+	Chat.ChannelManager.setCallback(@receiveMessage);
 %% Get the key for encryption
 	Chat.Keys.Server = key;
+	
+	Chat.User = name;
 	
 %% Get the GUI Manager
 	GUI = GUIManager.instance();
 %% Create the GUI
 	InputPosition = [10, 10, 590, 20];
-	Chat.InputTextField = GUI.newTextField(Chat.window, InputPosition, @textFieldEnter, 1);
+	Chat.InputTextField = GUI.newTextField(Chat.Window, InputPosition, @textFieldEnter, 1);
 	
 	ButtonPosition = [610, 10, 50, 20];
-	Chat.Button = GUI.newButton(Chat.window, ButtonPosition, 'Send', @textFieldEnter, 1);
+	Chat.Button = GUI.newButton(Chat.Window, ButtonPosition, 'Send', @textFieldEnter, 1);
 	
-	Chat.ChatPane = ChatPane(Chat.window, [0, 40, 470, 400]);
-	Chat.ChatPane.addTab('hello');
-	Chat.ChatPane.addTab('Tagdgdfb');
-	Chat.ChatPane.addTab('fdsf');
+	Chat.ChatPane = ChatPane(Chat.Window, [0, 40, 470, 400]);
+	Chat.ChatPane.addTab('hello', 1);
+	Chat.ChatPane.addTab('Tagdgdfb', 2);
+	Chat.ChatPane.addTab('fdsf', 3);
 	
 	TreeBackgroundPosition = [470, 40, 200, 400];
-	Chat.TreeBackground = GUI.newTabPanel(Chat.window, TreeBackgroundPosition, 1);
+	Chat.TreeBackground = GUI.newTabPanel(Chat.Window, TreeBackgroundPosition, 1);
 	Chat.TreeBackground.addTab('Online Users', []);
 	
 	a{1}='fdsfs';
@@ -43,7 +46,7 @@ function [] = ChatWindow(name, channel, key)
 	a{14}='fdsfs';
 	a{15}='fdsfs';
 	
-	Chat.List = GUI.newListBox(Chat.window, [480, 53, 180, 354], @clickList, 1);
+	Chat.List = GUI.newListBox(Chat.Window, [480, 53, 180, 354], @clickList, 1);
 	Chat.List.setData(a);
 	
 	Chat.ChatPane.printText('hello', 'message');
@@ -58,8 +61,12 @@ function [] = ChatWindow(name, channel, key)
 	
 %% Text Field Callback
 	function textFieldEnter(src, event)
+		%% TODO PROPERLY IMPLEMENT
+		% THIS PROVES THAT IT WORKS!
+		if (~sendChatPacket(Chat.ChannelManager.Channel(), Chat.User, 1, char(Chat.InputTextField.getText()), key))
+			serverDisconnected();
+		end
 		Chat.InputTextField.setText('');
-		disp('enter');
 	end
 	
 	function clickList(src, event)
@@ -81,7 +88,7 @@ function [] = ChatWindow(name, channel, key)
 		% Create more item maybe in the future??
 		uimenu(Chat.Menu, 'Label', 'Invite To Current Chat', 'Separator', 'on', 'Callback', @inviteToChat);
 		
-		windowPos = get(Chat.window, 'Position');
+		windowPos = get(Chat.Window, 'Position');
 		screenSize = get(0, 'ScreenSize');
 		set(Chat.Menu, 'Position', [event.getXOnScreen() - windowPos(1), screenSize(4) - windowPos(2) + 2  - event.getYOnScreen()]);
 		set(Chat.Menu, 'Visible', 'on');
@@ -100,12 +107,24 @@ function [] = ChatWindow(name, channel, key)
 		disp('invite to chat');
 	end
 	
+	%% Network callback
+	function receiveMessage(event)
+		%% TODO: Decode Message
+	end
+	
+	function serverDisconnected()
+		%% TODO REmove the user/chat
+		delete(Chat.ChannelManager);
+		errordlg('Disconnected from server.', 'Error', 'modal');
+		close(Chat.Window);
+	end
+	
 %% Window Callback
 	function windowWillClose(~,~)
 		GUI.removeItem(Chat.InputTextField);
 		GUI.removeItem(Chat.Button);
 		GUI.removeItem(Chat.List);
 		delete(Chat.ChatPane);
-		delete(Chat.window);
+		delete(Chat.Window);
 	end
 end

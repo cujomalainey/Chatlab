@@ -9,13 +9,13 @@ function [] = ServerWindow()
 	
 	%% Create the GUI
 	% Labels (Names)
-	IPNameLabelPosition = [20, 185, 100, 20];
+	IPNameLabelPosition = [15, 185, 100, 20];
 	ServerUI.IPNameLabel = GUI.newLabel(ServerUI.window, IPNameLabelPosition, 'IP: ', 1);
 	ServerUI.IPNameLabel.setAlignment('left');
-	ServerActiveNameLabelPosition = [20, 160, 100, 20];
+	ServerActiveNameLabelPosition = [15, 160, 100, 20];
 	ServerUI.ServerActiveNameLabel = GUI.newLabel(ServerUI.window, ServerActiveNameLabelPosition, 'Status: ', 1);
 	ServerUI.ServerActiveNameLabel.setAlignment('left');
-	RoomCountNameLabelPosition = [20, 130, 100, 20];
+	RoomCountNameLabelPosition = [15, 130, 100, 20];
 	ServerUI.RoomCountNameLabel = GUI.newLabel(ServerUI.window, RoomCountNameLabelPosition, 'Room Count: ', 1);
 	ServerUI.RoomCountNameLabel.setAlignment('left');
 	RegisteredUsersNameLabelPosition = [20, 80, 100, 20];
@@ -25,7 +25,7 @@ function [] = ServerWindow()
 	ServerUI.OnlineUsersNameLabel = GUI.newLabel(ServerUI.window, OnlineUsersNameLabelPosition, 'Online: ', 1);
 	ServerUI.OnlineUsersNameLabel.setAlignment('left');
 	% Label (Values)
-	IPLabelPosition = [40, 185, 120, 20];
+	IPLabelPosition = [30, 185, 135, 20];
 	ServerUI.IPLabel = GUI.newLabel(ServerUI.window, IPLabelPosition, char(java.net.InetAddress.getLocalHost().getHostAddress()), 1);
 	ServerUI.IPLabel.setAlignment('right');
 	ServerActiveLabelPosition = [100, 160, 60, 20];
@@ -138,23 +138,26 @@ function [] = ServerWindow()
 				ServerUI.TextPane.print('Stopped');
 			catch e
 				ServerUI.TextPane.print('Could not stop server?!?!?!?!');
-% 				rethrow(e);
 				ServerUI.TextPane.print(e.message);
 			end
 		end
 	end
 	
 	function accept(~, channel)
-		clientIP = char(channel.socket().getRemoteSocketAddress().toString());
-		ServerUI.TextPane.print(sprintf('Client connected from: %s', clientIP(2:end)));
+		try
+			clientIP = char(channel.socket().getRemoteSocketAddress().toString());
+			ServerUI.TextPane.print(sprintf('Client connected from: %s', clientIP(2:end)));
+		catch
+			return;
+		end
 		% Initialize the handshake
 		
 		% FAKE DATA ---
-		key = [1,2;3,4];
+		tempKey = [1,2;3,4];
 		% END FAKE ----
 		
-		if (~sendHandshakePacket(channel, key, 1))
-			disconnectClient(event.channel);
+		if (~sendHandshakePacket(channel, tempKey, 1))
+			disconnectClient(channel);
 		end
 	end
 	
@@ -164,6 +167,8 @@ function [] = ServerWindow()
 			handleHandshake(event.channel, packet);
 		elseif (strcmp(packet.Type, 'Login'))
 			handleLogin(event.channel, packet);
+		elseif (strcmp(packet.Type, 'Message'))
+			disp(packet);
 		end
 	end
 	
@@ -212,11 +217,14 @@ function [] = ServerWindow()
 	
 	function disconnectClient(channel)
 		try
+			clientIP = char(channel.socket().getRemoteSocketAddress().toString());
+			ServerUI.TextPane.print(sprintf('Client has disconnected (%s)', clientIP(2:end)));
 			channel.close();
 		catch
+			return;
 		end
 		%% TODO FINISH DISCONNECTING
-		fprintf('Client has disconnected (%s)', char(channel.socket().getRemoteSocketAddress().toString()));
+		% remove user from all chat rooms
 	end
 	
 end

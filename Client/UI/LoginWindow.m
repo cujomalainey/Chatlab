@@ -43,7 +43,7 @@ function [] = LoginWindow()
 	Login.Success = 0;
 	
 	Login.Key = [];
-	Login.Channel = [];
+	Login.ChannelManager = [];
 	Login.Host = 'localhost';
 	Login.Port = 10101;
 	
@@ -57,10 +57,7 @@ function [] = LoginWindow()
 %% Window Callback
 	function windowWillClose(~,~)
 		if (~Login.Success)
-			try
-				disconnect(Login.Channel);
-			catch
-			end
+			Login.ChannelManager.disconnect();
 		end
 		ca.Skrundz.Communications.SocketManager.closeAll();
 		
@@ -137,16 +134,16 @@ function [] = LoginWindow()
 		Login.Button.setText('Connecting');
 		GUI.disableAll();
 		getHost();
-		Login.Channel = connect(Login.Host, Login.Port, @receiveMessage);
+		Login.ChannelManager = ConnectionManager(Login.Host, Login.Port, @receiveMessage);
 		% Make sure the connection is successful
-		if (isempty(Login.Channel))
+		if (~Login.ChannelManager.isConnected())
 			serverDisconnected();
 		else
 			Login.Button.setText('Authenticating');
 		end
 	end
 	
-	function receiveMessage(~, event)
+	function receiveMessage(event)
 		%% TODO: Decode Message
 		
 		packet = JSON.parse(char(event.message));
@@ -163,33 +160,31 @@ function [] = LoginWindow()
 			elseif (packet.Step == 3) % Finalize handshake - Login to the server now
 				%% TODO FINALIZE THIS TOO...
 				Login.Button.setText('Logging in...');
-				if (~sendLoginRequestPacket(event.channel, Login.UserField.getText(), Login.PassField.getText()))
+				%% TODO GET REAL KEY
+				key = [];
+				if (~sendLoginRequestPacket(event.channel, Login.UserField.getText(), Login.PassField.getText(), key))
 					serverDisconnected();
 				end
 			end
 		elseif (strcmp(packet.Type, 'Login')) % We got a response from the login server
 			if (packet.Success) % We made it
-				loginSuccess(Login.UserField.getText(), Login.Channel, Login.Key);
+				loginSuccess(Login.UserField.getText(), Login.Key);
 			else % Password denied
-				try
-					Login.Channel.close();
-				catch
-				end
+				delete(Login.ChannelManager);
 				errordlg('Invalid Password', 'Error', 'modal');
 				Login.Button.setText('Login');
 				GUI.enableAll();
 				Login.PassField.setFocus();
 			end
 		else
+			%% Possibly encrypted?
 			errordlg(sprintf('Communication got mixed up somehow.\nPlease login again later.'), 'Error', 'modal');
 		end
 	end
 	
 	function serverDisconnected()
-		try
-			Login.Channel.close();
-		catch
-		end
+		%% TODO REmove the user/chat
+		delete(Login.ChannelManager);
 		errordlg(sprintf('Could not connect to %s:%d', Login.Host, Login.Port), 'Error', 'modal');
 		Login.Button.setText('Login');
 		GUI.enableAll();
@@ -197,7 +192,7 @@ function [] = LoginWindow()
 	
 %% Login Callbacks
 	% Move to chat window
-	function loginSuccess(username, channel, key)
+	function loginSuccess(username, key)
 		Login.Success = 1;
 		
 		AddPath('Client/UI');
@@ -205,20 +200,7 @@ function [] = LoginWindow()
 		
 		close(Login.Window);
 		
-		ChatWindow(username, channel, key);
-	end
-
-	function loginFailed(reason)
-		title = 'Login failed';
-		switch reason
-			case 1
-				message = 'Bad Username/Password.';
-			case 2
-				message = 'Could not connect to server.';
-			otherwise
-				message = 'Could not authenticate.';
-		end
-		errordlg(message, title, 'modal');
+		ChatWindow(username, Login.ChannelManager, key);
 	end
 
 end

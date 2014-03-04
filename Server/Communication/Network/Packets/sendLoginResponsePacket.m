@@ -3,5 +3,5 @@ function [success] = sendLoginResponsePacket(channel, success)
 	packet = struct(	'Type', 'Login',...
 						'Success', success...
 						);
-	success = sendMessage(channel, packet);
+	success = sendMessage(channel, packet, []);
 end

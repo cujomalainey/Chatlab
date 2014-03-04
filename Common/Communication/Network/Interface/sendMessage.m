@@ -1,8 +1,9 @@
-function [success] = sendMessage(channel, structure)
+function [success] = sendMessage(channel, structure, key)
 %sendMessage Send a message though the socket
 	string = JSON.create(structure);
 	
-	%% TODO: ENCRYPT THE STRING
+	%% TODO: ENCRYPT THE STRING with the key
+	% get the encryptor singleton object
 	%%
 	
 	bytes = JString.encode(string);

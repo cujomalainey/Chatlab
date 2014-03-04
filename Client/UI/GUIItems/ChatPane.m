@@ -28,17 +28,6 @@ classdef ChatPane < TabPanel
 			end
 		end
 		
-		%% Used to alert the user of a new message
-% 		function alert(this, name)
-% 			for i = 1:1:length(this.Tabs)
-% 				if (length(this.Tabs{i}.Name) == length(name))
-% 					if (this.Tabs{i}.Name == name)
-% 						this.Tabs{i}.alert();
-% 					end
-% 				end
-% 			end
-% 		end
-
 %% Tab related (tab objects)
 		function addTab(this, tabName, tabID)
 			index = this.JavaTabPane.getTabCount() + 1;

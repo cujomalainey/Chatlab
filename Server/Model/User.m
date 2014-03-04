@@ -4,18 +4,20 @@ classdef User < handle
 	properties (SetAccess = private)
 		Name = ''; % This is unique
 		Channel = []; % Network Channel for communication
+		Key = [];
 	end
 	
 	methods
 		%% Constructor
-		function u = User(name, channel)
+		function u = User(name, channel, key)
 			u.Name = name;
 			u.Channel = channel;
+			u.Key = key;
 		end
 		
-		%% Send message
-		function sendMessage(this, message)
-			%% TODO send the message
+		%% Getters
+		function c = getChannel(this)
+			c = this.Channel;
 		end
 	end
 	
