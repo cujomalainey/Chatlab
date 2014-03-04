@@ -30,24 +30,24 @@ function [] = ChatWindow(name, channelManager, key)
 	Chat.TreeBackground = GUI.newTabPanel(Chat.Window, TreeBackgroundPosition, 1);
 	Chat.TreeBackground.addTab('Online Users', []);
 	
-	a{1}='fdsfs';
-	a{2}='fdsfdfsdfsfsdf';
-	a{3}='f';
-	a{4}='fdsfs';
-	a{5}='fdsfdfsdfsfsdf';
-	a{6}='f';
-	a{7}='fdsfs';
-	a{8}='fdsfdfsdfsfsdf';
-	a{9}='f';
-	a{10}='fdsfs';
-	a{11}='fdsfs';
-	a{12}='fdsfs';
-	a{13}='fdsfs';
-	a{14}='fdsfs';
-	a{15}='fdsfs';
+% 	a{1}='fdsfs';
+% 	a{2}='fdsfdfsdfsfsdf';
+% 	a{3}='f';
+% 	a{4}='fdsfs';
+% 	a{5}='fdsfdfsdfsfsdf';
+% 	a{6}='f';
+% 	a{7}='fdsfs';
+% 	a{8}='fdsfdfsdfsfsdf';
+% 	a{9}='f';
+% 	a{10}='fdsfs';
+% 	a{11}='fdsfs';
+% 	a{12}='fdsfs';
+% 	a{13}='fdsfs';
+% 	a{14}='fdsfs';
+% 	a{15}='fdsfs';
 	
 	Chat.List = GUI.newListBox(Chat.Window, [480, 53, 180, 354], @clickList, 1);
-	Chat.List.setData(a);
+% 	Chat.List.setData(a);
 	
 	Chat.ChatPane.printText('hello', 'message');
 	Chat.ChatPane.printText('hello', 'message');
@@ -63,7 +63,7 @@ function [] = ChatWindow(name, channelManager, key)
 	function textFieldEnter(src, event)
 		%% TODO PROPERLY IMPLEMENT
 		% THIS PROVES THAT IT WORKS!
-		if (~sendChatPacket(Chat.ChannelManager.Channel(), Chat.User, 1, char(Chat.InputTextField.getText()), key))
+		if (~sendChatPacket(Chat.ChannelManager.getChannel(), Chat.User, 1, char(Chat.InputTextField.getText()), key))
 			serverDisconnected();
 		end
 		Chat.InputTextField.setText('');
@@ -110,10 +110,14 @@ function [] = ChatWindow(name, channelManager, key)
 	%% Network callback
 	function receiveMessage(event)
 		%% TODO: Decode Message
+		
+		packet = JSON.parse(char(event.message));
+		if (strcmp(packet.Type, 'UserList'))
+			Chat.List.setData(packet.List);
+		end
 	end
 	
 	function serverDisconnected()
-		%% TODO REmove the user/chat
 		delete(Chat.ChannelManager);
 		errordlg('Disconnected from server.', 'Error', 'modal');
 		close(Chat.Window);
@@ -121,6 +125,10 @@ function [] = ChatWindow(name, channelManager, key)
 	
 %% Window Callback
 	function windowWillClose(~,~)
+		sendDisconnectPacket(Chat.ChannelManager.getChannel())
+		Chat.ChannelManager.disconnect();
+		ca.Skrundz.Communications.SocketManager.closeAll();
+		
 		GUI.removeItem(Chat.InputTextField);
 		GUI.removeItem(Chat.Button);
 		GUI.removeItem(Chat.List);

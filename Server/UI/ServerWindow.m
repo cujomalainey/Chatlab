@@ -169,6 +169,16 @@ function [] = ServerWindow()
 			handleLogin(event.channel, packet);
 		elseif (strcmp(packet.Type, 'Message'))
 			disp(packet);
+		elseif (strcmp(packet.Type, 'RequestUserList'))
+			userList = cell(1, length(Server.Users));
+			for i=1:1:length(Server.Users)
+				userList{i} = Server.Users{i}.getName();
+			end
+			if (~sendOnlineUserListPacket(channel, userList, []))
+				disconnectClient(channel);
+			end
+		elseif (strcmp(packet.Type, 'Disconnect'))
+			disconnectClient(event.channel);
 		end
 	end
 	
@@ -196,7 +206,15 @@ function [] = ServerWindow()
 		%% ACCCEPT ANY CONNECTIONS FOR NOW
 		if (~sendLoginResponsePacket(channel, 1))
 			disconnectClient(channel);
+		else
+			%% TODO GET THE KEY
+			addUser(packet.Username, channel, []);
 		end
+	end
+	
+	function addUser(username, channel, key)
+		Server.Users{end+1} = User(username, channel, key);
+		ServerUI.OnlineUsersLabel.setText(num2str(length(Server.Users)));
 	end
 	
 	function handleHandshake(channel, packet)
@@ -223,6 +241,16 @@ function [] = ServerWindow()
 		catch
 			return;
 		end
+		i = 0;
+		while i < length(Server.Users)
+			i = i + 1;
+			user = Server.Users{i};
+			if (user.getChannel() == channel)
+				Server.Users(i) = [];
+			end
+			delete(user);
+		end
+		ServerUI.OnlineUsersLabel.setText(num2str(length(Server.Users)));
 		%% TODO FINISH DISCONNECTING
 		% remove user from all chat rooms
 	end

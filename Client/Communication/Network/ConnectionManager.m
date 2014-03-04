@@ -41,7 +41,7 @@ classdef ConnectionManager < handle
 			connected = this.Valid;
 		end
 		
-		function channel = Channel(this)
+		function channel = getChannel(this)
 			channel = this.Channel;
 		end
 		

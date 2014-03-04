@@ -19,6 +19,10 @@ classdef User < handle
 		function c = getChannel(this)
 			c = this.Channel;
 		end
+		
+		function n = getName(this)
+			n = this.Name;
+		end
 	end
 	
 end
