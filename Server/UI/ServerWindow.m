@@ -163,25 +163,61 @@ function [] = ServerWindow()
 	
 	function receive(~, event)
 		%% DECRYPT THE EVENT.MESSAGE FIRST
-		
+		channel = event.channel;
 		packet = JSON.parse(char(event.message));
 		if (strcmp(packet.Type, 'Shake'))
-			handleHandshake(event.channel, packet);
+			handleHandshake(channel, packet);
 		elseif (strcmp(packet.Type, 'Login'))
-			handleLogin(event.channel, packet);
+			handleLogin(channel, packet);
 		elseif (strcmp(packet.Type, 'Message'))
 			disp(packet);
 		elseif (strcmp(packet.Type, 'RequestUserList'))
-			userList = cell(1, length(Server.Users));
-			for i=1:1:length(Server.Users)
-				userList{i} = Server.Users{i}.getName();
-			end
-			if (~sendOnlineUserListPacket(event.channel, userList, []))
-				disconnectClient(channel);
-			end
+			handleSendUserListUpdate();
 		elseif (strcmp(packet.Type, 'Disconnect'))
 			disconnectClient(event.channel);
 		end
+	end
+	
+	function user = getUser(channel)
+		for i=1:1:length(Server.Users)
+			user = Server.Users{i};
+			if (user.getChannel() == channel)
+				return;
+			end
+		end
+		user = [];
+	end
+	
+	function handleSendUserListUpdate()
+		userList = cell(1, length(Server.Users));
+%		deleteIndex = 0;
+		for i=1:1:length(Server.Users)
+			userList{i} = Server.Users{i}.getName();
+% 			if (Server.Users{i}.getName() == user.getName())
+% 				deleteIndex = i;
+% 			end
+		end
+%		% Delete the 'self' user
+%		if (deleteIndex)
+%			userList(deleteIndex) = [];
+%		end
+% 		if (~isempty(userList))
+		i = 0;
+		while i < length(Server.Users)
+			i = i + 1;
+			user = Server.Users{i};
+			%% TODO GET KEY PER USER
+			if (~sendOnlineUserListPacket(user.getChannel, userList, []))
+				disconnectClient(channel);
+				% Recursive if a user is disconnected so we dont send old data
+				% to the early clients and new data to the new clients. This
+				% will cause all clients to be updated until we reach a stable
+				% state
+				handleSendUserListUpdate();
+				return;
+			end
+		end
+% 		end
 	end
 	
 	function handleLogin(channel, packet)
@@ -236,13 +272,6 @@ function [] = ServerWindow()
 	end
 	
 	function disconnectClient(channel)
-		try
-			clientIP = char(channel.socket().getRemoteSocketAddress().toString());
-			ServerUI.TextPane.print(sprintf('Client has disconnected (%s)', clientIP(2:end)));
-			channel.close();
-		catch
-			return;
-		end
 		i = 0;
 		while i < length(Server.Users)
 			i = i + 1;
@@ -251,6 +280,13 @@ function [] = ServerWindow()
 				Server.Users(i) = [];
 			end
 			delete(user);
+		end
+		try
+			clientIP = char(channel.socket().getRemoteSocketAddress().toString());
+			ServerUI.TextPane.print(sprintf('Client has disconnected (%s)', clientIP(2:end)));
+			channel.close();
+		catch
+			return;
 		end
 		ServerUI.OnlineUsersLabel.setText(num2str(length(Server.Users)));
 		%% TODO FINISH DISCONNECTING

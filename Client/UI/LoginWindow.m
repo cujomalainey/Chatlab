@@ -183,8 +183,6 @@ function [] = LoginWindow()
 	end
 	
 	function serverDisconnected()
-		%% TODO REmove the user/chat
-		delete(Login.ChannelManager);
 		errordlg(sprintf('Could not connect to %s:%d', Login.Host, Login.Port), 'Error', 'modal');
 		Login.Button.setText('Login');
 		GUI.enableAll();

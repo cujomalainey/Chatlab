@@ -30,28 +30,11 @@ function [] = ChatWindow(name, key)
 	Chat.TreeBackground = GUI.newTabPanel(Chat.Window, TreeBackgroundPosition, 1);
 	Chat.TreeBackground.addTab('Online Users', []);
 	
-% 	a{1}='fdsfs';
-% 	a{2}='fdsfdfsdfsfsdf';
-% 	a{3}='f';
-% 	a{4}='fdsfs';
-% 	a{5}='fdsfdfsdfsfsdf';
-% 	a{6}='f';
-% 	a{7}='fdsfs';
-% 	a{8}='fdsfdfsdfsfsdf';
-% 	a{9}='f';
-% 	a{10}='fdsfs';
-% 	a{11}='fdsfs';
-% 	a{12}='fdsfs';
-% 	a{13}='fdsfs';
-% 	a{14}='fdsfs';
-% 	a{15}='fdsfs';
-	
 	Chat.List = GUI.newListBox(Chat.Window, [480, 53, 180, 354], @clickList, 1);
 	%% TODO PUT THE KEY
 	if (~sendUserListRequestPacket(Chat.ChannelManager.getChannel(), []))
 		serverDisconnected();
 	end
-% 	Chat.List.setData(a);
 	
 	Chat.ChatPane.printText('hello', 'message');
 	Chat.ChatPane.printText('hello', 'message');
@@ -119,7 +102,17 @@ function [] = ChatWindow(name, key)
 		%% TODO: Decode Message
 		packet = JSON.parse(char(event.message));
 		if (strcmp(packet.Type, 'UserList'))
-			Chat.List.setData(packet.List);
+			list = packet.List;
+			i = 0;
+			while i < length(list)
+				i = i + 1;
+				if (list{i} == Chat.User)
+					list(i) = [];
+				end
+			end
+			if (~isempty(list))
+				Chat.List.setData(list);
+			end
 		end
 	end
 	

@@ -85,19 +85,23 @@ classdef JSON < handle
 				this.addNull(name);
 				return;
 			end
-			this.json(end + 1) = '"';
-			this.json = [this.json, name];
-			this.json(end + 1) = '"';
-			this.json(end + 1) = ':';
+			if (~isempty(name))
+				this.json(end + 1) = '"';
+				this.json = [this.json, name];
+				this.json(end + 1) = '"';
+				this.json(end + 1) = ':';
+			end
 			this.json = [this.json, num2str(number)];
 			this.json(end + 1) = ',';
 		end
 		
 		function addString(this, name, string)
-			this.json(end + 1) = '"';
-			this.json = [this.json, name];
-			this.json(end + 1) = '"';
-			this.json(end + 1) = ':';
+			if (~isempty(name))
+				this.json(end + 1) = '"';
+				this.json = [this.json, name];
+				this.json(end + 1) = '"';
+				this.json(end + 1) = ':';
+			end
 			this.json(end + 1) = '"';
 			this.json = [this.json, string];
 			this.json(end + 1) = '"';
@@ -105,10 +109,12 @@ classdef JSON < handle
 		end
 		
 		function addLogical(this, name, logic)
-			this.json(end + 1) = '"';
-			this.json = [this.json, name];
-			this.json(end + 1) = '"';
-			this.json(end + 1) = ':';
+			if (~isempty(name))
+				this.json(end + 1) = '"';
+				this.json = [this.json, name];
+				this.json(end + 1) = '"';
+				this.json(end + 1) = ':';
+			end
 			if (logic)
 				this.json = [this.json, 'true'];
 			else
@@ -118,25 +124,45 @@ classdef JSON < handle
 		end
 		
 		function addNull(this,name)
-			this.json(end + 1) = '"';
-			this.json = [this.json, name];
-			this.json(end + 1) = '"';
-			this.json(end + 1) = ':';
+			if (~isempty(name))
+				this.json(end + 1) = '"';
+				this.json = [this.json, name];
+				this.json(end + 1) = '"';
+				this.json(end + 1) = ':';
+			end
 			this.json = [this.json, 'null'];
 			this.json(end + 1) = ',';
 		end
 		
 		function addCellArray(this, name, cellarray)
-			this.json(end + 1) = '"';
-			this.json = [this.json, name];
-			this.json(end + 1) = '"';
-			this.json(end + 1) = ':';
+			if (~isempty(name))
+				this.json(end + 1) = '"';
+				this.json = [this.json, name];
+				this.json(end + 1) = '"';
+				this.json(end + 1) = ':';
+			end
 			this.json(end + 1) = '[';
 			
-			for i = 1:1:length(cellarray)
-				this.addStruct('', cellarray{i});
+			for i=1:1:length(cellarray)
+				c = class(cellarray{i});
+				switch c
+					case 'double'
+						this.addNumber([], cellarray{i});
+						continue;
+					case 'char'
+						this.addString([], cellarray{i});
+						continue;
+					case 'cell'
+						this.addCellArray([], cellarray{i});
+						continue;
+					case 'struct'
+						this.addStruct([], cellarray{i});
+						continue;
+					case 'logical'
+						this.addLogical([], cellarray{i});
+						continue;
+				end
 			end
-			
 			if (this.json(end) == ',')
 				this.json(end) = ']';
 			else
