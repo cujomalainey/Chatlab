@@ -43,7 +43,7 @@ function [] = LoginWindow()
 	Login.Success = 0;
 	
 	Login.Key = [];
-	Login.ChannelManager = [];
+	Login.ChannelManager = ChannelManager.instance();
 	Login.Host = 'localhost';
 	Login.Port = 10101;
 	
@@ -58,8 +58,8 @@ function [] = LoginWindow()
 	function windowWillClose(~,~)
 		if (~Login.Success)
 			Login.ChannelManager.disconnect();
+			ca.Skrundz.Communications.SocketManager.closeAll();
 		end
-		ca.Skrundz.Communications.SocketManager.closeAll();
 		
 		GUI.removeItem(Login.ServerLabel);
 		GUI.removeItem(Login.PassLabel);
@@ -134,16 +134,16 @@ function [] = LoginWindow()
 		Login.Button.setText('Connecting');
 		GUI.disableAll();
 		getHost();
-		Login.ChannelManager = ConnectionManager(Login.Host, Login.Port, @receiveMessage);
+% 		Login.ChannelManager = ConnectionManager(Login.Host, Login.Port, @receive);
 		% Make sure the connection is successful
-		if (~Login.ChannelManager.isConnected())
+		if (~Login.ChannelManager.connect(Login.Host, Login.Port, @receive))
 			serverDisconnected();
 		else
 			Login.Button.setText('Authenticating');
 		end
 	end
 	
-	function receiveMessage(event)
+	function receive(event)
 		%% TODO: Decode Message
 		
 		packet = JSON.parse(char(event.message));
@@ -200,7 +200,7 @@ function [] = LoginWindow()
 		
 		close(Login.Window);
 		
-		ChatWindow(username, Login.ChannelManager, key);
+		ChatWindow(username, key);
 	end
 
 end

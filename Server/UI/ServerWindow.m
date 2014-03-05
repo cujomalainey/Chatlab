@@ -162,6 +162,8 @@ function [] = ServerWindow()
 	end
 	
 	function receive(~, event)
+		%% DECRYPT THE EVENT.MESSAGE FIRST
+		
 		packet = JSON.parse(char(event.message));
 		if (strcmp(packet.Type, 'Shake'))
 			handleHandshake(event.channel, packet);
@@ -174,7 +176,7 @@ function [] = ServerWindow()
 			for i=1:1:length(Server.Users)
 				userList{i} = Server.Users{i}.getName();
 			end
-			if (~sendOnlineUserListPacket(channel, userList, []))
+			if (~sendOnlineUserListPacket(event.channel, userList, []))
 				disconnectClient(channel);
 			end
 		elseif (strcmp(packet.Type, 'Disconnect'))

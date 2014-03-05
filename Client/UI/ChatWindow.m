@@ -1,11 +1,11 @@
-function [] = ChatWindow(name, channelManager, key)
+function [] = ChatWindow(name, key)
 %CHATWINDOW Create and display a chat window for the user.
 
 %% Get a window
 	Chat.Window = NewWindow(['Chat : Logged in as ', name], 670, 461, @windowWillClose);
 	
 %% Get the channel for communication
-	Chat.ChannelManager = channelManager;
+	Chat.ChannelManager = ChannelManager.instance(); % Should carry over from the old instance
 	Chat.ChannelManager.setCallback(@receiveMessage);
 %% Get the key for encryption
 	Chat.Keys.Server = key;
@@ -47,6 +47,10 @@ function [] = ChatWindow(name, channelManager, key)
 % 	a{15}='fdsfs';
 	
 	Chat.List = GUI.newListBox(Chat.Window, [480, 53, 180, 354], @clickList, 1);
+	%% TODO PUT THE KEY
+	if (~sendUserListRequestPacket(Chat.ChannelManager.getChannel(), []))
+		serverDisconnected();
+	end
 % 	Chat.List.setData(a);
 	
 	Chat.ChatPane.printText('hello', 'message');
@@ -77,6 +81,9 @@ function [] = ChatWindow(name, channelManager, key)
 		
 % 		index = Chat.List.getSelectedIndex();
 		Chat.SelectedPerson = Chat.List.getSelectedValue();
+		if (isempty(Chat.SelectedPerson))
+			return;
+		end
 		
 		if (Chat.Menu)
 			delete(Chat.Menu);
@@ -110,7 +117,6 @@ function [] = ChatWindow(name, channelManager, key)
 	%% Network callback
 	function receiveMessage(event)
 		%% TODO: Decode Message
-		
 		packet = JSON.parse(char(event.message));
 		if (strcmp(packet.Type, 'UserList'))
 			Chat.List.setData(packet.List);
@@ -125,7 +131,7 @@ function [] = ChatWindow(name, channelManager, key)
 	
 %% Window Callback
 	function windowWillClose(~,~)
-		sendDisconnectPacket(Chat.ChannelManager.getChannel())
+		sendDisconnectPacket(Chat.ChannelManager.getChannel());
 		Chat.ChannelManager.disconnect();
 		ca.Skrundz.Communications.SocketManager.closeAll();
 		
