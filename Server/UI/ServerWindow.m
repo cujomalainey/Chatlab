@@ -75,12 +75,8 @@ function [] = ServerWindow()
 		catch
 		end
 		%% Fix later. Use the USER model class
-% 		for i = 1:1:length(Server.Users)
-% 			try
-% 				disconnect(Server.Users{i});
-% 				Server.Users(i) = [];
-% 			catch
-% 			end
+% 		while (~isempty(Server.Users))
+% 			disconnectClient(Server.Users{1});
 % 		end
 		ca.Skrundz.Communications.SocketManager.closeAll();
 		
@@ -174,11 +170,17 @@ function [] = ServerWindow()
 		elseif (strcmp(packet.Type, 'RequestUserList'))
 			handleSendUserListUpdate();
 		elseif (strcmp(packet.Type, 'Disconnect'))
-			disconnectClient(event.channel);
+			disconnectClient(channel);
+		elseif (strcmp(packet.Type, 'StartChat'))
+			handleStartChat(channel, packet)
+		elseif (strcmp(packet.Type, 'LeaveChat'))
+			handleLeaveChat(channel, packet.ID);
+		elseif (strcmp(packet.Type, 'ChatInviteResponse'))
+			handleChatInviteResponse(channel, packet);
 		end
 	end
 	
-	function user = getUser(channel)
+	function user = getUserByChannel(channel)
 		for i=1:1:length(Server.Users)
 			user = Server.Users{i};
 			if (user.getChannel() == channel)
@@ -188,20 +190,71 @@ function [] = ServerWindow()
 		user = [];
 	end
 	
+	function user = getUserByName(name)
+		for i=1:1:length(Server.Users)
+			user = Server.Users{i};
+			if (strcmp(user.getName(), name))
+				return;
+			end
+		end
+		user = [];
+	end
+	
+	function room = getRoomByID(id)
+		for i=1:1:length(Server.ChatRooms)
+			room = Server.ChatRooms{i};
+			if (room.getID == id)
+				return;
+			end
+		end
+		room = [];
+	end
+	
+	function handleChatInviteResponse(channel, packet)
+		%% TODO MAKE SURE THE USER ISNT TRICKING US AND THAT THEY ACTUALLAY WERE INVITED
+		if (packet.Response)
+			room = getRoomByID(packet.ID);
+			%% TODO: FILL IN KEY
+			if (~sendChatStartedPacket(channel, room.getName(), packet.ID, []))
+				disconnectClient(channel);
+				return;
+			end
+			room.addUser(getUserByChannel(channel), 'Client');
+		else
+			%% TODO TELL THE ASKER THAT the user declined
+		end
+	end
+	
+	function handleLeaveChat(channel, id)
+		room = getRoomByID(id);
+		user = getUserByChannel(channel);
+		room.removeUser(user, [], @removeRoom);
+		%% TODO REMOVE THE USER FROM THE CHAT
+	end
+	
+	function handleStartChat(channel, packet)
+		requestingUser = getUserByChannel(channel);
+		targetUser = getUserByName(packet.Username);
+		if (isempty(requestingUser) || isempty(targetUser)) % One of the users doesn't exist
+			%% TODO: FAILED TO INVITE USER TO CHAT RESPONSE TO THE CHANNEL
+			return;
+		end
+		room = createRoom();
+		%% TODO: FILL IN KEYSSSS
+		if (~sendChatStartedPacket(channel, room.getName(), room.getID(), []))
+			disconnectClient(channel);
+		end
+		if (~sendChatInvitePacket(targetUser.getChannel(), room.getID(), requestingUser.getName(), []))
+			disconnectClient(targetUser.getChannel());
+		end
+		room.addUser(requestingUser, 'Owner');
+	end
+	
 	function handleSendUserListUpdate()
 		userList = cell(1, length(Server.Users));
-%		deleteIndex = 0;
 		for i=1:1:length(Server.Users)
 			userList{i} = Server.Users{i}.getName();
-% 			if (Server.Users{i}.getName() == user.getName())
-% 				deleteIndex = i;
-% 			end
 		end
-%		% Delete the 'self' user
-%		if (deleteIndex)
-%			userList(deleteIndex) = [];
-%		end
-% 		if (~isempty(userList))
 		i = 0;
 		while i < length(Server.Users)
 			i = i + 1;
@@ -217,7 +270,6 @@ function [] = ServerWindow()
 				return;
 			end
 		end
-% 		end
 	end
 	
 	function handleLogin(channel, packet)
@@ -250,6 +302,24 @@ function [] = ServerWindow()
 		end
 	end
 	
+	function room = createRoom()
+		id = UniqueID().ID;
+		room = ChatRoom(sprintf('Room #%d', id), id);
+		Server.ChatRooms{end+1} = room;
+		ServerUI.RoomCountLabel.setText(num2str(length(Server.ChatRooms)));
+	end
+	
+	function removeRoom(chatroom)
+		i = 0;
+		while (i < length(Server.ChatRooms))
+			i = i + 1;
+			if (Server.ChatRooms{i} == chatroom)
+				Server.ChatRooms(i) = [];
+			end
+		end
+		ServerUI.RoomCountLabel.setText(num2str(length(Server.ChatRooms)));
+	end
+	
 	function addUser(username, channel, key)
 		Server.Users{end+1} = User(username, channel, key);
 		ServerUI.OnlineUsersLabel.setText(num2str(length(Server.Users)));
@@ -273,11 +343,15 @@ function [] = ServerWindow()
 	
 	function disconnectClient(channel)
 		i = 0;
+		user = getUserByChannel(channel);
 		while i < length(Server.Users)
 			i = i + 1;
-			user = Server.Users{i};
-			if (user.getChannel() == channel)
+			if (Server.Users{i} == user)
 				Server.Users(i) = [];
+			end
+			for i=1:1:length(Server.ChatRooms)
+				room = Server.ChatRooms{i};
+				room.removeUser(user, []);
 			end
 			delete(user);
 		end
@@ -289,8 +363,6 @@ function [] = ServerWindow()
 			return;
 		end
 		ServerUI.OnlineUsersLabel.setText(num2str(length(Server.Users)));
-		%% TODO FINISH DISCONNECTING
-		% remove user from all chat rooms
 	end
 	
 end

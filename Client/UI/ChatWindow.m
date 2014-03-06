@@ -21,10 +21,7 @@ function [] = ChatWindow(name, key)
 	ButtonPosition = [610, 10, 50, 20];
 	Chat.Button = GUI.newButton(Chat.Window, ButtonPosition, 'Send', @textFieldEnter, 1);
 	
-	Chat.ChatPane = ChatPane(Chat.Window, [0, 40, 470, 400]);
-	Chat.ChatPane.addTab('hello', 1);
-	Chat.ChatPane.addTab('Tagdgdfb', 2);
-	Chat.ChatPane.addTab('fdsf', 3);
+	Chat.ChatPane = ChatPane(Chat.Window, [0, 40, 470, 400], @leaveChat);
 	
 	TreeBackgroundPosition = [470, 40, 200, 400];
 	Chat.TreeBackground = GUI.newTabPanel(Chat.Window, TreeBackgroundPosition, 1);
@@ -32,15 +29,9 @@ function [] = ChatWindow(name, key)
 	
 	Chat.List = GUI.newListBox(Chat.Window, [480, 53, 180, 354], @clickList, 1);
 	%% TODO PUT THE KEY
-	if (~sendUserListRequestPacket(Chat.ChannelManager.getChannel(), []))
+	if (~sendUserListRequestPacket(Chat.ChannelManager.getChannel(), Chat.Keys.Server))
 		serverDisconnected();
 	end
-	
-	Chat.ChatPane.printText('hello', 'message');
-	Chat.ChatPane.printText('hello', 'message');
-	Chat.ChatPane.printText('hello', 'message');
-	Chat.ChatPane.printText('hello', 'message');
-	Chat.ChatPane.printText('fdsf', 'color changed because of new text while not in focus');
 	
 	%% Initialize some state values
 	Chat.SelectedPerson = '';
@@ -50,7 +41,7 @@ function [] = ChatWindow(name, key)
 	function textFieldEnter(src, event)
 		%% TODO PROPERLY IMPLEMENT
 		% THIS PROVES THAT IT WORKS!
-		if (~sendChatPacket(Chat.ChannelManager.getChannel(), Chat.User, 1, char(Chat.InputTextField.getText()), key))
+		if (~sendChatPacket(Chat.ChannelManager.getChannel(), Chat.User, 1, char(Chat.InputTextField.getText()), Chat.Keys.Server))
 			serverDisconnected();
 		end
 		Chat.InputTextField.setText('');
@@ -88,13 +79,20 @@ function [] = ChatWindow(name, key)
 	
 	%% ContextMenu Callback
 	function startChat(~,~)
-		disp(Chat.SelectedPerson);
-		disp('start chat');
+		if (~sendChatStartRequestPacket(Chat.ChannelManager.getChannel(), Chat.SelectedPerson, Chat.Keys.Server))
+			serverDisconnected();
+		end
 	end
 	
 	function inviteToChat(~,~)
 		disp(Chat.SelectedPerson);
 		disp('invite to chat');
+	end
+	
+	function leaveChat(id)
+		if (~sendChatLeavePacket(Chat.ChannelManager.getChannel(), id, Chat.Keys.Server))
+			serverDisconnected();
+		end
 	end
 	
 	%% Network callback
@@ -106,12 +104,39 @@ function [] = ChatWindow(name, key)
 			i = 0;
 			while i < length(list)
 				i = i + 1;
-				if (list{i} == Chat.User)
+				if (strcmp(list{i}, Chat.User))
 					list(i) = [];
 				end
 			end
 			if (~isempty(list))
 				Chat.List.setData(list);
+			end
+		elseif (strcmp(packet.Type, 'StartedChat'))
+			id = packet.ID;
+			Chat.ChatPane.addTab(packet.Name, id);
+			Chat.ChatPane.setSelectedTabByID(id);
+		elseif (strcmp(packet.Type, 'ChatInvite'))
+			accept = questdlg(sprintf('%s would like to chat with you.', packet.Name), 'Chat Invite', 'Deny', 'Accept', 'Deny');
+			if (strcmp(accept, 'Deny'))
+				response = 0;
+			else
+				response = 1;
+			end
+			if (~sendChatInviteResponsePacket(Chat.ChannelManager.getChannel(), packet.ID, response, Chat.Keys.Server))
+				serverDisconnected();
+			end
+		elseif (strcmp(packet.Type, 'Message'))
+			id = packet.ChatID;
+			sender = packet.Sender;
+			message = packet.Message;
+			%% Verify the integrity of the message
+			s = strsplit(message,':');
+			if ((strcmp(sender, s(1))) || ((length(s) == 1) && strcmp(sender, 'Server')))
+				% Success
+				Chat.ChatPane.printTextByID(id, message);
+			else
+				% Invalid message
+				%% TODO: HANDLE INVALID. OR MAYBE NOT?
 			end
 		end
 	end

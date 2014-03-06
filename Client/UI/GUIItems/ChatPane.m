@@ -3,28 +3,46 @@ classdef ChatPane < TabPanel
 	
 	properties (Hidden)
 		Tabs;
+		TabRemovedCallback;
 	end
 	
 	methods
 		%% Constructor
-		function C = ChatPane(Parent, Position)
+		function C = ChatPane(Parent, Position, TabRemoveCB)
 			% Initialize with MATLAB
 			C = C@TabPanel(Parent, Position);
 			set(C.JavaTabPane, 'StateChangedCallback', @C.tabChanged);
+			C.TabRemovedCallback = TabRemoveCB;
 		end
 		
 		%% Print a message to the chat window. Each line should be separate indexes in the message array
 		function printText(this, chatName, message)
 			for i = 1:1:length(this.Tabs)
-				if (length(this.Tabs{i}.Name) == length(chatName))
-					if (this.Tabs{i}.Name == chatName)
+				if (strcmp(chatName, this.Tabs{i}.Name))
+% 				if (length(this.Tabs{i}.Name) == length(chatName))
+% 					if (this.Tabs{i}.Name == chatName)
 						% Print message
 						this.Panes{i}.print(message);
 						if (this.getCurrentTabIndex() + 1 ~= i)
 							this.Tabs{i}.alert();
 						end
 					end
-				end
+% 				end
+			end
+		end
+		
+		function printTextByID(this, id, message)
+			for i = 1:1:length(this.Tabs)
+				if (id == this.Tabs{i}.ID)
+% 				if (length(this.Tabs{i}.ID) == length(chatName))
+% 					if (this.Tabs{i}.Name == chatName)
+						% Print message
+						this.Panes{i}.print(message);
+						if (this.getCurrentTabIndex() + 1 ~= i)
+							this.Tabs{i}.alert();
+						end
+					end
+% 				end
 			end
 		end
 		
@@ -39,8 +57,18 @@ classdef ChatPane < TabPanel
 			this.JavaTabPane.setTabComponentAt(index - 1, this.Tabs{index}.getTab().getPane());
 		end
 		
+		function setSelectedTabByID(this, id)
+			for i = 1:1:length(this.Tabs)
+				if (id == this.Tabs{i}.getID())
+					this.JavaTabPane.setSelectedIndex(i-1);
+					return;
+				end
+			end
+		end
+		
 		%% Callback
 		function removeTab(this, tab)
+			this.TabRemovedCallback(tab.getID());
 			i = 1;
 			while (i <= length(this.Tabs))
 				if (this.Tabs{i} == tab)
