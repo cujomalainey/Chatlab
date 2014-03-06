@@ -54,7 +54,7 @@ classdef JSON < handle
 			for i=1:1:length(names)
 				c = class(structure.(names{i}));
 				switch c
-					case 'double'
+					case {'double', 'uint32'}
 						this.addNumber(names{i}, structure.(names{i}));
 						continue;
 					case 'char'

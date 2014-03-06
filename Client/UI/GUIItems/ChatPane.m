@@ -56,7 +56,7 @@ classdef ChatPane < TabPanel
 		end
 		
 		%% Callback
-		function tabChanged(this, src, event)
+		function tabChanged(this, ~, ~)
 			if (~(this.JavaTabPane.getSelectedIndex() == -1))
 				this.Tabs{this.JavaTabPane.getSelectedIndex() + 1}.hideAlert();
 			end

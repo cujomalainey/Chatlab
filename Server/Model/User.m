@@ -23,6 +23,10 @@ classdef User < handle
 		function n = getName(this)
 			n = this.Name;
 		end
+		
+		function k = getKey(this)
+			k = this.Key;
+		end
 	end
 	
 end

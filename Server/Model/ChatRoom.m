@@ -3,34 +3,42 @@ classdef ChatRoom < handle
 	%messaging
 	
 	properties (SetAccess = private)
-		Creator = [];
-		Users = [];
-		Permissions = []
+		Users = {};
+		Permissions = {}; % Owner, Moderator, Client -> string
 		Name = '';
-		ID = '';
+		ID = 0;
 	end
 	
 	methods
 		%% Constructor
-		function room = ChatRoom(name, id, creator)
-			room.Creator = creator;
+		function room = ChatRoom(name, id)
 			room.Name = name;
 			room.ID = id;
 		end
 		
 		%% User Management
-		function addUser(this, user, permissionLevel)
+		function addUser(this, user, permission)
+			this.sendMessage('Server', sprintf('%s has joined the chat', user.getName()));
 			this.Users{length(this.Users) + 1} = user;
-			this.Persmissions{length(this.Users) + 1} = permissionLevel;
+			this.Permissions{length(this.Users)} = permission;
 		end
 		
-		function removeUser(this, user, reason)
-			for i=1:1:length(this.Users)
+		function removeUser(this, user, reason, callback)
+			i = 0;
+			while (i < length(this.Users))
+				i = i + 1;
 				if (this.Users{i} == user)
 					this.Users(i) = [];
 					this.Permissions(i) = [];
-					%% TODO SEND THE REASON
+					if (~isempty(reason))
+						%% TODO SEND THE REASON
+					end
 				end
+			end
+			this.sendMessage('Server', sprintf('%s has left the chat', user.getName()));
+			% Delete the room if there are no more users in it
+			if (isempty(this.Users))
+				callback(this);
 			end
 		end
 		
@@ -40,18 +48,25 @@ classdef ChatRoom < handle
 			%% Propagate change - Send some message packet for room rename
 		end
 		
+		function n = getName(this)
+			n = this.Name;
+		end
+		
+		function id = getID(this)
+			id = this.ID;
+		end
+		
 		%% Send message
-		function sendMessage(this, message, sender)
-			i = 1;
+		function sendMessage(this, sender, message)
+			i = 0;
 			while (i < length(this.Users))
 				i = i + 1;
 				user = this.Users{i};
 				channel = user.getChannel();
-				if (~sendChatPacket(channel, sender, this.ID, message))
+				if (~sendChatPacket(channel, sender, this.ID, message, user.getKey()))
 					this.Creator.disconnectClient(channel);
 				end
 			end
-			%% TODO Send message
 		end
 	end
 	
