@@ -166,7 +166,7 @@ function [] = ServerWindow()
 		elseif (strcmp(packet.Type, 'Login'))
 			handleLogin(channel, packet);
 		elseif (strcmp(packet.Type, 'Message'))
-			disp(packet);
+			handleMessage(packet);
 		elseif (strcmp(packet.Type, 'RequestUserList'))
 			handleSendUserListUpdate();
 		elseif (strcmp(packet.Type, 'Disconnect'))
@@ -208,6 +208,13 @@ function [] = ServerWindow()
 			end
 		end
 		room = [];
+	end
+	
+	function handleMessage(packet)
+		%% TODO
+		id = packet.ChatID;
+		room = getRoomByID(id);
+		room.sendMessage(packet.Sender, packet.Message);
 	end
 	
 	function handleChatInviteResponse(channel, packet)

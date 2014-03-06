@@ -41,7 +41,7 @@ function [] = ChatWindow(name, key)
 	function textFieldEnter(src, event)
 		%% TODO PROPERLY IMPLEMENT
 		% THIS PROVES THAT IT WORKS!
-		if (~sendChatPacket(Chat.ChannelManager.getChannel(), Chat.User, 1, char(Chat.InputTextField.getText()), Chat.Keys.Server))
+		if (~sendChatPacket(Chat.ChannelManager.getChannel(), Chat.User, 1, sprintf('%s: %s', Chat.User, char(Chat.InputTextField.getText())), Chat.Keys.Server))
 			serverDisconnected();
 		end
 		Chat.InputTextField.setText('');
