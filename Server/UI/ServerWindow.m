@@ -226,7 +226,9 @@ function [] = ServerWindow()
 				disconnectClient(channel);
 				return;
 			end
-			room.addUser(getUserByChannel(channel), 'Client');
+			user = getUserByChannel(channel);
+			room.addUser(user, 'Client');
+			ServerUI.TextPane.print(sprintf('%s has joine a chat room (%d)', user.getName(), packet.ID));
 		else
 			%% TODO TELL THE ASKER THAT the user declined
 		end
@@ -236,6 +238,7 @@ function [] = ServerWindow()
 		room = getRoomByID(id);
 		user = getUserByChannel(channel);
 		room.removeUser(user, [], @removeRoom);
+		ServerUI.TextPane.print(sprintf('%s has left a chat room (%d)', user.getName(), id));
 		%% TODO REMOVE THE USER FROM THE CHAT
 	end
 	
@@ -247,6 +250,7 @@ function [] = ServerWindow()
 			return;
 		end
 		room = createRoom();
+		ServerUI.TextPane.print(sprintf('%s has create a new room (%d)', requestingUser.getName(), room.getID()));
 		%% TODO: FILL IN KEYSSSS
 		if (~sendChatStartedPacket(channel, room.getName(), room.getID(), []))
 			disconnectClient(channel);
