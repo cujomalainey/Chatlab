@@ -33,9 +33,9 @@ classdef ChatRoom < handle
 					if (~isempty(reason))
 						%% TODO SEND THE REASON
 					end
+					this.sendMessage('Server', sprintf('%s has left the chat', user.getName()));
 				end
 			end
-			this.sendMessage('Server', sprintf('%s has left the chat', user.getName()));
 			% Delete the room if there are no more users in it
 			if (isempty(this.Users))
 				callback(this);

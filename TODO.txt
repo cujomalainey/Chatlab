@@ -1,10 +1,7 @@
 To Do:
 
 - Improve the handshake in the login window to allow for easy connection pickup from the chat window when logged in successfully, but without any security holes.
-- Add a TON of new packets for all sorts of things
-	- [Finish] Chat message
 	- Ability to rename the chat (the tab)
-	- Creating new chat rooms
 	- Inviting people to existing chat rooms
 	- Booting people from the chat room
 	- Setting permissions for members in chat

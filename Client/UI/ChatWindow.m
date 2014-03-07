@@ -149,14 +149,17 @@ function [] = ChatWindow(name, key)
 	
 %% Window Callback
 	function windowWillClose(~,~)
-		sendDisconnectPacket(Chat.ChannelManager.getChannel());
-		Chat.ChannelManager.disconnect();
-		ca.Skrundz.Communications.SocketManager.closeAll();
-		
-		GUI.removeItem(Chat.InputTextField);
-		GUI.removeItem(Chat.Button);
-		GUI.removeItem(Chat.List);
-		delete(Chat.ChatPane);
+		try
+			sendDisconnectPacket(Chat.ChannelManager.getChannel());
+			Chat.ChannelManager.disconnect();
+			ca.Skrundz.Communications.SocketManager.closeAll();
+
+			GUI.removeItem(Chat.InputTextField);
+			GUI.removeItem(Chat.Button);
+			GUI.removeItem(Chat.List);
+			delete(Chat.ChatPane);
+		catch
+		end
 		delete(Chat.Window);
 	end
 end

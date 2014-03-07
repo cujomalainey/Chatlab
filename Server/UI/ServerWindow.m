@@ -353,12 +353,12 @@ function [] = ServerWindow()
 		user = getUserByChannel(channel);
 		while i < length(Server.Users)
 			i = i + 1;
+			for j=1:1:length(Server.ChatRooms)
+				room = Server.ChatRooms{j};
+				room.removeUser(user, [], @removeRoom);
+			end
 			if (Server.Users{i} == user)
 				Server.Users(i) = [];
-			end
-			for i=1:1:length(Server.ChatRooms)
-				room = Server.ChatRooms{i};
-				room.removeUser(user, []);
 			end
 			delete(user);
 		end

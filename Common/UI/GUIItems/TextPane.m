@@ -24,10 +24,13 @@ classdef TextPane < GUIItem
 		
 		%% Print a message to the window
 		function print(this, message)
+			%% TODO GET CURRENT TIME AND ADD TO THE MESSAGE
 			if isempty(char(this.JavaTextPane.getText()))
-				this.JavaTextPane.setText(sprintf('%s', char(this.JavaTextPane.getText()), message));
+				str = java.lang.String(sprintf('%s', message));
+				this.JavaTextPane.setText(str);
 			else
-				this.JavaTextPane.setText(sprintf('%s\n%s', char(this.JavaTextPane.getText()), message));
+				str = java.lang.String(sprintf('%s\n%s', char(this.JavaTextPane.getText()), message));
+				this.JavaTextPane.setText(str);
 			end
 		end
 		
