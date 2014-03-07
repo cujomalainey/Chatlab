@@ -24,6 +24,9 @@ classdef TextPane < GUIItem
 		
 		%% Print a message to the window
 		function print(this, message)
+			scrollBar = this.JavaScrollPane.getVerticalScrollBar();
+			shouldScroll = scrollBar.getValue() + scrollBar.getSize().getHeight() + 12 * 4 > scrollBar.getMaximum();
+			
 			%% TODO GET CURRENT TIME AND ADD TO THE MESSAGE
 			if isempty(char(this.JavaTextPane.getText()))
 				str = java.lang.String(sprintf('%s', message));
@@ -31,6 +34,11 @@ classdef TextPane < GUIItem
 			else
 				str = java.lang.String(sprintf('%s\n%s', char(this.JavaTextPane.getText()), message));
 				this.JavaTextPane.setText(str);
+			end
+			
+			if (shouldScroll)
+				pause(0.1);
+				scrollBar.setValue(2147483647);
 			end
 		end
 		
