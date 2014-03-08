@@ -163,7 +163,7 @@ function [] = ChatWindow(name, key)
 			
 			
 			if (strcmp(packet.Response, '-1'))
-				if (~sendKeyPacket(Chat.ChannelManager.getChannel(), Chat.Key.startkey(1), []))
+				if (~sendKeyPacket(Chat.ChannelManager.getChannel(), mat2str(Chat.Key.startkey(1)), []))
 					
 					
 					
