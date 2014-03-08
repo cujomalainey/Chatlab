@@ -3,7 +3,8 @@
 classdef keyhandler
 
 	properties (SetAccess = private) 
-		chain
+		chain = {};
+        temp = {};
     end
 	methods
 
@@ -29,10 +30,10 @@ classdef keyhandler
                     send(i, j) = mod(3^r, 17);
                 end
             end
-            id = strcat('u', num2str(userId));
+            id = num2str(userId);
             disp(id);
             disp(mat);
-            obj.chain.(id) = mat;
+            obj.chain.{id} = mat;
             disp(obj.chain.(id));
             msg = send;
         end
