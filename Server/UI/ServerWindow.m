@@ -184,7 +184,7 @@ function [] = ServerWindow()
 			
 			
 		elseif (strcmp(packet.Type, 'Key'))
-			key = packet.Key;
+			key = eval(packet.Key);
 			k = keyhandler();
 			response = k.returnkey(1, 1, key, 1);
 			%% TODO
@@ -321,34 +321,23 @@ function [] = ServerWindow()
 				end
 			else % User doesnt exist so create
 				Server.UserList.(username) = password;
-			end
-			
-			
-			if ( matches)
 				if (~sendLoginResponsePacket(channel, 1))
 					disconnectClient(channel);
+				else
+					clientIP = char(channel.socket().getRemoteSocketAddress().toString());
+					ServerUI.TextPane.print(sprintf('%s has logged in (%s)', username, clientIP(2:end)));
+					%% TODO GET THE KEY
+					addUser(packet.Username, channel, []);
 				end
-				add the client to the list
-				update the UI
-			else
-				if (~sendLoginResponsePacket(channel, 0))
-					disconnectClient(channel);
-				end
-				log the invalid password attempt
-				disconnectClient(channel);
 			end
-		else
-			create the username with the password
-			add the client to the list
-			update the UI
 		end
 		%% ACCCEPT ANY CONNECTIONS FOR NOW
-		if (~sendLoginResponsePacket(channel, 1))
-			disconnectClient(channel);
-		else
-			%% TODO GET THE KEY
-			addUser(packet.Username, channel, []);
-		end
+% 		if (~sendLoginResponsePacket(channel, 1))
+% 			disconnectClient(channel);
+% 		else
+% 			%% TODO GET THE KEY
+% 			addUser(packet.Username, channel, []);
+% 		end
 	end
 	
 	function room = createRoom()

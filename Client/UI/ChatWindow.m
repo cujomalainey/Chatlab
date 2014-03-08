@@ -53,7 +53,7 @@ function [] = ChatWindow(name, key)
 		
 		
 		%% TODO GET KEY
-		if (~sendKeyPacket(Chat.ChannelManager.getChannel(), Chat.Key.startkey(1), []))
+		if (~sendKeyPacket(Chat.ChannelManager.getChannel(), mat2str(Chat.Key.startkey(1)), []))
 			
 			
 			
