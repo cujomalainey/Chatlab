@@ -305,6 +305,13 @@ function [] = ServerWindow()
 		if (~isempty(username))
 			if (isfield(Server.UserList, username))
 				if (strcmp(Server.UserList.(username), password))
+					if (~isempty(getUserByName(name))) % Duplicate login
+						clientIP = char(channel.socket().getRemoteSocketAddress().toString());
+						ServerUI.TextPane.print(sprintf('(%s) duplicate a login attempt as %s', clientIP(2:end), username));
+						sendLoginResponsePacket(channel, 0)
+						disconnectClient(channel);
+						return;
+					end
 					if (~sendLoginResponsePacket(channel, 1))
 						disconnectClient(channel);
 					else
@@ -315,7 +322,7 @@ function [] = ServerWindow()
 					end
 				else % Invalid password
 					clientIP = char(channel.socket().getRemoteSocketAddress().toString());
-						ServerUI.TextPane.print(sprintf('(%s) failed a login attempt as %s', clientIP(2:end), username));
+					ServerUI.TextPane.print(sprintf('(%s) failed a login attempt as %s', clientIP(2:end), username));
 					sendLoginResponsePacket(channel, 0)
 					disconnectClient(channel);
 					return;
@@ -332,13 +339,6 @@ function [] = ServerWindow()
 				end
 			end
 		end
-		%% ACCCEPT ANY CONNECTIONS FOR NOW
-% 		if (~sendLoginResponsePacket(channel, 1))
-% 			disconnectClient(channel);
-% 		else
-% 			%% TODO GET THE KEY
-% 			addUser(packet.Username, channel, []);
-% 		end
 	end
 	
 	function room = createRoom()
