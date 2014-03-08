@@ -161,8 +161,7 @@ function [] = ChatWindow(name, key)
 		elseif (strcmp(packet.Type, 'KeyResponse'))
 			
 			
-			disp(strcat(packet.Response, ':)'));
-			if (packet.Response == '-1')
+			if (strcmp(packet.Response, '-1'))
 				if (~sendKeyPacket(Chat.ChannelManager.getChannel(), mat2str(Chat.Key.startkey(1)), []))
 					
 					
@@ -173,6 +172,7 @@ function [] = ChatWindow(name, key)
 				end
 			else
 				disp('success')
+                Chat.Key.addkey(1, 1, eval(packet.Response))
 			end
 			
 			

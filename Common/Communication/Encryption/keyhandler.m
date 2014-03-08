@@ -47,7 +47,8 @@ classdef keyhandler < handle
         end
         
         function addkey(obj, userId, groupId, matrix)
-            obj.chain.(strcat('k', num2str(groupId))) = matrix .^ obj.chain.(strcat('u', num2str(userId)));
+            obj.chain.(strcat('k', num2str(groupId))) = mod(matrix .^ obj.chain.(strcat('u', num2str(userId))), 17);
+            disp(obj.chain.(strcat('k', num2str(groupId))));
         end
 	end % methods
 end % classdef
