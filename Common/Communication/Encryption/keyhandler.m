@@ -1,15 +1,14 @@
 %key handler
 
-classdef keyhandler
+classdef keyhandler < handle
 
 	properties (SetAccess = private) 
-		chain = {};
-        temp = {};
+		chain
     end
 	methods
 
 		function obj = keyhandler()
-            obj.chain = struct;
+            obj.chain = struct();
 		end
 
         function key = getKey(obj, groupId)
@@ -25,21 +24,30 @@ classdef keyhandler
             %replace when recieve other players key
             for j = 1:3
                 for i = 1:3
-                    r = randi(170);
+                    r = randi(10);
                     mat(i, j) = r;
                     send(i, j) = mod(3^r, 17);
                 end
             end
-            id = num2str(userId);
-            disp(id);
-            disp(mat);
-            obj.chain.{id} = mat;
-            disp(obj.chain.(id));
+            id = strcat('u', num2str(userId));
+            obj.chain.(id) = mat;
             msg = send;
         end
-
-        function addKey(obj, groupId)
-
+        
+        function msg = returnkey(obj, groupId, userId, request, forced)
+            %completes key request
+            msg = obj.startkey(userId);
+            if forced == true
+                obj.addkey(userId, groupId, request);
+                test = log10(abs(det(obj.chain.(strcat('k', num2str(groupId))))));
+                if test < -9 || test > 9 || isnan(det(obj.chain.(strcat('k', num2str(groupId)))))
+                    msg = '-1';
+                end
+            end
+        end
+        
+        function addkey(obj, userId, groupId, matrix)
+            obj.chain.(strcat('k', num2str(groupId))) = matrix .^ obj.chain.(strcat('u', num2str(userId)));
         end
 	end % methods
 end % classdef
