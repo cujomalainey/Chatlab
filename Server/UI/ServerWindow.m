@@ -186,7 +186,8 @@ function [] = ServerWindow()
 		elseif (strcmp(packet.Type, 'Key'))
 			key = eval(packet.Key);
 			k = keyhandler();
-			response = k.returnkey(1, 1, key, 1);
+			response = mat2str(k.returnkey(1, 1, key, 1));
+			disp(response);
 			%% TODO
 			if (~sendKeyResponsePacket(channel, response, []))
 				disp('failed to send');

@@ -41,7 +41,7 @@ classdef keyhandler < handle
                 obj.addkey(userId, groupId, request);
                 test = log10(abs(det(obj.chain.(strcat('k', num2str(groupId))))));
                 if test < -9 || test > 9 || isnan(det(obj.chain.(strcat('k', num2str(groupId)))))
-                    msg = '-1';
+                    msg = -1;
                 end
             end
         end
