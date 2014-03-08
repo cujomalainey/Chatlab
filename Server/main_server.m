@@ -8,6 +8,7 @@ function [] = main_client()
 	AddPath('Server/Communication/Network/Packets');
 	AddPath('Server/Model');
 	AddPath('Common/Communication');
+	AddPath('Common/Communication/Encryption');
 	AddPath('Common/Communication/Network');
 	AddPath('Common/Communication/Network/Interface');
 	AddPath('Common/Communication/Network/Packets');
