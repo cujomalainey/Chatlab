@@ -10,6 +10,11 @@ function [] = ChatWindow(name, key)
 %% Get the key for encryption
 	Chat.Keys.Server = key;
 	
+	
+	Chat.Key = keyhandler();
+	
+	
+	
 	Chat.User = name;
 	
 %% Get the GUI Manager
@@ -40,8 +45,20 @@ function [] = ChatWindow(name, key)
 %% Text Field Callback
 	function textFieldEnter(src, event)
 		%% TODO PROPERLY IMPLEMENT
-		% THIS PROVES THAT IT WORKS!
-		if (~sendChatPacket(Chat.ChannelManager.getChannel(), Chat.User, 1, sprintf('%s: %s', Chat.User, char(Chat.InputTextField.getText())), Chat.Keys.Server))
+		
+		
+		
+		
+		
+		
+		
+		%% TODO GET KEY
+		if (~sendKeyPacket(Chat.ChannelManager.getChannel(), Chat.Key.startkey(1), []))
+			
+			
+			
+			
+% 		if (~sendChatPacket(Chat.ChannelManager.getChannel(), Chat.User, 1, sprintf('%s: %s', Chat.User, char(Chat.InputTextField.getText())), Chat.Keys.Server))
 			serverDisconnected();
 		end
 		Chat.InputTextField.setText('');
@@ -138,6 +155,28 @@ function [] = ChatWindow(name, key)
 				% Invalid message
 				%% TODO: HANDLE INVALID. OR MAYBE NOT?
 			end
+			
+			
+			
+		elseif (strcmp(packet.Type, 'KeyResponse'))
+			
+			
+			
+			if (strcmp(packet.Response, '-1'))
+				if (~sendKeyPacket(Chat.ChannelManager.getChannel(), Chat.Key.startkey(1), []))
+					
+					
+					
+					
+					% 		if (~sendChatPacket(Chat.ChannelManager.getChannel(), Chat.User, 1, sprintf('%s: %s', Chat.User, char(Chat.InputTextField.getText())), Chat.Keys.Server))
+					serverDisconnected();
+				end
+			else
+				disp('success')
+			end
+			
+			
+			
 		end
 	end
 	

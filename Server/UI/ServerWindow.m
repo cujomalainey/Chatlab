@@ -59,6 +59,8 @@ function [] = ServerWindow()
 	Server.Servers.localhost = [];
 	Server.Servers.localIP = [];
 	
+	Server.UserList = struct();
+	
 	Server.Users = [];
 	Server.ChatRooms = [];
 	
@@ -177,6 +179,18 @@ function [] = ServerWindow()
 			handleLeaveChat(channel, packet.ID);
 		elseif (strcmp(packet.Type, 'ChatInviteResponse'))
 			handleChatInviteResponse(channel, packet);
+			
+			
+			
+			
+		elseif (strcmp(packet.Type, 'Key'))
+			key = packet.Key;
+			k = keyhandler();
+			response = k.returnkey(1, 1, key, 1);
+			%% TODO
+			if (~sendKeyResponsePacket(channel, response, []))
+				disp('failed to send');
+			end
 		end
 	end
 	
@@ -285,25 +299,49 @@ function [] = ServerWindow()
 	
 	function handleLogin(channel, packet)
 		%% TODO FINISH THIS...
-% 		if (packet.Username exists)
-% 			if (packet.Password matches)
-% 				if (~sendLoginResponsePacket(channel, 1))
-% 					disconnectClient(channel);
-% 				end
-% 				add the client to the list
-% 				update the UI
-% 			else
-% 				if (~sendLoginResponsePacket(channel, 0))
-% 					disconnectClient(channel);
-% 				end
-% 				log the invalid password attempt
-% 				disconnectClient(channel);
-% 			end
-% 		else
-% 			create the username with the password
-% 			add the client to the list
-% 			update the UI
-% 		end
+		username = packet.Username;
+		password = packet.Password;
+		if (~isempty(username))
+			if (isfield(Server.UserList, username))
+				if (strcmp(Server.UserList.(username), password))
+					if (~sendLoginResponsePacket(channel, 1))
+						disconnectClient(channel);
+					else
+						clientIP = char(channel.socket().getRemoteSocketAddress().toString());
+						ServerUI.TextPane.print(sprintf('%s has logged in (%s)', username, clientIP(2:end)));
+						%% TODO GET THE KEY
+						addUser(packet.Username, channel, []);
+					end
+				else % Invalid password
+					clientIP = char(channel.socket().getRemoteSocketAddress().toString());
+						ServerUI.TextPane.print(sprintf('(%s) failed a login attempt as %s', clientIP(2:end), username));
+					sendLoginResponsePacket(channel, 0)
+					disconnectClient(channel);
+					return;
+				end
+			else % User doesnt exist so create
+				Server.UserList.(username) = password;
+			end
+			
+			
+			if ( matches)
+				if (~sendLoginResponsePacket(channel, 1))
+					disconnectClient(channel);
+				end
+				add the client to the list
+				update the UI
+			else
+				if (~sendLoginResponsePacket(channel, 0))
+					disconnectClient(channel);
+				end
+				log the invalid password attempt
+				disconnectClient(channel);
+			end
+		else
+			create the username with the password
+			add the client to the list
+			update the UI
+		end
 		%% ACCCEPT ANY CONNECTIONS FOR NOW
 		if (~sendLoginResponsePacket(channel, 1))
 			disconnectClient(channel);
@@ -364,8 +402,8 @@ function [] = ServerWindow()
 			if (Server.Users{i} == user)
 				Server.Users(i) = [];
 			end
-			delete(user);
 		end
+		delete(user);
 		try
 			clientIP = char(channel.socket().getRemoteSocketAddress().toString());
 			ServerUI.TextPane.print(sprintf('Client has disconnected (%s)', clientIP(2:end)));
