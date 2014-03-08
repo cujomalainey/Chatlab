@@ -79,7 +79,13 @@ function [] = LoginWindow()
 		if (src == Login.ServerField)
 			getHost();
 		elseif (src == Login.UserField && ~isempty(Login.UserField.getText()))
-			Login.PassField.setFocus();
+			username = Login.UserField.getText();
+			if (isstrprop(username(1), 'alpha'))
+				Login.PassField.setFocus();
+			else
+				Login.PassField.setFocus();
+				Login.UserField.setFocus();
+			end
 		elseif (src == Login.PassField)
 			login(src)
 		end

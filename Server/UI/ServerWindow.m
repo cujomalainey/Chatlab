@@ -303,6 +303,13 @@ function [] = ServerWindow()
 		username = packet.Username;
 		password = packet.Password;
 		if (~isempty(username))
+			if (~isstrprop(username(1), 'alpha')) % Make sure the username doesn't start with a number
+				clientIP = char(channel.socket().getRemoteSocketAddress().toString());
+				ServerUI.TextPane.print(sprintf('(%s) invalid login attempt as %s', clientIP(2:end), username));
+				sendLoginResponsePacket(channel, 0)
+				disconnectClient(channel);
+				return;
+			end
 			if (isfield(Server.UserList, username))
 				if (strcmp(Server.UserList.(username), password))
 					if (~isempty(getUserByName(name))) % Duplicate login
