@@ -56,13 +56,15 @@ function [] = ServerWindow()
 	ServerUI.TextPane = GUI.newTextPane(1);
 	ServerUI.TabPanel.addTab('Log', ServerUI.TextPane.getPane());
 	
+	%% Server Variables
 	Server.Servers.localhost = [];
 	Server.Servers.localIP = [];
 	
 	Server.UserList = struct();
 	
-	Server.Users = [];
-	Server.ChatRooms = [];
+	Server.TempUsers = {};
+	Server.Users = {};
+	Server.ChatRooms = {};
 	
 	Server.Port = 10101;
 	
@@ -148,13 +150,12 @@ function [] = ServerWindow()
 		catch
 			return;
 		end
-		% Initialize the handshake
-		
-		% FAKE DATA ---
-		tempKey = [1,2;3,4];
-		% END FAKE ----
-		
-		if (~sendHandshakePacket(channel, tempKey, 1))
+		%% Create a TempUser for this connection
+		tempUser = TempUser(channel, KeyManager());
+		Server.TempUsers{end + 1} = tempUser;
+		firstKey = tempUser.start();
+		%% Send the key to the client
+		if (~sendHandshakePacket(channel, firstKey, 1))
 			disconnectClient(channel);
 		end
 	end
@@ -163,6 +164,24 @@ function [] = ServerWindow()
 		%% DECRYPT THE EVENT.MESSAGE FIRST
 		channel = event.channel;
 		packet = JSON.parse(char(event.message));
+		switch packet.Type
+			case 'Shake'
+				if (packet.Step == 2)
+					tempUser = getTempUserByChannel(channel);
+					newKey = tempUser.finish(packet.Key);
+					disp('Server Key:');
+					disp(newKey);
+					if (~sendHandshakePacket(channel, '', 3))
+						disconnectClient(event.channel);
+					end
+				else
+					% Something went wrong with the handshake on the client side
+					disconnectClient(event.channel);
+				end
+				
+		end
+		return;
+		
 		if (strcmp(packet.Type, 'Shake'))
 			handleHandshake(channel, packet);
 		elseif (strcmp(packet.Type, 'Login'))
@@ -193,6 +212,16 @@ function [] = ServerWindow()
 				disp('failed to send');
 			end
 		end
+	end
+	
+	function user = getTempUserByChannel(channel)
+		for i=1:1:length(Server.TempUsers)
+			user = Server.TempUsers{i};
+			if (user.getChannel() == channel)
+				return;
+			end
+		end
+		user = [];
 	end
 	
 	function user = getUserByChannel(channel)
