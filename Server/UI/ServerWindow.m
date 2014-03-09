@@ -158,16 +158,21 @@ function [] = ServerWindow()
 	end
 	
 	function receive(~, event)
-		%% DECRYPT THE EVENT.MESSAGE FIRST
+		message = char(event.message);
 		channel = event.channel;
-		packet = JSON.parse(char(event.message));
+		%% Decrypt The String
+		try
+			m = eval(message); % Sould fail here if its not encrypted
+			tempUser = getTempUserByChannel(channel);
+			message = Encryptor.decrypt(message, tempUser.getKey());
+		catch
+		end
+		packet = JSON.parse(message);
 		switch packet.Type
 			case 'Shake'
 				if (packet.Step == 2)
 					tempUser = getTempUserByChannel(channel);
 					newKey = tempUser.finish(packet.Key);
-					disp('Server Key:');
-					disp(newKey);
 					if (~sendHandshakePacket(channel, '', 3))
 						disconnectClient(event.channel);
 					end
@@ -175,7 +180,8 @@ function [] = ServerWindow()
 					% Something went wrong with the handshake on the client side
 					disconnectClient(event.channel);
 				end
-				
+			case 'Login'
+				disp(packet);
 		end
 		return;
 		

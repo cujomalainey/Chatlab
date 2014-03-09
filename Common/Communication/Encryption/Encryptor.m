@@ -30,7 +30,7 @@ classdef Encryptor < handle
 					end
 				end
 			end
-			decrypted = char(decrypted);
+			decrypted = char(uint32(decrypted));
 		end
 	end
 	

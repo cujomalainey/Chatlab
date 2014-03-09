@@ -153,17 +153,20 @@ function [] = LoginWindow()
 	end
 	
 	function receive(event)
-		% SOME MESSAGES MAY NOT BE ENCODED AT THIS STAGE
-		%% TODO: Decode Message
+		message = char(event.message);
 		channel = event.channel;
-		packet = JSON.parse(char(event.message));
+		%% Decrypt The String
+		try
+			eval(message); % Sould fail here if its not encrypted
+			message = Encryptor.decrypt(message, Login.Key);
+		catch
+		end
+		packet = JSON.parse(message);
 		switch packet.Type
 			case 'Shake'
 				if (packet.Step == 1)
 					publicKey = Login.KeyManager.finishKey(packet.Key, 1);
 					Login.Key = Login.KeyManager.getKey(1);
-					disp('Client Key');
-					disp(Login.Key);
 					%% Send the key to the server
 					if (~sendHandshakePacket(channel, publicKey, 2))
 						serverDisconnected();
