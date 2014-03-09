@@ -29,7 +29,6 @@ classdef TempUser < handle
 		
 		function key = finish(this, opposingKey)
 			this.manager.addKey(opposingKey, 1);
-			key = this.manager.getKey(1);
 		end
 	end
 	

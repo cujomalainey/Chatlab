@@ -32,7 +32,8 @@ classdef ChannelManager < handle
 		
 		function disconnect(this)
 			try
-				disconnect(this.Channel);
+				pause(0.1);
+				this.Channel.close();
 			catch
 			end
 			this.Channel = [];
@@ -55,10 +56,7 @@ classdef ChannelManager < handle
 		
 		%% Cleanup
 		function delete(this)
-			try
-				this.Channel.close();
-			catch
-			end
+			this.disconnect();
 		end
 	end
 	

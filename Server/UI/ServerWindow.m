@@ -158,37 +158,23 @@ function [] = ServerWindow()
 	end
 	
 	function receive(~, event)
-		message = char(event.message);
 		channel = event.channel;
-		%% Decrypt The String
-		try
-			m = eval(message); % Sould fail here if its not encrypted
-			tempUser = getTempUserByChannel(channel);
-			message = Encryptor.decrypt(message, tempUser.getKey());
-		catch
-		end
+		disp(char(event.message));
+		message = decryptMessage(channel, char(event.message));
+		disp(message);
 		packet = JSON.parse(message);
 		switch packet.Type
 			case 'Shake'
-				if (packet.Step == 2)
-					tempUser = getTempUserByChannel(channel);
-					newKey = tempUser.finish(packet.Key);
-					if (~sendHandshakePacket(channel, '', 3))
-						disconnectClient(event.channel);
-					end
-				else
-					% Something went wrong with the handshake on the client side
-					disconnectClient(event.channel);
-				end
+				handleHandshake(channel, packet);
 			case 'Login'
-				disp(packet);
+				handleLogin(channel, packet);
 		end
 		return;
 		
 		if (strcmp(packet.Type, 'Shake'))
 			handleHandshake(channel, packet);
 		elseif (strcmp(packet.Type, 'Login'))
-			handleLogin(channel, packet);
+			
 		elseif (strcmp(packet.Type, 'Message'))
 			handleMessage(packet);
 		elseif (strcmp(packet.Type, 'RequestUserList'))
@@ -214,6 +200,22 @@ function [] = ServerWindow()
 			if (~sendKeyResponsePacket(channel, response, []))
 				disp('failed to send');
 			end
+		end
+	end
+	
+	function message = decryptMessage(channel, string)
+		%% Decrypt The String
+		message = string;
+		try
+			eval([message, ';']); % Sould fail here if its not encrypted
+			tempUser = getTempUserByChannel(channel);
+			user = getUserByChannel(channel);
+			if (~isempty(tempUser))
+				message = Encryptor.decrypt(message, tempUser.getKey());
+			elseif (~isempty(user))
+				message = Encryptor.decrypt(message, user.getKey());
+			end
+		catch
 		end
 	end
 	
@@ -255,6 +257,85 @@ function [] = ServerWindow()
 			end
 		end
 		room = [];
+	end
+	
+	function handleHandshake(channel, packet)
+		if (packet.Step == 2)
+			tempUser = getTempUserByChannel(channel);
+			tempUser.finish(packet.Key);
+			if (~sendHandshakePacket(channel, '', 3))
+				disconnectClient(channel);
+			end
+		else
+			% Something went wrong with the handshake on the client side
+			disconnectClient(channel);
+		end
+	end
+	
+	function handleLogin(channel, packet)
+		username = packet.Username;
+		password = packet.Password;
+		tempUser = getTempUserByChannel(channel);
+		clientIP = char(channel.socket().getRemoteSocketAddress().toString());
+		if (isempty(tempUser))
+			ServerUI.TextPane.print(sprintf('(%s) hacked loggin attempt %s', clientIP(2:end), username));
+			removeTempUser(tempUser);
+			return;
+		end
+		if (~isempty(username))
+			if (~isstrprop(username(1), 'alpha')) % Make sure the username doesn't start with a number
+				ServerUI.TextPane.print(sprintf('(%s) invalid login attempt as %s', clientIP(2:end), username));
+				sendLoginResponsePacket(channel, 0)
+				disconnectClient(channel);
+				return;
+			end
+			if (isfield(Server.UserList, username))
+				if (strcmp(Server.UserList.(username), password))
+					if (~isempty(getUserByName(name))) % Duplicate login
+						ServerUI.TextPane.print(sprintf('(%s) duplicate a login attempt as %s', clientIP(2:end), username));
+						sendLoginResponsePacket(channel, 0)
+						disconnectClient(channel);
+						return;
+					end
+					if (~sendLoginResponsePacket(channel, 1))
+						disconnectClient(channel);
+					else
+						ServerUI.TextPane.print(sprintf('%s has logged in (%s)', username, clientIP(2:end)));
+						addUser(username, tempUser, channel);
+					end
+				else % Invalid password
+					ServerUI.TextPane.print(sprintf('(%s) failed a login attempt as %s', clientIP(2:end), username));
+					sendLoginResponsePacket(channel, 0)
+					disconnectClient(channel);
+					return;
+				end
+			else % User doesnt exist so create
+				Server.UserList.(username) = password;
+				if (~sendLoginResponsePacket(channel, 1))
+					disconnectClient(channel);
+				else
+					ServerUI.TextPane.print(sprintf('%s has logged in (%s)', username, clientIP(2:end)));
+					addUser(username, tempUser, channel);
+				end
+			end
+		end
+	end
+	
+	function addUser(username, tempUser, channel)
+		Server.Users{end+1} = User(username, channel, tempUser.getKey());
+		removeTempUser(tempUser);
+		ServerUI.OnlineUsersLabel.setText(num2str(length(Server.Users)));
+	end
+	
+	function removeTempUser(tempUser)
+		i = 0;
+		while i < length(Server.TempUsers)
+			i = i + 1;
+			if (Server.TempUsers{i} == tempUser)
+				Server.TempUsers(i) = [];
+			end
+		end
+		delete(tempUser);
 	end
 	
 	function handleMessage(packet)
@@ -330,56 +411,6 @@ function [] = ServerWindow()
 		end
 	end
 	
-	function handleLogin(channel, packet)
-		%% TODO FINISH THIS...
-		username = packet.Username;
-		password = packet.Password;
-		if (~isempty(username))
-			if (~isstrprop(username(1), 'alpha')) % Make sure the username doesn't start with a number
-				clientIP = char(channel.socket().getRemoteSocketAddress().toString());
-				ServerUI.TextPane.print(sprintf('(%s) invalid login attempt as %s', clientIP(2:end), username));
-				sendLoginResponsePacket(channel, 0)
-				disconnectClient(channel);
-				return;
-			end
-			if (isfield(Server.UserList, username))
-				if (strcmp(Server.UserList.(username), password))
-					if (~isempty(getUserByName(name))) % Duplicate login
-						clientIP = char(channel.socket().getRemoteSocketAddress().toString());
-						ServerUI.TextPane.print(sprintf('(%s) duplicate a login attempt as %s', clientIP(2:end), username));
-						sendLoginResponsePacket(channel, 0)
-						disconnectClient(channel);
-						return;
-					end
-					if (~sendLoginResponsePacket(channel, 1))
-						disconnectClient(channel);
-					else
-						clientIP = char(channel.socket().getRemoteSocketAddress().toString());
-						ServerUI.TextPane.print(sprintf('%s has logged in (%s)', username, clientIP(2:end)));
-						%% TODO GET THE KEY
-						addUser(packet.Username, channel, []);
-					end
-				else % Invalid password
-					clientIP = char(channel.socket().getRemoteSocketAddress().toString());
-					ServerUI.TextPane.print(sprintf('(%s) failed a login attempt as %s', clientIP(2:end), username));
-					sendLoginResponsePacket(channel, 0)
-					disconnectClient(channel);
-					return;
-				end
-			else % User doesnt exist so create
-				Server.UserList.(username) = password;
-				if (~sendLoginResponsePacket(channel, 1))
-					disconnectClient(channel);
-				else
-					clientIP = char(channel.socket().getRemoteSocketAddress().toString());
-					ServerUI.TextPane.print(sprintf('%s has logged in (%s)', username, clientIP(2:end)));
-					%% TODO GET THE KEY
-					addUser(packet.Username, channel, []);
-				end
-			end
-		end
-	end
-	
 	function room = createRoom()
 		id = UniqueID().ID;
 		room = ChatRoom(sprintf('Room #%d', id), id);
@@ -396,27 +427,6 @@ function [] = ServerWindow()
 			end
 		end
 		ServerUI.RoomCountLabel.setText(num2str(length(Server.ChatRooms)));
-	end
-	
-	function addUser(username, channel, key)
-		Server.Users{end+1} = User(username, channel, key);
-		ServerUI.OnlineUsersLabel.setText(num2str(length(Server.Users)));
-	end
-	
-	function handleHandshake(channel, packet)
-		if (packet.Step == 2) % Reply to the client
-				
-				% FAKE DATA ---
-				key = [9,10;11,12];
-				% END FAKE ----
-				
-				if (~sendHandshakePacket(channel, key, 3))
-					disconnectClient(event.channel);
-				end
-			else
-				% Something went wrong with the handshake on the client side
-				disconnectClient(event.channel);
-			end
 	end
 	
 	function disconnectClient(channel)

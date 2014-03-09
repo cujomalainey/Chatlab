@@ -9,12 +9,7 @@ function [] = ChatWindow(name, key)
 	Chat.ChannelManager.setCallback(@receiveMessage);
 %% Get the key for encryption
 	Chat.Keys.Server = key;
-	
-	
-	Chat.Key = keyhandler();
-	
-	
-	
+	Chat.Keys.Client = KeyManager();
 	Chat.User = name;
 	
 %% Get the GUI Manager
@@ -33,38 +28,36 @@ function [] = ChatWindow(name, key)
 	Chat.TreeBackground.addTab('Online Users', []);
 	
 	Chat.List = GUI.newListBox(Chat.Window, [480, 53, 180, 354], @clickList, 1);
-	%% TODO PUT THE KEY
 	if (~sendUserListRequestPacket(Chat.ChannelManager.getChannel(), Chat.Keys.Server))
 		serverDisconnected();
 	end
+	
+	% Create the PostInit Timer
+	Server.initTimer = timer('TimerFcn', @postInit,...
+		'Name', 'Init Timer',...
+		'StartDelay', 0.1...
+		);
+	start(Server.initTimer);
 	
 	%% Initialize some state values
 	Chat.SelectedPerson = '';
 	Chat.Menu = uicontextmenu;
 	
+	function postInit(~,~)
+		stop(Server.initTimer);
+		Server.InputTextField.setFocus();
+		delete(Server.initTimer);
+	end
+	
 %% Text Field Callback
-	function textFieldEnter(src, event)
-		%% TODO PROPERLY IMPLEMENT
-		
-		
-		
-		
-		
-		
-		
-		%% TODO GET KEY
-		if (~sendKeyPacket(Chat.ChannelManager.getChannel(), mat2str(Chat.Key.startkey(1)), []))
-			
-			
-			
-			
-% 		if (~sendChatPacket(Chat.ChannelManager.getChannel(), Chat.User, 1, sprintf('%s: %s', Chat.User, char(Chat.InputTextField.getText())), Chat.Keys.Server))
+	function textFieldEnter(~, ~)
+		if (~sendChatPacket(Chat.ChannelManager.getChannel(), Chat.User, 1, sprintf('%s: %s', Chat.User, char(Chat.InputTextField.getText())), Chat.Keys.Server))
 			serverDisconnected();
 		end
 		Chat.InputTextField.setText('');
 	end
 	
-	function clickList(src, event)
+	function clickList(~, event)
 		% Select an item 
 		if (event.getButton() == 3)
 			Chat.List.selectIndexAtPosition(event.getPoint());

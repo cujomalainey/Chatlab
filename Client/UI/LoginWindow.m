@@ -36,7 +36,7 @@ function [] = LoginWindow()
 	% Create the PostInit Timer
 	Login.initTimer = timer('TimerFcn', @postInit,...
 		'Name', 'Init Timer',...
-		'StartDelay', 0.01...
+		'StartDelay', 0.1...
 		);
 	start(Login.initTimer);
 	
@@ -157,7 +157,7 @@ function [] = LoginWindow()
 		channel = event.channel;
 		%% Decrypt The String
 		try
-			eval(message); % Sould fail here if its not encrypted
+			eval([message, ';']); % Sould fail here if its not encrypted
 			message = Encryptor.decrypt(message, Login.Key);
 		catch
 		end
@@ -176,6 +176,16 @@ function [] = LoginWindow()
 					if (~sendLoginRequestPacket(channel, Login.UserField.getText(), Login.PassField.getText(), Login.Key))
 						serverDisconnected();
 					end
+				end
+			case 'Login'
+				if (packet.Success) % We made it
+					loginSuccess(Login.UserField.getText(), Login.Key);
+				else % Password denied
+					Login.ChannelManager.disconnect();
+					errordlg('Invalid Password', 'Error', 'modal');
+					Login.Button.setText('Login');
+					GUI.enableAll();
+					Login.PassField.setFocus();
 				end
 		end
 		return;
