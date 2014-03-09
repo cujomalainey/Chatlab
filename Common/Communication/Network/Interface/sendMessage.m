@@ -2,9 +2,9 @@ function [success] = sendMessage(channel, structure, key)
 %sendMessage Send a message though the socket
 	string = JSON.create(structure);
 	
-	%% TODO: ENCRYPT THE STRING with the key
-	% get the encryptor singleton object
-	%%
+	if (~isempty(key))
+		string = Encryptor.encrypt(string, key);
+	end
 	
 	bytes = JString.encode(string);
 	buffer = java.nio.ByteBuffer.wrap(bytes);

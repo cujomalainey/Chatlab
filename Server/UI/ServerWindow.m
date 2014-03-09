@@ -144,12 +144,9 @@ function [] = ServerWindow()
 	end
 	
 	function accept(~, channel)
-		try
-			clientIP = char(channel.socket().getRemoteSocketAddress().toString());
-			ServerUI.TextPane.print(sprintf('Client connected from: %s', clientIP(2:end)));
-		catch
-			return;
-		end
+		disp('accept');
+		clientIP = char(channel.socket().getRemoteSocketAddress().toString());
+		ServerUI.TextPane.print(sprintf('Client connected from: %s', clientIP(2:end)));
 		%% Create a TempUser for this connection
 		tempUser = TempUser(channel, KeyManager());
 		Server.TempUsers{end + 1} = tempUser;
