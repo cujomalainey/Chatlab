@@ -1,7 +1,7 @@
 classdef UniqueID < handle
 	
 	properties (GetAccess = 'public', SetAccess = 'private')
-		ID
+		ID;
 	end
 	
 	methods

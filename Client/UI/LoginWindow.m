@@ -40,10 +40,14 @@ function [] = LoginWindow()
 		);
 	start(Login.initTimer);
 	
+%% Other Login Parameters
 	Login.Success = 0;
 	
+	Login.KeyManager = KeyManager();
 	Login.Key = [];
+	
 	Login.ChannelManager = ChannelManager.instance();
+	
 	Login.Host = 'localhost';
 	Login.Port = 10101;
 	
@@ -140,7 +144,6 @@ function [] = LoginWindow()
 		Login.Button.setText('Connecting');
 		GUI.disableAll();
 		getHost();
-% 		Login.ChannelManager = ConnectionManager(Login.Host, Login.Port, @receive);
 		% Make sure the connection is successful
 		if (~Login.ChannelManager.connect(Login.Host, Login.Port, @receive))
 			serverDisconnected();
@@ -150,29 +153,31 @@ function [] = LoginWindow()
 	end
 	
 	function receive(event)
+		% SOME MESSAGES MAY NOT BE ENCODED AT THIS STAGE
 		%% TODO: Decode Message
-		
+		channel = event.channel;
 		packet = JSON.parse(char(event.message));
-		if (strcmp(packet.Type, 'Shake'))
-			if (packet.Step == 1) % Reply to the server
-				
-				% FAKE DATA ---
-				key = [5,6;7,8];
-				% END FAKE ----
-				
-				if (~sendHandshakePacket(event.channel, key, 2))
-					serverDisconnected();
+		switch packet.Type
+			case 'Shake'
+				if (packet.Step == 1)
+					publicKey = Login.KeyManager.finishKey(packet.Key, 1);
+					Login.Key = Login.KeyManager.getKey(1);
+					disp('Client Key');
+					disp(Login.Key);
+					%% Send the key to the server
+					if (~sendHandshakePacket(channel, publicKey, 2))
+						serverDisconnected();
+					end
+				elseif (packet.Step == 3)
+					Login.Button.setText('Logging in...');
+					if (~sendLoginRequestPacket(channel, Login.UserField.getText(), Login.PassField.getText(), Login.Key))
+						serverDisconnected();
+					end
 				end
-			elseif (packet.Step == 3) % Finalize handshake - Login to the server now
-				%% TODO FINALIZE THIS TOO...
-				Login.Button.setText('Logging in...');
-				%% TODO GET REAL KEY
-				key = [];
-				if (~sendLoginRequestPacket(event.channel, Login.UserField.getText(), Login.PassField.getText(), key))
-					serverDisconnected();
-				end
-			end
-		elseif (strcmp(packet.Type, 'Login')) % We got a response from the login server
+		end
+		return;
+		
+		if (strcmp(packet.Type, 'Login')) % We got a response from the login server
 			if (packet.Success) % We made it
 				loginSuccess(Login.UserField.getText(), Login.Key);
 			else % Password denied

@@ -3,7 +3,6 @@ function disconnect(channel)
 	try
 		pause(0.1);
 		channel.close();
-	catch e
-		rethrow(e);
+	catch
 	end
 end
