@@ -24,7 +24,7 @@ classdef KeyManager < handle
 		%% Key Building - Step 1
 		function key = buildKey(this, id)
 			% Builds the public key for sending to the other end
-			privateKey = randi(13,3);
+			privateKey = randi(13,3); % The 13 is the largest number that matlab can handle for this purpose...
 			publicKey = mod(3 .^ privateKey, 17);
 			this.setBuildingKey(id, privateKey);
 			key = mat2str(publicKey); % Convert it to a string
