@@ -179,7 +179,7 @@ function [] = LoginWindow()
 				end
 			case 'Login'
 				if (packet.Success) % We made it
-					loginSuccess(Login.UserField.getText(), Login.Key);
+					loginSuccess();
 				else % Password denied
 					Login.ChannelManager.disconnect();
 					errordlg('Invalid Password', 'Error', 'modal');
@@ -187,26 +187,13 @@ function [] = LoginWindow()
 					GUI.enableAll();
 					Login.PassField.setFocus();
 				end
-		end
-		return;
-		
-		if (strcmp(packet.Type, 'Login')) % We got a response from the login server
-			if (packet.Success) % We made it
-				loginSuccess(Login.UserField.getText(), Login.Key);
-			else % Password denied
-				delete(Login.ChannelManager);
-				errordlg('Invalid Password', 'Error', 'modal');
-				Login.Button.setText('Login');
-				GUI.enableAll();
-				Login.PassField.setFocus();
-			end
-		else
-			%% Possibly encrypted?
-			errordlg(sprintf('Communication got mixed up somehow.\nPlease login again later.'), 'Error', 'modal');
+			otherwise
+				errordlg(sprintf('Communication got mixed up somehow.\nPlease login again later.'), 'Error', 'modal');
 		end
 	end
 	
 	function serverDisconnected()
+		Login.ChannelManager.disconnect();
 		errordlg(sprintf('Could not connect to %s:%d', Login.Host, Login.Port), 'Error', 'modal');
 		Login.Button.setText('Login');
 		GUI.enableAll();
@@ -214,15 +201,13 @@ function [] = LoginWindow()
 	
 %% Login Callbacks
 	% Move to chat window
-	function loginSuccess(username, key)
+	function loginSuccess()
 		Login.Success = 1;
-		
+		username = Login.UserField.getText();
 		AddPath('Client/UI');
 		AddPath('Client/UI/GUIItems');
-		
 		close(Login.Window);
-		
-		ChatWindow(username, key);
+		ChatWindow(username, Login.Key);
 	end
 
 end

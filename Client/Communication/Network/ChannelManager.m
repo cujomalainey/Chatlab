@@ -32,8 +32,7 @@ classdef ChannelManager < handle
 		
 		function disconnect(this)
 			try
-				pause(0.1);
-				this.Channel.close();
+				disconnect(this.Channel);
 			catch
 			end
 			this.Channel = [];

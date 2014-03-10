@@ -144,7 +144,6 @@ function [] = ServerWindow()
 	end
 	
 	function accept(~, channel)
-		disp('accept');
 		clientIP = char(channel.socket().getRemoteSocketAddress().toString());
 		ServerUI.TextPane.print(sprintf('Client connected from: %s', clientIP(2:end)));
 		%% Create a TempUser for this connection
@@ -168,6 +167,8 @@ function [] = ServerWindow()
 				handleHandshake(channel, packet);
 			case 'Login'
 				handleLogin(channel, packet);
+			case 'RequestUserList'
+				handleSendUserListUpdate();
 		end
 		return;
 		
@@ -338,6 +339,27 @@ function [] = ServerWindow()
 		delete(tempUser);
 	end
 	
+	function handleSendUserListUpdate()
+		userList = cell(1, length(Server.Users));
+		for i=1:1:length(Server.Users)
+			userList{i} = Server.Users{i}.getName();
+		end
+		i = 0;
+		while i < length(Server.Users)
+			i = i + 1;
+			user = Server.Users{i};
+			if (~sendOnlineUserListPacket(user.getChannel(), userList, user.getKey()))
+				disconnectClient(user.getChannel());
+				% Recursive if a user is disconnected so we dont send old data
+				% to the early clients and new data to the new clients. This
+				% will cause all clients to be updated until we reach a stable
+				% state
+				handleSendUserListUpdate();
+				return;
+			end
+		end
+	end
+	
 	function handleMessage(packet)
 		%% TODO
 		id = packet.ChatID;
@@ -387,28 +409,6 @@ function [] = ServerWindow()
 			disconnectClient(targetUser.getChannel());
 		end
 		room.addUser(requestingUser, 'Owner');
-	end
-	
-	function handleSendUserListUpdate()
-		userList = cell(1, length(Server.Users));
-		for i=1:1:length(Server.Users)
-			userList{i} = Server.Users{i}.getName();
-		end
-		i = 0;
-		while i < length(Server.Users)
-			i = i + 1;
-			user = Server.Users{i};
-			%% TODO GET KEY PER USER
-			if (~sendOnlineUserListPacket(user.getChannel, userList, []))
-				disconnectClient(channel);
-				% Recursive if a user is disconnected so we dont send old data
-				% to the early clients and new data to the new clients. This
-				% will cause all clients to be updated until we reach a stable
-				% state
-				handleSendUserListUpdate();
-				return;
-			end
-		end
 	end
 	
 	function room = createRoom()

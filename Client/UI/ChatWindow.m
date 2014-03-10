@@ -45,7 +45,7 @@ function [] = ChatWindow(name, key)
 	
 	function postInit(~,~)
 		stop(Server.initTimer);
-		Server.InputTextField.setFocus();
+		Chat.InputTextField.setFocus();
 		delete(Server.initTimer);
 	end
 	
@@ -107,6 +107,31 @@ function [] = ChatWindow(name, key)
 	
 	%% Network callback
 	function receiveMessage(event)
+		message = char(event.message);
+		channel = event.channel;
+		%% Decrypt The String
+		try
+			eval([message, ';']); % Sould fail here if its not encrypted
+			message = Encryptor.decrypt(message, Chat.Keys.Server);
+		catch
+		end
+		packet = JSON.parse(message);
+		switch packet.Type
+			case 'UserList'
+				list = packet.List;
+				i = 0;
+				while i < length(list)
+					i = i + 1;
+					if (strcmp(list{i}, Chat.User))
+						list(i) = [];
+					end
+				end
+				if (~isempty(list))
+					Chat.List.setData(list);
+				end
+		end
+		return;
+		
 		%% TODO: Decode Message
 		packet = JSON.parse(char(event.message));
 		if (strcmp(packet.Type, 'UserList'))
