@@ -62,6 +62,7 @@ function [] = ServerWindow()
 	
 	Server.UserList = struct();
 	
+	Server.InviteUsers = {};
 	Server.TempUsers = {};
 	Server.Users = {};
 	Server.ChatRooms = {};
@@ -111,24 +112,33 @@ function [] = ServerWindow()
 		if (isempty(Server.Servers.localhost) && isempty(Server.Servers.localIP))
 			ServerUI.TextPane.clear();
 			ServerUI.TextPane.print('Starting Server...');
+			pause(0.1);
 			try
 				Server.Servers.localhost = bindServer(char(java.net.InetAddress.getLoopbackAddress().getHostAddress())	, Server.Port, @receive, @accept);
 				Server.Servers.localIP   = bindServer(char(java.net.InetAddress.getLocalHost().getHostAddress())		, Server.Port, @receive, @accept);
 				ServerUI.ServerActiveLabel.setText('Active');
 				ServerUI.IPLabel.setText(sprintf('%s:%d', char(java.net.InetAddress.getLocalHost().getHostAddress()), Server.Port));
 				ServerUI.ServerActiveLabel.setColor([0, 0.8, 0]);
-			catch e
+			catch
 				ServerUI.TextPane.print('Could not bind the port');
 				ServerUI.TextPane.print('Server Not started');
-				rethrow(e);
+				try
+					Server.Servers.localhost.close();
+					Server.Servers.localIP.close();
+				catch
+				end
+				Server.Servers.localhost = [];
+				Server.Servers.localIP = [];
+				return;
 			end
 			ServerUI.TextPane.clear();
 			ServerUI.TextPane.print('Server Started');
 		else
 			ServerUI.TextPane.print('Stopping Server...');
 			try
-				disconnect(Server.Servers.localhost);
-				disconnect(Server.Servers.localIP);
+				pause(0.1);
+				Server.Servers.localhost.close();
+				Server.Servers.localIP.close();
 				Server.Servers.localhost = [];
 				Server.Servers.localIP = [];
 				ca.Skrundz.Communications.SocketManager.closeAll();
@@ -169,38 +179,16 @@ function [] = ServerWindow()
 				handleLogin(channel, packet);
 			case 'RequestUserList'
 				handleSendUserListUpdate();
-		end
-		return;
-		
-		if (strcmp(packet.Type, 'Shake'))
-			handleHandshake(channel, packet);
-		elseif (strcmp(packet.Type, 'Login'))
-			
-		elseif (strcmp(packet.Type, 'Message'))
-			handleMessage(packet);
-		elseif (strcmp(packet.Type, 'RequestUserList'))
-			handleSendUserListUpdate();
-		elseif (strcmp(packet.Type, 'Disconnect'))
-			disconnectClient(channel);
-		elseif (strcmp(packet.Type, 'StartChat'))
-			handleStartChat(channel, packet)
-		elseif (strcmp(packet.Type, 'LeaveChat'))
-			handleLeaveChat(channel, packet.ID);
-		elseif (strcmp(packet.Type, 'ChatInviteResponse'))
-			handleChatInviteResponse(channel, packet);
-			
-			
-			
-			
-		elseif (strcmp(packet.Type, 'Key'))
-			key = eval(packet.Key);
-			k = keyhandler();
-			response = mat2str(k.returnkey(1, 1, key, 1));
-			disp(response);
-			%% TODO
-			if (~sendKeyResponsePacket(channel, response, []))
-				disp('failed to send');
-			end
+			case 'StartChat'
+				handleStartChat(channel, packet)
+			case 'ChatInviteResponse'
+				handleChatInviteResponse(channel, packet);
+			case 'Disconnect'
+				disconnectClient(channel);
+			case 'LeaveChat'
+				handleLeaveChat(channel, packet.ID);
+			case 'Message'
+				handleMessage(packet);
 		end
 	end
 	
@@ -228,6 +216,19 @@ function [] = ServerWindow()
 			end
 		end
 		user = [];
+	end
+	
+	function bool = wasUserInvitedToChat(user, id)
+		bool = 0;
+		i = 0;
+		while i < length(Server.InviteUsers)
+			i = i + 1;
+			inviteUser = Server.InviteUsers{i};
+			if (inviteUser.getUser() == user && inviteUser.getID() == id)
+				Server.InviteUsers(i) = [];
+				bool = 1;
+			end
+		end
 	end
 	
 	function user = getUserByChannel(channel)
@@ -292,9 +293,9 @@ function [] = ServerWindow()
 			end
 			if (isfield(Server.UserList, username))
 				if (strcmp(Server.UserList.(username), password))
-					if (~isempty(getUserByName(name))) % Duplicate login
+					if (~isempty(getUserByName(username))) % Duplicate login
 						ServerUI.TextPane.print(sprintf('(%s) duplicate a login attempt as %s', clientIP(2:end), username));
-						sendLoginResponsePacket(channel, 0)
+						sendLoginResponsePacket(channel, 0);
 						disconnectClient(channel);
 						return;
 					end
@@ -360,27 +361,46 @@ function [] = ServerWindow()
 		end
 	end
 	
-	function handleMessage(packet)
-		%% TODO
-		id = packet.ChatID;
-		room = getRoomByID(id);
-		room.sendMessage(packet.Sender, packet.Message);
+	function handleStartChat(channel, packet)
+		requestingUser = getUserByChannel(channel);
+		targetUser = getUserByName(packet.Username);
+		if (isempty(requestingUser) || isempty(targetUser)) % One of the users doesn't exist
+			if (~sendInviteUserFailedPacket(channel, packet.Username, requestingUser.getKey()))
+				disconnectClient(channel);
+			end
+			handleSendUserListUpdate();
+			return;
+		end
+		room = createRoom();
+		ServerUI.TextPane.print(sprintf('%s has create a new room (%d)', requestingUser.getName(), room.getID()));
+		if (~sendChatStartedPacket(channel, room.getName(), room.getID(), requestingUser.getKey()))
+			disconnectClient(channel);
+		end
+		if (~sendChatInvitePacket(targetUser.getChannel(), room.getID(), requestingUser.getName(), targetUser.getKey()))
+			disconnectClient(targetUser.getChannel());
+		end
+		room.addUser(requestingUser, 'Owner');
+		Server.InviteUsers{end + 1} = InviteUser(targetUser, room.getID());
 	end
 	
 	function handleChatInviteResponse(channel, packet)
-		%% TODO MAKE SURE THE USER ISNT TRICKING US AND THAT THEY ACTUALLAY WERE INVITED
+		user = getUserByChannel(channel);
+		if (~wasUserInvitedToChat(user, packet.ID))
+			% THE USER WAS NOT INVITED TO THE CHAT AND WILL BE REMOVED FROM THE SERVER BECASUE THEY ARE HACKING!!!
+			disconnectClient(channel);
+			return;
+		end
+		room = getRoomByID(packet.ID);
 		if (packet.Response)
-			room = getRoomByID(packet.ID);
-			%% TODO: FILL IN KEY
-			if (~sendChatStartedPacket(channel, room.getName(), packet.ID, []))
+			if (~sendChatStartedPacket(channel, room.getName(), packet.ID, user.getKey()))
 				disconnectClient(channel);
 				return;
 			end
-			user = getUserByChannel(channel);
 			room.addUser(user, 'Client');
-			ServerUI.TextPane.print(sprintf('%s has joine a chat room (%d)', user.getName(), packet.ID));
+			ServerUI.TextPane.print(sprintf('%s has joined a chat room (%d)', user.getName(), packet.ID));
 		else
-			%% TODO TELL THE ASKER THAT the user declined
+			room.sendMessage('Server', sprintf('%s has declined the invite to chat', user.getName()));
+			ServerUI.TextPane.print(sprintf('%s has declined to join join a chat room (%d)', user.getName(), packet.ID));
 		end
 	end
 	
@@ -389,26 +409,11 @@ function [] = ServerWindow()
 		user = getUserByChannel(channel);
 		room.removeUser(user, [], @removeRoom);
 		ServerUI.TextPane.print(sprintf('%s has left a chat room (%d)', user.getName(), id));
-		%% TODO REMOVE THE USER FROM THE CHAT
 	end
 	
-	function handleStartChat(channel, packet)
-		requestingUser = getUserByChannel(channel);
-		targetUser = getUserByName(packet.Username);
-		if (isempty(requestingUser) || isempty(targetUser)) % One of the users doesn't exist
-			%% TODO: FAILED TO INVITE USER TO CHAT RESPONSE TO THE CHANNEL
-			return;
-		end
-		room = createRoom();
-		ServerUI.TextPane.print(sprintf('%s has create a new room (%d)', requestingUser.getName(), room.getID()));
-		%% TODO: FILL IN KEYSSSS
-		if (~sendChatStartedPacket(channel, room.getName(), room.getID(), []))
-			disconnectClient(channel);
-		end
-		if (~sendChatInvitePacket(targetUser.getChannel(), room.getID(), requestingUser.getName(), []))
-			disconnectClient(targetUser.getChannel());
-		end
-		room.addUser(requestingUser, 'Owner');
+	function handleMessage(packet)
+		room = getRoomByID(packet.ChatID);
+		room.sendMessage(packet.Sender, packet.Message);
 	end
 	
 	function room = createRoom()
@@ -432,12 +437,12 @@ function [] = ServerWindow()
 	function disconnectClient(channel)
 		i = 0;
 		user = getUserByChannel(channel);
+		for i=1:1:length(Server.ChatRooms)
+			room = Server.ChatRooms{i};
+			room.removeUser(user, [], @removeRoom);
+		end
 		while i < length(Server.Users)
 			i = i + 1;
-			for j=1:1:length(Server.ChatRooms)
-				room = Server.ChatRooms{j};
-				room.removeUser(user, [], @removeRoom);
-			end
 			if (Server.Users{i} == user)
 				Server.Users(i) = [];
 			end
@@ -448,7 +453,6 @@ function [] = ServerWindow()
 			ServerUI.TextPane.print(sprintf('Client has disconnected (%s)', clientIP(2:end)));
 			channel.close();
 		catch
-			return;
 		end
 		ServerUI.OnlineUsersLabel.setText(num2str(length(Server.Users)));
 	end

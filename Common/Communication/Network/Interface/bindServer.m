@@ -18,10 +18,11 @@ function [channel] = bindServer(host, port, receiveCallback, acceptCallback)
 		set(socketManager, 'AcceptConnectionCallback', acceptCallback);
 		set(socketManager, 'ReceiveMessageCallback', receiveCallback);
 		socketManager.register(channel);
-	catch
+	catch e
 		try
 			channel.close();
 		catch
 		end
+		rethrow(e);
 	end
 end

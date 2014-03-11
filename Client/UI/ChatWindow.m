@@ -63,7 +63,6 @@ function [] = ChatWindow(name, key)
 			Chat.List.selectIndexAtPosition(event.getPoint());
 		end
 		
-% 		index = Chat.List.getSelectedIndex();
 		Chat.SelectedPerson = Chat.List.getSelectedValue();
 		if (isempty(Chat.SelectedPerson))
 			return;
@@ -129,72 +128,26 @@ function [] = ChatWindow(name, key)
 				if (~isempty(list))
 					Chat.List.setData(list);
 				end
-		end
-		return;
-		
-		%% TODO: Decode Message
-		packet = JSON.parse(char(event.message));
-		if (strcmp(packet.Type, 'UserList'))
-			list = packet.List;
-			i = 0;
-			while i < length(list)
-				i = i + 1;
-				if (strcmp(list{i}, Chat.User))
-					list(i) = [];
-				end
-			end
-			if (~isempty(list))
-				Chat.List.setData(list);
-			end
-		elseif (strcmp(packet.Type, 'StartedChat'))
-			id = packet.ID;
-			Chat.ChatPane.addTab(packet.Name, id);
-			Chat.ChatPane.setSelectedTabByID(id);
-		elseif (strcmp(packet.Type, 'ChatInvite'))
-			accept = questdlg(sprintf('%s would like to chat with you.', packet.Name), 'Chat Invite', 'Deny', 'Accept', 'Deny');
-			if (strcmp(accept, 'Deny'))
-				response = 0;
-			else
-				response = 1;
-			end
-			if (~sendChatInviteResponsePacket(Chat.ChannelManager.getChannel(), packet.ID, response, Chat.Keys.Server))
-				serverDisconnected();
-			end
-		elseif (strcmp(packet.Type, 'Message'))
-			id = packet.ChatID;
-			sender = packet.Sender;
-			message = packet.Message;
-			%% Verify the integrity of the message
-			s = strsplit(message,':');
-			if ((strcmp(sender, s(1))) || ((length(s) == 1) && strcmp(sender, 'Server')))
-				% Success
-				Chat.ChatPane.printTextByID(id, message);
-			else
-				% Invalid message
-				%% TODO: HANDLE INVALID. OR MAYBE NOT?
-			end
-			
-			
-			
-		elseif (strcmp(packet.Type, 'KeyResponse'))
-			
-			
-			if (strcmp(packet.Response, '-1'))
-				if (~sendKeyPacket(Chat.ChannelManager.getChannel(), mat2str(Chat.Key.startkey(1)), []))
-					
-					
-					
-					
-					% 		if (~sendChatPacket(Chat.ChannelManager.getChannel(), Chat.User, 1, sprintf('%s: %s', Chat.User, char(Chat.InputTextField.getText())), Chat.Keys.Server))
+			case 'StartedChat'
+				id = packet.ID;
+				Chat.ChatPane.addTab(packet.Name, id);
+				Chat.ChatPane.setSelectedTabByID(id);
+			case 'ChatInvite'
+				accept = questdlg(sprintf('%s would like to chat with you.', packet.Name), 'Chat Invite', 'Deny', 'Accept', 'Deny');
+				if (~sendChatInviteResponsePacket(Chat.ChannelManager.getChannel(), packet.ID, int8(strcmp(accept, 'Accept')), Chat.Keys.Server))
 					serverDisconnected();
 				end
-			else
-				disp('success')
-                Chat.Key.addkey(1, 1, eval(packet.Response))
-			end
-			
-			
-			
+			case 'InviteFailed'
+				errordlg(sprintf('Could not invite %s to chat.', packet.Name), 'Error', 'modal');
+			case 'Message'
+				id = packet.ChatID;
+				sender = packet.Sender;
+				message = packet.Message;
+				% Verify the integrity of the message
+				s = strsplit(message,':');
+				if ((strcmp(sender, s(1))) || ((length(s) == 1) && strcmp(sender, 'Server')))
+					Chat.ChatPane.printTextByID(id, message);
+				end
 		end
 	end
 	
