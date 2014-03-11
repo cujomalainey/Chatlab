@@ -19,30 +19,22 @@ classdef ChatPane < TabPanel
 		function printText(this, chatName, message)
 			for i = 1:1:length(this.Tabs)
 				if (strcmp(chatName, this.Tabs{i}.Name))
-% 				if (length(this.Tabs{i}.Name) == length(chatName))
-% 					if (this.Tabs{i}.Name == chatName)
-						% Print message
-						this.Panes{i}.print(message);
-						if (this.getCurrentTabIndex() + 1 ~= i)
-							this.Tabs{i}.alert();
-						end
+					this.Panes{i}.print(message);
+					if (this.getCurrentTabIndex() + 1 ~= i)
+						this.Tabs{i}.alert();
 					end
-% 				end
+				end
 			end
 		end
 		
 		function printTextByID(this, id, message)
 			for i = 1:1:length(this.Tabs)
 				if (id == this.Tabs{i}.ID)
-% 				if (length(this.Tabs{i}.ID) == length(chatName))
-% 					if (this.Tabs{i}.Name == chatName)
-						% Print message
-						this.Panes{i}.print(message);
-						if (this.getCurrentTabIndex() + 1 ~= i)
-							this.Tabs{i}.alert();
-						end
+					this.Panes{i}.print(message);
+					if (this.getCurrentTabIndex() + 1 ~= i)
+						this.Tabs{i}.alert();
 					end
-% 				end
+				end
 			end
 		end
 		
@@ -81,6 +73,10 @@ classdef ChatPane < TabPanel
 				end
 			end
 			delete(tab);
+		end
+		
+		function id = getSelectedChatID(this)
+			id = this.Tabs{this.JavaTabPane.getSelectedIndex() + 1}.getID();
 		end
 		
 		%% Callback

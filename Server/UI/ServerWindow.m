@@ -435,12 +435,14 @@ function [] = ServerWindow()
 	end
 	
 	function disconnectClient(channel)
-		i = 0;
 		user = getUserByChannel(channel);
-		for i=1:1:length(Server.ChatRooms)
+		i = 0;
+		while i < length(Server.ChatRooms)
+			i = i + 1;
 			room = Server.ChatRooms{i};
 			room.removeUser(user, [], @removeRoom);
 		end
+		i = 0;
 		while i < length(Server.Users)
 			i = i + 1;
 			if (Server.Users{i} == user)

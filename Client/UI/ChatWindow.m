@@ -51,8 +51,11 @@ function [] = ChatWindow(name, key)
 	
 %% Text Field Callback
 	function textFieldEnter(~, ~)
-		if (~sendChatPacket(Chat.ChannelManager.getChannel(), Chat.User, 1, sprintf('%s: %s', Chat.User, char(Chat.InputTextField.getText())), Chat.Keys.Server))
-			serverDisconnected();
+		if (Chat.ChatPane.getCurrentTabIndex >= 0)
+			%% TODO CHECK FOR A COMMAND
+			if (~sendChatPacket(Chat.ChannelManager.getChannel(), Chat.User, Chat.ChatPane.getSelectedChatID(), sprintf('%s: %s', Chat.User, char(Chat.InputTextField.getText())), Chat.Keys.Server))
+				serverDisconnected();
+			end
 		end
 		Chat.InputTextField.setText('');
 	end
