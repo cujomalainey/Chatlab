@@ -157,11 +157,21 @@ function [] = LoginWindow()
 		channel = event.channel;
 		%% Decrypt The String
 		try
+			if (strfind(message, ';'))
+				error('More that one line');
+			end
+			if (~(message(1) == '[' && message(end) == ']'))
+				error('Not a matrix');
+			end
 			eval([message, ';']); % Sould fail here if its not encrypted
 			message = Encryptor.decrypt(message, Login.Key);
 		catch
 		end
-		packet = JSON.parse(message);
+		try
+			packet = JSON.parse(message);
+		catch
+			return; % It was a fake message
+		end
 		switch packet.Type
 			case 'Shake'
 				if (packet.Step == 1)

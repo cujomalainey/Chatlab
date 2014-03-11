@@ -171,7 +171,11 @@ function [] = ServerWindow()
 		disp(char(event.message));
 		message = decryptMessage(channel, char(event.message));
 		disp(message);
-		packet = JSON.parse(message);
+		try
+			packet = JSON.parse(message);
+		catch
+			return; % It was a fake message
+		end
 		switch packet.Type
 			case 'Shake'
 				handleHandshake(channel, packet);
@@ -196,6 +200,12 @@ function [] = ServerWindow()
 		%% Decrypt The String
 		message = string;
 		try
+			if (strfind(message, ';'))
+				error('More that one line');
+			end
+			if (~(message(1) == '[' && message(end) == ']'))
+				error('Not a matrix');
+			end
 			eval([message, ';']); % Sould fail here if its not encrypted
 			tempUser = getTempUserByChannel(channel);
 			user = getUserByChannel(channel);
