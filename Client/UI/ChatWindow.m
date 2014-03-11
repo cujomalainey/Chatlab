@@ -140,6 +140,15 @@ function [] = ChatWindow(name, key)
 				end
 			case 'StartedChat'
 				id = packet.ID;
+				tempKey = Chat.Keys.Client.buildKey(id);
+				if (packet.Joining)
+					if (~sendHandshakeChatPacket(Chat.ChannelManager.getChannel(), tempKey, id, Chat.Keys.Server))
+						serverDisconnected();
+					end
+				else
+					% Generate a key
+					Chat.Keys.Client.finishKey(tempKey, id);
+				end
 				Chat.ChatPane.addTab(packet.Name, id);
 				Chat.ChatPane.setSelectedTabByID(id);
 			case 'ChatInvite'

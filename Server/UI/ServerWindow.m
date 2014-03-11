@@ -178,6 +178,17 @@ function [] = ServerWindow()
 		switch packet.Type
 			case 'Shake'
 				handleHandshake(channel, packet);
+			case 'ChatShake'
+				room = getRoomByID(packet.ChatID);
+				user = getUserByChannel(channel);
+				owner = room.getOwner();
+				tempKey = packet.Key;
+				if (~sendHandshakeChatResponsePacket(owner.getChannel(), tempKey, user.getName(), owner.getKey()))
+					disconnectClient(owner.getChannel());
+				end
+				%% TODO
+			case 'ChatShakeResponse'
+				%% TODO
 			case 'Login'
 				handleLogin(channel, packet);
 			case 'RequestUserList'
@@ -187,8 +198,10 @@ function [] = ServerWindow()
 			case 'ChatInviteResponse'
 				handleChatInviteResponse(channel, packet);
 			case 'Disconnect'
+				%% TODO REKEY CHAT
 				disconnectClient(channel);
 			case 'LeaveChat'
+				%% TODO REKEY CHAT
 				handleLeaveChat(channel, packet.ID);
 			case 'Message'
 				handleMessage(packet);
@@ -379,7 +392,7 @@ function [] = ServerWindow()
 		end
 		room = createRoom();
 		ServerUI.TextPane.print(sprintf('%s has create a new room (%d)', requestingUser.getName(), room.getID()));
-		if (~sendChatStartedPacket(channel, room.getName(), room.getID(), requestingUser.getKey()))
+		if (~sendChatStartedPacket(channel, room.getName(), room.getID(), 0, requestingUser.getKey()))
 			disconnectClient(channel);
 		end
 		if (~sendChatInvitePacket(targetUser.getChannel(), room.getID(), requestingUser.getName(), targetUser.getKey()))
@@ -398,7 +411,7 @@ function [] = ServerWindow()
 		end
 		room = getRoomByID(packet.ID);
 		if (packet.Response)
-			if (~sendChatStartedPacket(channel, room.getName(), packet.ID, user.getKey()))
+			if (~sendChatStartedPacket(channel, room.getName(), packet.ID, 1, user.getKey()))
 				disconnectClient(channel);
 				return;
 			end

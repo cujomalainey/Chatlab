@@ -56,6 +56,15 @@ classdef ChatRoom < handle
 			id = this.ID;
 		end
 		
+		function owner = getOwner(this)
+			for i = 1:1:length(this.Permissions)
+				if (strcmp(this.Permissions{i}, 'Owner'))
+					owner = this.Users{i};
+					return;
+				end
+			end
+		end
+		
 		%% Send message
 		function sendMessage(this, sender, message)
 			i = 0;
