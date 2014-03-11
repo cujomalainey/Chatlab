@@ -79,10 +79,9 @@ function [] = ServerWindow()
 			disconnect(Server.Servers.localIP);
 		catch
 		end
-		%% Fix later. Use the USER model class
-% 		while (~isempty(Server.Users))
-% 			disconnectClient(Server.Users{1});
-% 		end
+		while (~isempty(Server.Users))
+			disconnectClient(Server.Users{1}.getChannel());
+		end
 		ca.Skrundz.Communications.SocketManager.closeAll();
 		
 		GUI.removeItem(ServerUI.IPNameLabel);
@@ -200,9 +199,6 @@ function [] = ServerWindow()
 		%% Decrypt The String
 		message = string;
 		try
-			if (strfind(message, ';'))
-				error('More that one line');
-			end
 			if (~(message(1) == '[' && message(end) == ']'))
 				error('Not a matrix');
 			end

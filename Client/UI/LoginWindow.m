@@ -157,9 +157,6 @@ function [] = LoginWindow()
 		channel = event.channel;
 		%% Decrypt The String
 		try
-			if (strfind(message, ';'))
-				error('More that one line');
-			end
 			if (~(message(1) == '[' && message(end) == ']'))
 				error('Not a matrix');
 			end
