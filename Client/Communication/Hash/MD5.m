@@ -8,7 +8,7 @@ classdef MD5 < handle
 			md = java.security.MessageDigest.getInstance('MD5');
 			hashBytes = md.digest(bytes);
 			js = java.lang.String(hashBytes);
-			string = char(js);
+			string = strrep(char(js), '"', '''');
 		end
 	end
 end
