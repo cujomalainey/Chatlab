@@ -76,7 +76,11 @@ classdef ChatPane < TabPanel
 		end
 		
 		function id = getSelectedChatID(this)
-			id = this.Tabs{this.JavaTabPane.getSelectedIndex() + 1}.getID();
+			if (this.JavaTabPane.getSelectedIndex() > -1)
+				id = this.Tabs{this.JavaTabPane.getSelectedIndex() + 1}.getID();
+			else
+				id = 0;
+			end
 		end
 		
 		%% Callback

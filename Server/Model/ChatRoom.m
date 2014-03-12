@@ -75,6 +75,18 @@ classdef ChatRoom < handle
 			end
 		end
 		
+		function bool = canUserInvite(this, user)
+			bool = 0;
+			for i = 1:1:length(this.Users)
+				if (this.Users{i} == user)
+					if (strcmp(this.Permissions{i}, 'Owner') || strcmp(this.Permissions{i}, 'Moderator'))
+						bool = 1;
+					end
+					return;
+				end
+			end
+		end
+		
 		%% Send message
 		function sendMessage(this, sender, message)
 			i = 0;

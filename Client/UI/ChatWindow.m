@@ -53,7 +53,9 @@ function [] = ChatWindow(name, key)
 	function textFieldEnter(~, ~)
 		if (Chat.ChatPane.getCurrentTabIndex >= 0)
 			%% TODO CHECK FOR A COMMAND
-			if (~sendChatPacket(Chat.ChannelManager.getChannel(), Chat.User, Chat.ChatPane.getSelectedChatID(), sprintf('%s: %s', Chat.User, char(Chat.InputTextField.getText())), Chat.Keys.Server))
+			message = sprintf('%s: %s', Chat.User, char(Chat.InputTextField.getText()));
+			id = Chat.ChatPane.getSelectedChatID();
+			if (~sendChatPacket(Chat.ChannelManager.getChannel(), Chat.User, id, Encryptor.encrypt(message, Chat.Keys.Client.getKey(id)), Chat.Keys.Server))
 				serverDisconnected();
 			end
 		end
@@ -97,8 +99,11 @@ function [] = ChatWindow(name, key)
 	end
 	
 	function inviteToChat(~,~)
-		disp(Chat.SelectedPerson);
-		disp('invite to chat');
+		if (Chat.ChatPane.getSelectedChatID() > 0)
+			if (~sendChatInvitePacket(Chat.ChannelManager.getChannel(), Chat.ChatPane.getSelectedChatID(), Chat.SelectedPerson, Chat.Keys.Server))
+				serverDisconnected();
+			end
+		end
 	end
 	
 	function leaveChat(id)
@@ -200,6 +205,9 @@ function [] = ChatWindow(name, key)
 		id = packet.ChatID;
 		sender = packet.Sender;
 		message = packet.Message;
+		if (~strcmp(sender, 'Server'))
+			message = Encryptor.decrypt(message, Chat.Keys.Client.getKey(id));
+		end
 		% Verify the integrity of the message
 		s = strsplit(message,':');
 		if ((strcmp(sender, s(1))) || ((length(s) == 1) && strcmp(sender, 'Server')))

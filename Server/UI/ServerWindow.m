@@ -188,6 +188,8 @@ function [] = ServerWindow()
 				handleSendUserListUpdate();
 			case 'StartChat'
 				handleStartChat(channel, packet)
+			case 'ChatInvite'
+				handleInviteToChat(channel, packet);
 			case 'ChatInviteResponse'
 				handleChatInviteResponse(channel, packet);
 			case 'Disconnect'
@@ -412,11 +414,40 @@ function [] = ServerWindow()
 		if (~sendChatStartedPacket(channel, room.getName(), room.getID(), 0, requestingUser.getKey()))
 			disconnectClient(channel);
 		end
+		Server.InviteUsers{end + 1} = InviteUser(targetUser, room.getID());
 		if (~sendChatInvitePacket(targetUser.getChannel(), room.getID(), requestingUser.getName(), targetUser.getKey()))
 			disconnectClient(targetUser.getChannel());
 		end
 		room.addUser(requestingUser, 'Owner');
-		Server.InviteUsers{end + 1} = InviteUser(targetUser, room.getID());
+	end
+	
+	function handleInviteToChat(channel, packet)
+		requestingUser = getUserByChannel(channel);
+		targetUser = getUserByName(packet.Name);
+		id = packet.ID;
+		if (isempty(requestingUser) || isempty(targetUser)) % One of the users doesn't exist
+			if (~sendInviteUserFailedPacket(channel, packet.Name, requestingUser.getKey()))
+				disconnectClient(channel);
+			end
+			handleSendUserListUpdate();
+			return;
+		end
+		room = getRoomByID(id);
+		if (isempty(room))
+			% The user is hacking
+			disconnectClient(channel);
+		end
+		% Make sure the user has permission to invite
+		if (room.canUserInvite(requestingUser))
+			Server.InviteUsers{end + 1} = InviteUser(targetUser, room.getID());
+			if (~sendChatInvitePacket(targetUser.getChannel(), room.getID(), requestingUser.getName(), targetUser.getKey()))
+				disconnectClient(targetUser.getChannel());
+			end
+		else
+			if (~sendChatPacket(requestingUser.getChannel(), 'Server', room.getID(), 'You do not have permission to invite users to this chat room', requestingUser.getKey()))
+				disconnectClient(requestingUser.getChannel());
+			end
+		end
 	end
 	
 	function handleChatInviteResponse(channel, packet)
