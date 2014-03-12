@@ -2,7 +2,7 @@ function [] = ChatWindow(name, key)
 %CHATWINDOW Create and display a chat window for the user.
 
 %% Get a window
-	Chat.Window = NewWindow(['Chat : Logged in as ', name], 670, 461, @windowWillClose);
+	Chat.Window = NewWindow(['Chat : Logged in as ', name], 670, 439, @windowWillClose);
 	
 %% Get the channel for communication
 	Chat.ChannelManager = ChannelManager.instance(); % Should carry over from the old instance

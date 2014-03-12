@@ -2,7 +2,7 @@ function [] = ServerWindow()
 %ServerWindow() Create and display the window
 
 	%% Get a window
-	ServerUI.window = NewWindow('Chat Server', 500, 240, @windowWillClose);
+	ServerUI.window = NewWindow('Chat Server', 500, 218, @windowWillClose);
 	
 	%% Get the GUI Manager
 	GUI = GUIManager.instance();

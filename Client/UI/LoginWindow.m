@@ -2,7 +2,7 @@ function [] = LoginWindow()
 %LoginWindow() Create and display the window to authenticate into a server
 
 %% Get a window
-	Login.Window = NewWindow('Login', 200, 140, @windowWillClose);
+	Login.Window = NewWindow('Login', 200, 118, @windowWillClose);
 	set(Login.Window, 'WindowStyle', 'modal'); % Make sure it has priority
 
 %% Get the GUI Manager
