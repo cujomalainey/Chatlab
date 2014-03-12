@@ -113,10 +113,9 @@ function [] = ChatWindow(name, key)
 		channel = event.channel;
 		%% Decrypt The String
 		try
-			if (~(message(1) == '[' && message(end) == ']'))
-				error('Not a matrix');
+			if (isempty(str2num([message, ';']))) %#ok<ST2NM>
+				error('Not A Matrix');
 			end
-			eval([message, ';']); % Sould fail here if its not encrypted
 			message = Encryptor.decrypt(message, Chat.Keys.Server);
 		catch
 		end

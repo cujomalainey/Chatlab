@@ -212,10 +212,9 @@ function [] = ServerWindow()
 		%% Decrypt The String
 		message = string;
 		try
-			if (~(message(1) == '[' && message(end) == ']'))
-				error('Not a matrix');
+			if (isempty(str2num([message, ';']))) %#ok<ST2NM>
+				error('Not A Matrix');
 			end
-			eval([message, ';']); % Sould fail here if its not encrypted
 			tempUser = getTempUserByChannel(channel);
 			user = getUserByChannel(channel);
 			if (~isempty(tempUser))

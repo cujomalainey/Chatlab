@@ -32,8 +32,14 @@ classdef KeyManager < handle
 		
 		%% Step 2
 		function key = finishKey(this, opposingKey, id)
+			k = str2num(opposingKey); %#ok<ST2NM>
+			if (isempty(k))
+				key = '[]';
+				this.deleteBuildingKey(id);
+				return;
+			end
 			publicKey = this.buildKey(id);
-			privateKey = mod(eval(opposingKey) .^ this.getBuildingKey(id), 17);
+			privateKey = mod(k .^ this.getBuildingKey(id), 17);
 			if (abs(log10(privateKey)) > 6)
 				publicKey = finishKey(opposingKey, id);
 			else
@@ -45,7 +51,12 @@ classdef KeyManager < handle
 		
 		%% Step 3
 		function addKey(this, opposingKey, id)
-			key = mod(eval(opposingKey) .^ this.getBuildingKey(id), 17);
+			k = str2num(opposingKey); %#ok<ST2NM>
+			if (isempty(k))
+				this.deleteBuildingKey(id);
+				return;
+			end
+			key = mod(k .^ this.getBuildingKey(id), 17);
 			this.setKey(id, key);
 			this.deleteBuildingKey(id);
 		end

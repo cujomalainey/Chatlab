@@ -20,7 +20,7 @@ classdef Encryptor < handle
 		
 		%% Decrypt
 		function decrypted = decrypt(string, key)
-			encrypted = key \ eval(string);
+			encrypted = key \ eval(string); % Here is safe
 			columns = size(encrypted, 2);
 			decrypted = zeros(1, (columns - 1) * 3 + 1);
 			for n = 1:columns
