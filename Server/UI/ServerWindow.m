@@ -485,7 +485,7 @@ function [] = ServerWindow()
 	
 	function room = createRoom()
 		id = UniqueID().ID;
-		room = ChatRoom(sprintf('Room #%d', id), id);
+		room = ChatRoom(sprintf('Room #%d', id), id, @disconnectClient);
 		Server.ChatRooms{end+1} = room;
 		ServerUI.RoomCountLabel.setText(num2str(length(Server.ChatRooms)));
 	end

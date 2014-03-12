@@ -144,6 +144,8 @@ function [] = ChatWindow(name, key)
 				handleChatShakeResponse(packet);
 			case 'ChatShakeDone'
 				handleChatShakeDone(packet);
+			case 'Rekey'
+				handleRekey(packet);
 		end
 	end
 	
@@ -212,6 +214,14 @@ function [] = ChatWindow(name, key)
 		s = strsplit(message,':');
 		if ((strcmp(sender, s(1))) || ((length(s) == 1) && strcmp(sender, 'Server')))
 			Chat.ChatPane.printTextByID(id, message);
+		end
+	end
+	
+	function handleRekey(packet)
+		if (packet.Owner)
+			rekeyAsOwner(packet.ID);
+		else
+			rekeyAsClient(packet.ID);
 		end
 	end
 	
