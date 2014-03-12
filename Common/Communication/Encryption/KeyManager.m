@@ -62,12 +62,15 @@ classdef KeyManager < handle
 		end
 	end
 	
-	methods (Access = private)
+	%% SUPER SECRET! DO NOT USE!!!
+	methods % I'M SUPER SERIAL ABOUT THIS...
 		%% Final Keys
 		function setKey(this, id, key)
 			this.KeyChain.(['key', num2str(id)]) = key;
 		end
-		
+	end
+	
+	methods (Access = private)
 		%% Building Keys
 		function key = getBuildingKey(this, id)
 			key = this.BuildingChain.(['key', num2str(id)]);

@@ -65,6 +65,16 @@ classdef ChatRoom < handle
 			end
 		end
 		
+		function bool = containsUser(this, user)
+			bool = 0;
+			for i = 1:1:length(this.Users)
+				if (this.Users{i} == user)
+					bool = 1;
+					return;
+				end
+			end
+		end
+		
 		%% Send message
 		function sendMessage(this, sender, message)
 			i = 0;

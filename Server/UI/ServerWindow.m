@@ -179,16 +179,9 @@ function [] = ServerWindow()
 			case 'Shake'
 				handleHandshake(channel, packet);
 			case 'ChatShake'
-				room = getRoomByID(packet.ChatID);
-				user = getUserByChannel(channel);
-				owner = room.getOwner();
-				tempKey = packet.Key;
-				if (~sendHandshakeChatResponsePacket(owner.getChannel(), tempKey, user.getName(), owner.getKey()))
-					disconnectClient(owner.getChannel());
-				end
-				%% TODO
-			case 'ChatShakeResponse'
-				%% TODO
+				handleChatShake(channel, packet);
+			case 'ChatShakeDone'
+				handleChatShakeDone(packet);
 			case 'Login'
 				handleLogin(channel, packet);
 			case 'RequestUserList'
@@ -289,6 +282,31 @@ function [] = ServerWindow()
 		else
 			% Something went wrong with the handshake on the client side
 			disconnectClient(channel);
+		end
+	end
+	
+	function handleChatShake(channel, packet)
+		room = getRoomByID(packet.ChatID);
+		user = getUserByChannel(channel);
+		owner = room.getOwner();
+		id = packet.ChatID;
+		tempKey = packet.Key;
+		% Make sure the user is actually in the chat room
+		if (~room.containsUser(user))
+			disconnectClient(channel); % User isnt in a room and is hacking
+		end
+		if (~sendHandshakeChatResponsePacket(owner.getChannel(), tempKey, user.getName(), id, owner.getKey()))
+			disconnectClient(owner.getChannel());
+		end
+	end
+	
+	function handleChatShakeDone(packet)
+		user = getUserByName(packet.User);
+		room = getRoomByID(packet.ChatID);
+		chatKey = packet.ChatKey;
+		tempKey = packet.Key;
+		if (~sendHandshakeChatDonePacket(user.getChannel(), tempKey, '', room.getID(), chatKey, user.getKey()))
+			disconnectClient(user.getChannel());
 		end
 	end
 	

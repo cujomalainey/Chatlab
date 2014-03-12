@@ -126,47 +126,98 @@ function [] = ChatWindow(name, key)
 		end
 		switch packet.Type
 			case 'UserList'
-				list = packet.List;
-				i = 0;
-				while i < length(list)
-					i = i + 1;
-					if (strcmp(list{i}, Chat.User))
-						list(i) = [];
-					end
-				end
-				if (~isempty(list))
-					Chat.List.setData(list);
-				end
+				handleUserList(packet);
 			case 'StartedChat'
-				id = packet.ID;
-				tempKey = Chat.Keys.Client.buildKey(id);
-				if (packet.Joining)
-					if (~sendHandshakeChatPacket(Chat.ChannelManager.getChannel(), tempKey, id, Chat.Keys.Server))
-						serverDisconnected();
-					end
-				else
-					% Generate a key
-					Chat.Keys.Client.finishKey(tempKey, id);
-				end
-				Chat.ChatPane.addTab(packet.Name, id);
-				Chat.ChatPane.setSelectedTabByID(id);
+				handleStartedChat(packet);
 			case 'ChatInvite'
-				accept = questdlg(sprintf('%s would like to chat with you.', packet.Name), 'Chat Invite', 'Deny', 'Accept', 'Deny');
-				if (~sendChatInviteResponsePacket(Chat.ChannelManager.getChannel(), packet.ID, int8(strcmp(accept, 'Accept')), Chat.Keys.Server))
-					serverDisconnected();
-				end
+				handleChatInvite(packet);
 			case 'InviteFailed'
 				errordlg(sprintf('Could not invite %s to chat.', packet.Name), 'Error', 'modal');
 			case 'Message'
-				id = packet.ChatID;
-				sender = packet.Sender;
-				message = packet.Message;
-				% Verify the integrity of the message
-				s = strsplit(message,':');
-				if ((strcmp(sender, s(1))) || ((length(s) == 1) && strcmp(sender, 'Server')))
-					Chat.ChatPane.printTextByID(id, message);
-				end
+				handleMessage(packet);
+			case 'ChatShakeResponse'
+				handleChatShakeResponse(packet);
+			case 'ChatShakeDone'
+				handleChatShakeDone(packet);
 		end
+	end
+	
+	function handleUserList(packet)
+		list = packet.List;
+		i = 0;
+		while i < length(list)
+			i = i + 1;
+			if (strcmp(list{i}, Chat.User))
+				list(i) = [];
+			end
+		end
+		if (~isempty(list))
+			Chat.List.setData(list);
+		end
+	end
+	
+	function handleStartedChat(packet)
+		id = packet.ID;
+		if (packet.Joining)
+			rekeyAsClient(id);
+		else
+			rekeyAsOwner(id);
+		end
+		Chat.ChatPane.addTab(packet.Name, id);
+		Chat.ChatPane.setSelectedTabByID(id);
+	end
+	
+	function handleChatShakeResponse(packet)
+		username = packet.User;
+		id = packet.ChatID;
+		tempKey = Chat.Keys.Client.finishKey(packet.Key, username);
+		clientKey = Chat.Keys.Client.getKey(username);
+		chatKey = Chat.Keys.Client.getKey(id);
+		disp(chatKey);
+		if (~sendHandshakeChatDonePacket(Chat.ChannelManager.getChannel(), tempKey, username, id, Encryptor.encrypt(mat2str(chatKey), clientKey), Chat.Keys.Server))
+			serverDisconnected();
+		end
+	end
+	
+	function handleChatInvite(packet)
+		accept = questdlg(sprintf('%s would like to chat with you.', packet.Name), 'Chat Invite', 'Deny', 'Accept', 'Deny');
+		if (~sendChatInviteResponsePacket(Chat.ChannelManager.getChannel(), packet.ID, int8(strcmp(accept, 'Accept')), Chat.Keys.Server))
+			serverDisconnected();
+		end
+	end
+	
+	function handleChatShakeDone(packet)
+		id = packet.ChatID;
+		chatKey = packet.ChatKey;
+		tempKey = packet.Key;
+		Chat.Keys.Client.addKey(tempKey, id);
+		chatKey = str2num(Encryptor.decrypt(chatKey, Chat.Keys.Client.getKey(id))); %#ok<ST2NM>
+		disp(chatKey);
+		Chat.Keys.Client.setKey(id, chatKey);
+	end
+	
+	function handleMessage(packet)
+		id = packet.ChatID;
+		sender = packet.Sender;
+		message = packet.Message;
+		% Verify the integrity of the message
+		s = strsplit(message,':');
+		if ((strcmp(sender, s(1))) || ((length(s) == 1) && strcmp(sender, 'Server')))
+			Chat.ChatPane.printTextByID(id, message);
+		end
+	end
+	
+	function rekeyAsClient(id)
+		tempKey = Chat.Keys.Client.buildKey(id);
+		if (~sendHandshakeChatPacket(Chat.ChannelManager.getChannel(), tempKey, id, Chat.Keys.Server))
+			serverDisconnected();
+		end
+	end
+	
+	function rekeyAsOwner(id)
+		% Generate a key
+		tempKey = Chat.Keys.Client.buildKey(id);
+		Chat.Keys.Client.finishKey(tempKey, id);
 	end
 	
 	function serverDisconnected()
