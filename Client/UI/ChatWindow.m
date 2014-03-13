@@ -59,7 +59,7 @@ function [] = ChatWindow(name, key)
 			id = Chat.ChatPane.getSelectedChatID();
 			if (strcmp(string(1), '/'))
 				% Check for the /clear command
-				if (strcmp(string, '/clear'))
+				if (strcmpi(string, '/clear'))
 					Chat.ChatPane.clearTextByID(id);
 					Chat.InputTextField.setText('');
 					return;

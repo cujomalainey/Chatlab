@@ -490,7 +490,7 @@ function [] = ServerWindow()
 		else % Handle the command
 			command = strsplit(packet.Message, ' ');
 			firstCommand = command(1);
-			if (strcmp(firstCommand, '/promote'))
+			if (strcmpi(firstCommand, '/promote'))
 				
 				if (length(command) > 1)
 					targetUser = getUserByName(command(2));
@@ -507,7 +507,7 @@ function [] = ServerWindow()
 				if (~sendChatPacket(user.getChannel(), 'Server', room.getID(), 'Invalid command. Try /help', user.getKey()))
 					disconnectClient(user.getChannel());
 				end
-			elseif (strcmp(firstCommand, '/kick'))
+			elseif (strcmpi(firstCommand, '/kick'))
 				if (length(command) > 1)
 					targetUser = getUserByName(command(2));
 					if (~isempty(targetUser))
@@ -524,7 +524,7 @@ function [] = ServerWindow()
 				if (~sendChatPacket(user.getChannel(), 'Server', room.getID(), 'Invalid command. Try /help', user.getKey()))
 					disconnectClient(user.getChannel());
 				end
-			elseif (strcmp(firstCommand, '/rename'))
+			elseif (strcmpi(firstCommand, '/rename'))
 				if (length(command) > 1)
 					newName = command(2);
 					room.setName(newName);
@@ -532,7 +532,7 @@ function [] = ServerWindow()
 				if (~sendChatPacket(user.getChannel(), 'Server', room.getID(), 'Invalid command. Try /help', user.getKey()))
 					disconnectClient(user.getChannel());
 				end
-			elseif (strcmp(firstCommand, '/invite'))
+			elseif (strcmpi(firstCommand, '/invite'))
 				if (length(command) > 1)
 					targetUser = getUserByName(command(2));
 					if (~isempty(targetUser))
@@ -553,7 +553,7 @@ function [] = ServerWindow()
 				if (~sendChatPacket(user.getChannel(), 'Server', room.getID(), 'Invalid command. Try /help', user.getKey()))
 					disconnectClient(user.getChannel());
 				end
-			elseif (strcmp(firstCommand, '/mute'))
+			elseif (strcmpi(firstCommand, '/mute'))
 				if (length(command) > 1)
 					targetUser = getUserByName(command(2));
 					if (~isempty(targetUser))
@@ -564,7 +564,7 @@ function [] = ServerWindow()
 				if (~sendChatPacket(user.getChannel(), 'Server', room.getID(), 'Invalid command. Try /help', user.getKey()))
 					disconnectClient(user.getChannel());
 				end
-			elseif (strcmp(firstCommand, '/unmute'))
+			elseif (strcmpi(firstCommand, '/unmute'))
 				if (length(command) > 1)
 					targetUser = getUserByName(command(2));
 					if (~isempty(targetUser))
@@ -575,7 +575,7 @@ function [] = ServerWindow()
 				if (~sendChatPacket(user.getChannel(), 'Server', room.getID(), 'Invalid command. Try /help', user.getKey()))
 					disconnectClient(user.getChannel());
 				end
-			elseif (strcmp(firstCommand, '/list'))
+			elseif (strcmpi(firstCommand, '/list'))
 				userlist = room.getUsers();
 				permList = room.getPermissions();
 				string = sprintf('\nUser List');
@@ -585,7 +585,7 @@ function [] = ServerWindow()
 				if (~sendChatPacket(user.getChannel(), 'Server', room.getID(), sprintf('%s\n', string), user.getKey()))
 					disconnectClient(user.getChannel());
 				end
-			elseif (strcmp(firstCommand, '/help'))
+			elseif (strcmpi(firstCommand, '/help'))
 				if (~sendChatPacket(user.getChannel(), 'Server', room.getID(),...
 						sprintf('\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n',...
 						'Help - Chat',...
