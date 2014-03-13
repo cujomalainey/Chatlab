@@ -33,13 +33,6 @@ classdef TabPanel < GUIItem
 			delete(this.Panes{index});
 			this.Panes(index) = [];
 		end
-		
-% 		%% Cleanup
-% 		function delete(this)
-% 			for i = 1:1:length(this.Panes)
-% 				delete(this.Panes{i})
-% 			end
-% 		end
 	end
 	
 end

@@ -27,19 +27,35 @@ classdef TextPane < GUIItem
 			scrollBar = this.JavaScrollPane.getVerticalScrollBar();
 			shouldScroll = scrollBar.getValue() + scrollBar.getSize().getHeight() + 12 * 4 > scrollBar.getMaximum();
 			
-			%% TODO GET CURRENT TIME AND ADD TO THE MESSAGE
-			if isempty(char(this.JavaTextPane.getText()))
-				str = java.lang.String(sprintf('%s', message));
-				this.JavaTextPane.setText(str);
-			else
-				str = java.lang.String(sprintf('%s\n%s', char(this.JavaTextPane.getText()), message));
-				this.JavaTextPane.setText(str);
+			strings = strsplit(message, sprintf('\n'));
+			for i = 1:1:length(strings)
+				if isempty(char(this.JavaTextPane.getText()))
+					str = java.lang.String(sprintf('%s', char(strings(i))));
+					this.JavaTextPane.setText(str);
+				else
+					str = java.lang.String(sprintf('%s\n%s', char(this.JavaTextPane.getText()), char(strings(i))));
+					this.JavaTextPane.setText(str);
+				end
+				
+				if (shouldScroll)
+					pause(0.01);
+					scrollBar.setValue(2147483647);
+				end
 			end
 			
-			if (shouldScroll)
-				pause(0.1);
-				scrollBar.setValue(2147483647);
-			end
+% 			%% TODO GET CURRENT TIME AND ADD TO THE MESSAGE
+% 			if isempty(char(this.JavaTextPane.getText()))
+% 				str = java.lang.String(sprintf('%s', message));
+% 				this.JavaTextPane.setText(str);
+% 			else
+% 				str = java.lang.String(sprintf('%s\n%s', char(this.JavaTextPane.getText()), message));
+% 				this.JavaTextPane.setText(str);
+% 			end
+% 			
+% 			if (shouldScroll)
+% 				pause(0.1);
+% 				scrollBar.setValue(2147483647);
+% 			end
 		end
 		
 		function clear(this)

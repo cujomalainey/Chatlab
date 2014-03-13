@@ -24,7 +24,14 @@ classdef ListBox < GUIItem
 		end
 		
 		function setData(this, data)
-			this.JavaList.setListData(data);
+			if (~isempty(data))
+				this.JavaList.setListData(data);
+			else
+% 				model = this.JavaList.getModel();
+% 				model.removeAllElements();
+				this.JavaList.setModel(javax.swing.DefaultListModel());
+% 				this.JavaList.setListData(javaArray('java.lang.Object', 1));
+			end
 		end
 		
 		function deselect(this)

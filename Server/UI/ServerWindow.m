@@ -193,13 +193,11 @@ function [] = ServerWindow()
 			case 'ChatInviteResponse'
 				handleChatInviteResponse(channel, packet);
 			case 'Disconnect'
-				%% TODO REKEY CHAT
 				disconnectClient(channel);
 			case 'LeaveChat'
-				%% TODO REKEY CHAT
 				handleLeaveChat(channel, packet.ID);
 			case 'Message'
-				handleMessage(packet);
+				handleMessage(channel, packet);
 		end
 	end
 	
@@ -478,9 +476,134 @@ function [] = ServerWindow()
 		ServerUI.TextPane.print(sprintf('%s has left a chat room (%d)', user.getName(), id));
 	end
 	
-	function handleMessage(packet)
+	function handleMessage(channel, packet)
 		room = getRoomByID(packet.ChatID);
-		room.sendMessage(packet.Sender, packet.Message);
+		user = getUserByChannel(channel);
+		if (~strcmp(packet.Message(1), '/'))
+			if (room.canUserChat(user))
+				room.sendMessage(packet.Sender, packet.Message);
+			else
+				if (~sendChatPacket(user.getChannel(), 'Server', room.getID(), 'You do not have permission to chat in this room', user.getKey()))
+					disconnectClient(user.getChannel());
+				end
+			end
+		else % Handle the command
+			command = strsplit(packet.Message, ' ');
+			firstCommand = command(1);
+			if (strcmp(firstCommand, '/promote'))
+				
+				if (length(command) > 1)
+					targetUser = getUserByName(command(2));
+					if (~isempty(targetUser))
+						if (user == room.getOwner())
+							room.promote(targetUser);
+						else
+							if (~sendChatPacket(user.getChannel(), 'Server', room.getID(), 'You do not have permission to promote someone in this chat room', user.getKey()))
+								disconnectClient(user.getChannel());
+							end
+						end
+					end
+				end
+				if (~sendChatPacket(user.getChannel(), 'Server', room.getID(), 'Invalid command. Try /help', user.getKey()))
+					disconnectClient(user.getChannel());
+				end
+			elseif (strcmp(firstCommand, '/kick'))
+				if (length(command) > 1)
+					targetUser = getUserByName(command(2));
+					if (~isempty(targetUser))
+						if (room.canUserInvite(user))
+							room.removeUser(targetUser, 'Kick', @removeRoom);
+							return;
+						else
+							if (~sendChatPacket(user.getChannel(), 'Server', room.getID(), 'You do not have permission to kick someone from this chat room', user.getKey()))
+								disconnectClient(user.getChannel());
+							end
+						end
+					end
+				end
+				if (~sendChatPacket(user.getChannel(), 'Server', room.getID(), 'Invalid command. Try /help', user.getKey()))
+					disconnectClient(user.getChannel());
+				end
+			elseif (strcmp(firstCommand, '/rename'))
+				if (length(command) > 1)
+					newName = command(2);
+					room.setName(newName);
+				end
+				if (~sendChatPacket(user.getChannel(), 'Server', room.getID(), 'Invalid command. Try /help', user.getKey()))
+					disconnectClient(user.getChannel());
+				end
+			elseif (strcmp(firstCommand, '/invite'))
+				if (length(command) > 1)
+					targetUser = getUserByName(command(2));
+					if (~isempty(targetUser))
+						% Make sure the user has permission to invite
+						if (room.canUserInvite(user))
+							Server.InviteUsers{end + 1} = InviteUser(targetUser, room.getID());
+							if (~sendChatInvitePacket(targetUser.getChannel(), room.getID(), user.getName(), targetUser.getKey()))
+								disconnectClient(targetUser.getChannel());
+							end
+						else
+							if (~sendChatPacket(user.getChannel(), 'Server', room.getID(), 'You do not have permission to invite users to this chat room', user.getKey()))
+								disconnectClient(user.getChannel());
+							end
+						end
+						return;
+					end
+				end
+				if (~sendChatPacket(user.getChannel(), 'Server', room.getID(), 'Invalid command. Try /help', user.getKey()))
+					disconnectClient(user.getChannel());
+				end
+			elseif (strcmp(firstCommand, '/mute'))
+				if (length(command) > 1)
+					targetUser = getUserByName(command(2));
+					if (~isempty(targetUser))
+						room.muteUser(targetUser);
+						return;
+					end
+				end
+				if (~sendChatPacket(user.getChannel(), 'Server', room.getID(), 'Invalid command. Try /help', user.getKey()))
+					disconnectClient(user.getChannel());
+				end
+			elseif (strcmp(firstCommand, '/unmute'))
+				if (length(command) > 1)
+					targetUser = getUserByName(command(2));
+					if (~isempty(targetUser))
+						room.unmuteUser(targetUser);
+						return;
+					end
+				end
+				if (~sendChatPacket(user.getChannel(), 'Server', room.getID(), 'Invalid command. Try /help', user.getKey()))
+					disconnectClient(user.getChannel());
+				end
+			elseif (strcmp(firstCommand, '/list'))
+				userlist = room.getUsers();
+				permList = room.getPermissions();
+				string = sprintf('\nUser List');
+				for i = 1:1:length(userlist)
+					string = sprintf('%s\n%s	%s', string, userlist{i}.getName(), permList{i});
+				end
+				if (~sendChatPacket(user.getChannel(), 'Server', room.getID(), sprintf('%s\n', string), user.getKey()))
+					disconnectClient(user.getChannel());
+				end
+			elseif (strcmp(firstCommand, '/help'))
+				if (~sendChatPacket(user.getChannel(), 'Server', room.getID(),...
+						sprintf('\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n',...
+						'Help - Chat',...
+						'/help           - display this help',...
+						'/list           - display a list of users in the chat room',...
+						'/rename  <name> - rename the chat',...
+						'/invite  <user> - invite a user to the current chat',...
+						'/kick    <user> - kick the user from the chat room',...
+						'/promote <user> - promote the user to moderator',...
+						'/mute    <user> - mute the user',...
+						'/unmute  <user> - unmute the user',...
+						'/clear          - clears the chat window (client only)'...
+						),...
+						user.getKey()))
+					disconnectClient(user.getChannel());
+				end
+			end
+		end
 	end
 	
 	function room = createRoom()
@@ -524,6 +647,7 @@ function [] = ServerWindow()
 		catch
 		end
 		ServerUI.OnlineUsersLabel.setText(num2str(length(Server.Users)));
+		handleSendUserListUpdate();
 	end
 	
 end

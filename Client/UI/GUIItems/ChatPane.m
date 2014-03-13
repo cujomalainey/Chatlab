@@ -27,6 +27,14 @@ classdef ChatPane < TabPanel
 			end
 		end
 		
+		function clearTextByID(this, id)
+			for i = 1:1:length(this.Tabs)
+				if (this.Tabs{i}.ID == id)
+					this.Panes{i}.clear();
+				end
+			end
+		end
+		
 		function printTextByID(this, id, message)
 			for i = 1:1:length(this.Tabs)
 				if (id == this.Tabs{i}.ID)
@@ -53,6 +61,24 @@ classdef ChatPane < TabPanel
 			for i = 1:1:length(this.Tabs)
 				if (id == this.Tabs{i}.getID())
 					this.JavaTabPane.setSelectedIndex(i-1);
+					return;
+				end
+			end
+		end
+		
+		function closeTabByID(this, id)
+			for i = 1:1:length(this.Tabs)
+				if (id == this.Tabs{i}.getID())
+					this.removeTab(this.Tabs{i});
+					return;
+				end
+			end
+		end
+		
+		function setTabNameByID(this, id, newName)
+			for i = 1:1:length(this.Tabs)
+				if (id == this.Tabs{i}.getID())
+					this.Tabs{i}.setName(newName);
 					return;
 				end
 			end

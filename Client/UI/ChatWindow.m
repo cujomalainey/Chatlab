@@ -52,11 +52,27 @@ function [] = ChatWindow(name, key)
 %% Text Field Callback
 	function textFieldEnter(~, ~)
 		if (Chat.ChatPane.getCurrentTabIndex >= 0)
-			%% TODO CHECK FOR A COMMAND
-			message = sprintf('%s: %s', Chat.User, char(Chat.InputTextField.getText()));
+			string = char(Chat.InputTextField.getText());
+			if (isempty(string))
+				return;
+			end
 			id = Chat.ChatPane.getSelectedChatID();
-			if (~sendChatPacket(Chat.ChannelManager.getChannel(), Chat.User, id, Encryptor.encrypt(message, Chat.Keys.Client.getKey(id)), Chat.Keys.Server))
+			if (strcmp(string(1), '/'))
+				% Check for the /clear command
+				if (strcmp(string, '/clear'))
+					Chat.ChatPane.clearTextByID(id);
+					Chat.InputTextField.setText('');
+					return;
+				end
+				% Do not encrypt -- This is a command
+				message = string;
+			else
+				message = sprintf('%s: %s', Chat.User, string);
+				message = Encryptor.encrypt(message, Chat.Keys.Client.getKey(id));
+			end
+			if (~sendChatPacket(Chat.ChannelManager.getChannel(), Chat.User, id, message, Chat.Keys.Server))
 				serverDisconnected();
+				return;
 			end
 		end
 		Chat.InputTextField.setText('');
@@ -80,8 +96,9 @@ function [] = ChatWindow(name, key)
 		Chat.Menu = uicontextmenu(); %this menu is static
 		uimenu(Chat.Menu, 'Label', Chat.SelectedPerson, 'Enable', 'off');
 		uimenu(Chat.Menu, 'Label', 'Start Chat', 'Separator', 'on', 'Callback', @startChat);
-		% Create more item maybe in the future??
-		uimenu(Chat.Menu, 'Label', 'Invite To Current Chat', 'Separator', 'on', 'Callback', @inviteToChat);
+		if (Chat.ChatPane.getCurrentTabIndex >= 0)
+			uimenu(Chat.Menu, 'Label', 'Invite To Current Chat', 'Separator', 'on', 'Callback', @inviteToChat);
+		end
 		
 		windowPos = get(Chat.Window, 'Position');
 		screenSize = get(0, 'ScreenSize');
@@ -115,7 +132,6 @@ function [] = ChatWindow(name, key)
 	%% Network callback
 	function receiveMessage(event)
 		message = char(event.message);
-		channel = event.channel;
 		%% Decrypt The String
 		try
 			if (isempty(str2num([message, ';']))) %#ok<ST2NM>
@@ -146,6 +162,10 @@ function [] = ChatWindow(name, key)
 				handleChatShakeDone(packet);
 			case 'Rekey'
 				handleRekey(packet);
+			case 'ChatRenamed'
+				handleChatRenamed(packet);
+			case 'ChatKicked'
+				handleChatKicked(packet);
 		end
 	end
 	
@@ -158,9 +178,7 @@ function [] = ChatWindow(name, key)
 				list(i) = [];
 			end
 		end
-		if (~isempty(list))
-			Chat.List.setData(list);
-		end
+		Chat.List.setData(list);
 	end
 	
 	function handleStartedChat(packet)
@@ -223,6 +241,17 @@ function [] = ChatWindow(name, key)
 		else
 			rekeyAsClient(packet.ID);
 		end
+	end
+	
+	function handleChatRenamed(packet)
+		id = packet.ChatID;
+		newName = packet.Name;
+		Chat.ChatPane.setTabNameByID(id, newName);
+	end
+	
+	function handleChatKicked(packet)
+		id = packet.ChatID;
+		Chat.ChatPane.closeTabByID(id);
 	end
 	
 	function rekeyAsClient(id)
