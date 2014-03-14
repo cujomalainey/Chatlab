@@ -322,7 +322,16 @@ Server.Port = 10101;
 		end
 		if (~isempty(username))
 			if (~isstrprop(username(1), 'alpha')) % Make sure the username doesn't start with a number
-				ServerUI.TextPane.print(sprintf('(%s) invalid login attempt as %s', clientIP(2:end), username));
+				ServerUI.TextPane.print(sprintf('(%s) invalid login attempt as: %s', clientIP(2:end), username));
+				sendLoginResponsePacket(channel, 0)
+				disconnectClient(channel);
+				return;
+			end
+			if (isstrprop(username, 'graphic')) % Make sure the username doesn't contain whitespace/unassigned character
+				% Skip This. if (isstrprop(..)) does weird stuff when the string
+				% is longer that 1 character...
+			else
+				ServerUI.TextPane.print(sprintf('(%s) invalid login attempt as: %s', clientIP(2:end), username));
 				sendLoginResponsePacket(channel, 0)
 				disconnectClient(channel);
 				return;

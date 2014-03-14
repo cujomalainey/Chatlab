@@ -5,7 +5,7 @@ AddPath('Client/UI');
 AddPath('Client/Communication');
 AddPath('Client/Communication/Hash');
 AddPath('Client/Communication/Network');
-AddPath('Common/Communication/Network/Client');
+AddPath('Client/Communication/Network/Interface');
 AddPath('Client/Communication/Network/Packets');
 AddPath('Common/Communication');
 AddPath('Common/Communication/Encryption');
