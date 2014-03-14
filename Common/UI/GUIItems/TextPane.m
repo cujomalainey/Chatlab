@@ -1,5 +1,5 @@
 classdef TextPane < GUIItem
-	%TEXTPANE Create a text pane (includes a scroll pane)
+	%TextPane Create A JTextPane (Includes A JScrollPane) Wrapper
 	
 	properties (SetAccess = private)
 		JavaTextPane;
@@ -44,20 +44,6 @@ classdef TextPane < GUIItem
 					scrollBar.setValue(2147483647);
 				end
 			end
-			
-% 			%% TODO GET CURRENT TIME AND ADD TO THE MESSAGE
-% 			if isempty(char(this.JavaTextPane.getText()))
-% 				str = java.lang.String(sprintf('%s', message));
-% 				this.JavaTextPane.setText(str);
-% 			else
-% 				str = java.lang.String(sprintf('%s\n%s', char(this.JavaTextPane.getText()), message));
-% 				this.JavaTextPane.setText(str);
-% 			end
-% 			
-% 			if (shouldScroll)
-% 				pause(0.1);
-% 				scrollBar.setValue(2147483647);
-% 			end
 		end
 		
 		function clear(this)

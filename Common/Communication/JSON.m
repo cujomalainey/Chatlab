@@ -1,7 +1,8 @@
 classdef JSON < handle
-	%JSON A JSON parser/creator that deals with strucs. Only has class methods.
-	% struct = JSON.parse(jsonString) converts a JSON string to a MATLAB struct.
-	% JSON Parsing is from http://www.mathworks.com/matlabcentral/fileexchange/42236-parse-json-text/content/JSON.m
+	%JSON A JSON Parser/Creator That Deals With Strucs. Only Has Class Methods.
+	% struct = JSON.parse(jsonString) Converts A JSON String To A MATLAB Struct.
+	% JSON Parsing Is From http://www.mathworks.com/matlabcentral/fileexchange/42236-parse-json-text/content/JSON.m
+	% JSON Creation Is Original Code By David Skrundz
 	
 	properties (Access = private)
 		%% For parsing
@@ -21,7 +22,7 @@ classdef JSON < handle
 		%% Parse
 		function s = parse(JSONstring)
 			jsonObject = JSON(JSONstring);
-            s = jsonObject.getValue;
+			s = jsonObject.getValue;
 		end
 		%% Create
 		function str = create(structure)
@@ -306,7 +307,7 @@ classdef JSON < handle
 			while ch ~= '"'
 				if(strcmp(ch,'\\'))
 					last = last + 2;
-				else 
+				else
 					last = last + 1;
 				end
 				ch = str(last);

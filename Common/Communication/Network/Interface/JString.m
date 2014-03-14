@@ -1,5 +1,5 @@
 classdef JString < handle
-%JString a class to convert Java strings to byte arrays and back
+	%JString Convert A MATLAB String To A Byte Array
 	methods (Static)
 		%% Encode
 		function bytes = encode(string)

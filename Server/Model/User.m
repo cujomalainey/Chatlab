@@ -1,5 +1,5 @@
 classdef User < handle
-	%User The user object that the chat room will reference for sending messages
+	%User A User Object To Keep Track Of All Of Them. Used By The ChatRoom And Server Objects
 	
 	properties (SetAccess = private)
 		Name = ''; % This is unique

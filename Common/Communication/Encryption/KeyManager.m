@@ -1,4 +1,5 @@
 classdef KeyManager < handle
+	%KeyManager Generate And Manage Matrix-Based Keys For Use In Encryption Between The Client And Server
 	
 	properties (SetAccess = private)
 		KeyChain; % Used for final keys

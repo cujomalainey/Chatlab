@@ -1,54 +1,54 @@
 function [] = ChatWindow(name, key)
-%CHATWINDOW Create and display a chat window for the user.
+%ChatWindow Create And Display The Client-Side UI Along With All Of The Logic Behind The Client
 
 %% Get a window
-	Chat.Window = NewWindow(['Chat : Logged in as ', name], 670, 439, @windowWillClose);
-	
+Chat.Window = NewWindow(['Chat : Logged in as ', name], 670, 439, @windowWillClose);
+
 %% Get the channel for communication
-	Chat.ChannelManager = ChannelManager.instance(); % Should carry over from the old instance
-	Chat.ChannelManager.setCallback(@receiveMessage);
+Chat.ChannelManager = ChannelManager.instance(); % Should carry over from the old instance
+Chat.ChannelManager.setCallback(@receiveMessage);
 %% Get the key for encryption
-	Chat.Keys.Server = key;
-	Chat.Keys.Client = KeyManager();
-	Chat.User = name;
-	
+Chat.Keys.Server = key;
+Chat.Keys.Client = KeyManager();
+Chat.User = name;
+
 %% Get the GUI Manager
-	GUI = GUIManager.instance();
+GUI = GUIManager.instance();
 %% Create the GUI
-	InputPosition = [10, 10, 590, 20];
-	Chat.InputTextField = GUI.newTextField(Chat.Window, InputPosition, @textFieldEnter, 1);
-	
-	ButtonPosition = [610, 10, 50, 20];
-	Chat.Button = GUI.newButton(Chat.Window, ButtonPosition, 'Send', @textFieldEnter, 1);
-	
-	Chat.ChatPane = ChatPane(Chat.Window, [0, 40, 470, 400], @leaveChat);
-	
-	TreeBackgroundPosition = [470, 40, 200, 400];
-	Chat.TreeBackground = GUI.newTabPanel(Chat.Window, TreeBackgroundPosition, 1);
-	Chat.TreeBackground.addTab('Online Users', []);
-	
-	Chat.List = GUI.newListBox(Chat.Window, [480, 53, 180, 354], @clickList, 1);
-	if (~sendUserListRequestPacket(Chat.ChannelManager.getChannel(), Chat.Keys.Server))
-		serverDisconnected();
-	end
-	
-	% Create the PostInit Timer
-	Server.initTimer = timer('TimerFcn', @postInit,...
-		'Name', 'Init Timer',...
-		'StartDelay', 0.1...
-		);
-	start(Server.initTimer);
-	
-	%% Initialize some state values
-	Chat.SelectedPerson = '';
-	Chat.Menu = uicontextmenu;
-	
+InputPosition = [10, 10, 590, 20];
+Chat.InputTextField = GUI.newTextField(Chat.Window, InputPosition, @textFieldEnter, 1);
+
+ButtonPosition = [610, 10, 50, 20];
+Chat.Button = GUI.newButton(Chat.Window, ButtonPosition, 'Send', @textFieldEnter, 1);
+
+Chat.ChatPane = ChatPane(Chat.Window, [0, 40, 470, 400], @leaveChat);
+
+TreeBackgroundPosition = [470, 40, 200, 400];
+Chat.TreeBackground = GUI.newTabPanel(Chat.Window, TreeBackgroundPosition, 1);
+Chat.TreeBackground.addTab('Online Users', []);
+
+Chat.List = GUI.newListBox(Chat.Window, [480, 53, 180, 354], @clickList, 1);
+if (~sendUserListRequestPacket(Chat.ChannelManager.getChannel(), Chat.Keys.Server))
+	serverDisconnected();
+end
+
+% Create the PostInit Timer
+Server.initTimer = timer('TimerFcn', @postInit,...
+	'Name', 'Init Timer',...
+	'StartDelay', 0.1...
+	);
+start(Server.initTimer);
+
+%% Initialize some state values
+Chat.SelectedPerson = '';
+Chat.Menu = uicontextmenu;
+
 	function postInit(~,~)
 		stop(Server.initTimer);
 		Chat.InputTextField.setFocus();
 		delete(Server.initTimer);
 	end
-	
+
 %% Text Field Callback
 	function textFieldEnter(~, ~)
 		if (Chat.ChatPane.getCurrentTabIndex >= 0)
@@ -77,9 +77,9 @@ function [] = ChatWindow(name, key)
 		end
 		Chat.InputTextField.setText('');
 	end
-	
+
 	function clickList(~, event)
-		% Select an item 
+		% Select an item
 		if (event.getButton() == 3)
 			Chat.List.selectIndexAtPosition(event.getPoint());
 		end
@@ -107,14 +107,14 @@ function [] = ChatWindow(name, key)
 		
 		Chat.List.deselect();
 	end
-	
-	%% ContextMenu Callback
+
+%% ContextMenu Callback
 	function startChat(~,~)
 		if (~sendChatStartRequestPacket(Chat.ChannelManager.getChannel(), Chat.SelectedPerson, Chat.Keys.Server))
 			serverDisconnected();
 		end
 	end
-	
+
 	function inviteToChat(~,~)
 		if (Chat.ChatPane.getSelectedChatID() > 0)
 			if (~sendChatInvitePacket(Chat.ChannelManager.getChannel(), Chat.ChatPane.getSelectedChatID(), Chat.SelectedPerson, Chat.Keys.Server))
@@ -122,14 +122,14 @@ function [] = ChatWindow(name, key)
 			end
 		end
 	end
-	
+
 	function leaveChat(id)
 		if (~sendChatLeavePacket(Chat.ChannelManager.getChannel(), id, Chat.Keys.Server))
 			serverDisconnected();
 		end
 	end
-	
-	%% Network callback
+
+%% Network callback
 	function receiveMessage(event)
 		message = char(event.message);
 		%% Decrypt The String
@@ -168,7 +168,7 @@ function [] = ChatWindow(name, key)
 				handleChatKicked(packet);
 		end
 	end
-	
+
 	function handleUserList(packet)
 		list = packet.List;
 		i = 0;
@@ -180,7 +180,7 @@ function [] = ChatWindow(name, key)
 		end
 		Chat.List.setData(list);
 	end
-	
+
 	function handleStartedChat(packet)
 		id = packet.ID;
 		if (packet.Joining)
@@ -191,7 +191,7 @@ function [] = ChatWindow(name, key)
 		Chat.ChatPane.addTab(packet.Name, id);
 		Chat.ChatPane.setSelectedTabByID(id);
 	end
-	
+
 	function handleChatShakeResponse(packet)
 		username = packet.User;
 		id = packet.ChatID;
@@ -203,14 +203,14 @@ function [] = ChatWindow(name, key)
 			serverDisconnected();
 		end
 	end
-	
+
 	function handleChatInvite(packet)
 		accept = questdlg(sprintf('%s would like to chat with you.', packet.Name), 'Chat Invite', 'Deny', 'Accept', 'Deny');
 		if (~sendChatInviteResponsePacket(Chat.ChannelManager.getChannel(), packet.ID, int8(strcmp(accept, 'Accept')), Chat.Keys.Server))
 			serverDisconnected();
 		end
 	end
-	
+
 	function handleChatShakeDone(packet)
 		id = packet.ChatID;
 		chatKey = packet.ChatKey;
@@ -220,7 +220,7 @@ function [] = ChatWindow(name, key)
 		disp(chatKey);
 		Chat.Keys.Client.setKey(id, chatKey);
 	end
-	
+
 	function handleMessage(packet)
 		id = packet.ChatID;
 		sender = packet.Sender;
@@ -234,7 +234,7 @@ function [] = ChatWindow(name, key)
 			Chat.ChatPane.printTextByID(id, message);
 		end
 	end
-	
+
 	function handleRekey(packet)
 		if (packet.Owner)
 			rekeyAsOwner(packet.ID);
@@ -242,44 +242,44 @@ function [] = ChatWindow(name, key)
 			rekeyAsClient(packet.ID);
 		end
 	end
-	
+
 	function handleChatRenamed(packet)
 		id = packet.ChatID;
 		newName = packet.Name;
 		Chat.ChatPane.setTabNameByID(id, newName);
 	end
-	
+
 	function handleChatKicked(packet)
 		id = packet.ChatID;
 		Chat.ChatPane.closeTabByID(id);
 	end
-	
+
 	function rekeyAsClient(id)
 		tempKey = Chat.Keys.Client.buildKey(id);
 		if (~sendHandshakeChatPacket(Chat.ChannelManager.getChannel(), tempKey, id, Chat.Keys.Server))
 			serverDisconnected();
 		end
 	end
-	
+
 	function rekeyAsOwner(id)
 		% Generate a key
 		tempKey = Chat.Keys.Client.buildKey(id);
 		Chat.Keys.Client.finishKey(tempKey, id);
 	end
-	
+
 	function serverDisconnected()
 		delete(Chat.ChannelManager);
 		errordlg('Disconnected from server.', 'Error', 'modal');
 		close(Chat.Window);
 	end
-	
+
 %% Window Callback
 	function windowWillClose(~,~)
 		try
 			sendDisconnectPacket(Chat.ChannelManager.getChannel());
 			Chat.ChannelManager.disconnect();
 			ca.Skrundz.Communications.SocketManager.closeAll();
-
+			
 			GUI.removeItem(Chat.InputTextField);
 			GUI.removeItem(Chat.Button);
 			GUI.removeItem(Chat.List);

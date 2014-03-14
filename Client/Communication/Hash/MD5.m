@@ -1,7 +1,7 @@
-classdef MD5 < handle
-%JString a class to convert Java strings to byte arrays and back
+classdef MD5
+	%MD5 Uses The MD5 Algorithm To Hash Of A String
 	methods (Static)
-		%% Encode
+		%% Hash
 		function string = hash(string)
 			js = java.lang.String(string);
 			bytes = js.getBytes('UTF-8');

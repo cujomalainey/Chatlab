@@ -1,6 +1,6 @@
 classdef Encryptor < handle
-%Encryptor a class that encrypts and decrypts strings using a key
-
+	%Encryptor Encrypt And Decrypt Strings->Matrices Using A Key Matrix
+	
 	methods (Static)
 		%% Encrypt
 		function encrypted = encrypt(string, key)
@@ -20,12 +20,12 @@ classdef Encryptor < handle
 		
 		%% Decrypt
 		function decrypted = decrypt(string, key)
-			encrypted = key \ eval(string); % Here is safe
+			encrypted = key \ eval(string); % Save Use Of Eval
 			columns = size(encrypted, 2);
 			decrypted = zeros(1, (columns - 1) * 3 + 1);
 			for n = 1:columns
 				for i = 1:3
-					if encrypted(i, n) ~= 0 
+					if encrypted(i, n) ~= 0
 						decrypted((n - 1) * 3 + i) = encrypted(i, n);
 					end
 				end

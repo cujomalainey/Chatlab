@@ -1,5 +1,5 @@
 classdef GUIItem < handle
-	%GUIItem Superclass of all GUI items that the GUIManager will deal with
+	%GUIItem Superclass Of All GUI Object Wrappers That The GUIManager Can Manage
 	
 	methods
 		%% Enable/Disable

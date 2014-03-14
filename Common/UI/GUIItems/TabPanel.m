@@ -1,5 +1,5 @@
 classdef TabPanel < GUIItem
-	%TabPanel Creates a Java TabPane to handle multiple tabs
+	%TabPanel Creates a JTabbedPane Wrapper
 	
 	properties (Hidden)
 		JavaTabPane;

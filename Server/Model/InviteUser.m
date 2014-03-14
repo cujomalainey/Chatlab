@@ -1,5 +1,5 @@
 classdef InviteUser < handle
-	%TempUser The user before the user logs in
+	%InviteUser A User That Was Invited To A Chat, But Hasn't Responded Yet
 	
 	properties (SetAccess = private)
 		User = [];

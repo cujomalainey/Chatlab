@@ -1,5 +1,5 @@
 classdef Tab < GUIItem
-	%Tab The top tab bit for a tab pane
+	%Tab The Tab That Displays In The ChatPane
 	
 	properties (SetAccess = private)
 		Pane;
@@ -42,9 +42,9 @@ classdef Tab < GUIItem
 			T.Button.setForeground(java.awt.Color.red);
 			
 			set(T.Button,	'MouseEnteredCallback', @T.mouseOver,...
-							'MouseExitedCallback', @T.mouseOut,...
-							'MouseClickedCallback', @T.click...
-							);
+				'MouseExitedCallback', @T.mouseOut,...
+				'MouseClickedCallback', @T.click...
+				);
 		end
 		
 		function tab = getTab(this)
@@ -87,7 +87,7 @@ classdef Tab < GUIItem
 		function click(this, ~, ~)
 			this.Callback(this);
 		end
-
+		
 		function delete(this)
 			delete(this.Pane)
 		end

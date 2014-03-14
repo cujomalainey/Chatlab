@@ -1,4 +1,5 @@
 classdef UniqueID < handle
+	%UniqueID Generate A Unique Integer For The Duration Of The Program
 	
 	properties (GetAccess = 'public', SetAccess = 'private')
 		ID;

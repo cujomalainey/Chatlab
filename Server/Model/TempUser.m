@@ -1,5 +1,5 @@
 classdef TempUser < handle
-	%TempUser The user before the user logs in
+	%TempUser A Temporary User Used To Keep Track Of Clients Before They Authenticate
 	
 	properties (SetAccess = private)
 		Channel = []; % Network Channel for communication
@@ -27,7 +27,7 @@ classdef TempUser < handle
 			key = this.manager.buildKey(1);
 		end
 		
-		function key = finish(this, opposingKey)
+		function finish(this, opposingKey)
 			this.manager.addKey(opposingKey, 1);
 		end
 	end

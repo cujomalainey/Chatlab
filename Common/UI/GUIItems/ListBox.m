@@ -1,5 +1,5 @@
 classdef ListBox < GUIItem
-	%LISTBOX Create a JList
+	%ListBox Create a JList Wrapper
 	
 	properties (Hidden)
 		JavaList;
@@ -27,10 +27,7 @@ classdef ListBox < GUIItem
 			if (~isempty(data))
 				this.JavaList.setListData(data);
 			else
-% 				model = this.JavaList.getModel();
-% 				model.removeAllElements();
 				this.JavaList.setModel(javax.swing.DefaultListModel());
-% 				this.JavaList.setListData(javaArray('java.lang.Object', 1));
 			end
 		end
 		
@@ -57,4 +54,3 @@ classdef ListBox < GUIItem
 	end
 	
 end
-

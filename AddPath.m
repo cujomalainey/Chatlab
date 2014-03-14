@@ -1,5 +1,5 @@
 function [] = AddPath(subDir)
-%pathUtil Add a subDirectory to the current matlab search path
-	basePath = pwd;
-	path(fullfile(basePath, subDir), path);
+%AddPath Add A SubDirectory To The Current MATLAB Search Path
+basePath = pwd;
+path(fullfile(basePath, subDir), path);
 end

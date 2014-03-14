@@ -1,56 +1,56 @@
 function [] = LoginWindow()
-%LoginWindow() Create and display the window to authenticate into a server
+%LoginWindow Create And Display The Client-Side Window To Authenticate Into A Server
 
 %% Get a window
-	Login.Window = NewWindow('Login', 200, 118, @windowWillClose);
-	set(Login.Window, 'WindowStyle', 'modal'); % Make sure it has priority
+Login.Window = NewWindow('Login', 200, 118, @windowWillClose);
+set(Login.Window, 'WindowStyle', 'modal'); % Make sure it has priority
 
 %% Get the GUI Manager
-	GUI = GUIManager.instance();
+GUI = GUIManager.instance();
 %% Create the GUI
-	% Labels
-	ServerLabelPosition = [10, 82, 100, 20];
-	Login.ServerLabel = GUI.newLabel(Login.Window, ServerLabelPosition, 'Server IP:', 1);
-	Login.ServerLabel.setAlignment('left');
-	UserLabelPosition = [10, 60, 100, 20];
-	Login.UserLabel = GUI.newLabel(Login.Window, UserLabelPosition, 'Username:', 1);
-	Login.UserLabel.setAlignment('left');
-	PassLabelPosition = [10, 38, 100, 20];
-	Login.PassLabel = GUI.newLabel(Login.Window, PassLabelPosition, 'Password:', 1);
-	Login.PassLabel.setAlignment('left');
+% Labels
+ServerLabelPosition = [10, 82, 100, 20];
+Login.ServerLabel = GUI.newLabel(Login.Window, ServerLabelPosition, 'Server IP:', 1);
+Login.ServerLabel.setAlignment('left');
+UserLabelPosition = [10, 60, 100, 20];
+Login.UserLabel = GUI.newLabel(Login.Window, UserLabelPosition, 'Username:', 1);
+Login.UserLabel.setAlignment('left');
+PassLabelPosition = [10, 38, 100, 20];
+Login.PassLabel = GUI.newLabel(Login.Window, PassLabelPosition, 'Password:', 1);
+Login.PassLabel.setAlignment('left');
 
-	% Text Fields
-	ServerPosition = [80, 84, 110, 20];
-	Login.ServerField = GUI.newTextField(Login.Window, ServerPosition, @enter, 1);
-	UserPosition = [80, 62, 110, 20];
-	Login.UserField = GUI.newTextField(Login.Window, UserPosition, @enter, 1);
+% Text Fields
+ServerPosition = [80, 84, 110, 20];
+Login.ServerField = GUI.newTextField(Login.Window, ServerPosition, @enter, 1);
+UserPosition = [80, 62, 110, 20];
+Login.UserField = GUI.newTextField(Login.Window, UserPosition, @enter, 1);
 
-	% Password Field
-	PassPosition = [80, 40, 110, 20];
-	Login.PassField = GUI.newPasswordField(Login.Window, PassPosition, @enter, 1);
+% Password Field
+PassPosition = [80, 40, 110, 20];
+Login.PassField = GUI.newPasswordField(Login.Window, PassPosition, @enter, 1);
 
-	% Button
-	ButtonPosition = [40 7 120 25];
-	Login.Button = GUI.newButton(Login.Window, ButtonPosition, 'Login', @login, 1);
+% Button
+ButtonPosition = [40 7 120 25];
+Login.Button = GUI.newButton(Login.Window, ButtonPosition, 'Login', @login, 1);
 
-	% Create the PostInit Timer
-	Login.initTimer = timer('TimerFcn', @postInit,...
-		'Name', 'Init Timer',...
-		'StartDelay', 0.1...
-		);
-	start(Login.initTimer);
-	
+% Create the PostInit Timer
+Login.initTimer = timer('TimerFcn', @postInit,...
+	'Name', 'Init Timer',...
+	'StartDelay', 0.1...
+	);
+start(Login.initTimer);
+
 %% Other Login Parameters
-	Login.Success = 0;
-	
-	Login.KeyManager = KeyManager();
-	Login.Key = [];
-	
-	Login.ChannelManager = ChannelManager.instance();
-	
-	Login.Host = 'localhost';
-	Login.Port = 10101;
-	
+Login.Success = 0;
+
+Login.KeyManager = KeyManager();
+Login.Key = [];
+
+Login.ChannelManager = ChannelManager.instance();
+
+Login.Host = 'localhost';
+Login.Port = 10101;
+
 %% Timer Callback for PostInit
 	function postInit(~,~)
 		stop(Login.initTimer);
@@ -107,7 +107,7 @@ function [] = LoginWindow()
 			performLogin();
 		end
 	end
-	
+
 	function getHost()
 		str = strsplit(Login.ServerField.getText(), ':');
 		%% Get the port
@@ -139,7 +139,7 @@ function [] = LoginWindow()
 			return;
 		end
 	end
-	
+
 	function performLogin()
 		Login.Button.setText('Connecting');
 		GUI.disableAll();
@@ -151,7 +151,7 @@ function [] = LoginWindow()
 			Login.Button.setText('Authenticating');
 		end
 	end
-	
+
 	function receive(event)
 		message = char(event.message);
 		channel = event.channel;
@@ -197,16 +197,16 @@ function [] = LoginWindow()
 				errordlg(sprintf('Communication got mixed up somehow.\nPlease login again later.'), 'Error', 'modal');
 		end
 	end
-	
+
 	function serverDisconnected()
 		Login.ChannelManager.disconnect();
 		errordlg(sprintf('Could not connect to %s:%d', Login.Host, Login.Port), 'Error', 'modal');
 		Login.Button.setText('Login');
 		GUI.enableAll();
 	end
-	
+
 %% Login Callbacks
-	% Move to chat window
+% Move to chat window
 	function loginSuccess()
 		Login.Success = 1;
 		username = Login.UserField.getText();

@@ -1,5 +1,5 @@
 classdef ChatPane < TabPanel
-	%ChatPane Create a tab pane for chat
+	%ChatPane A TabPane Container Used In The Client For The Chat
 	
 	properties (Hidden)
 		Tabs;
@@ -46,7 +46,7 @@ classdef ChatPane < TabPanel
 			end
 		end
 		
-%% Tab related (tab objects)
+		%% Tab related (tab objects)
 		function addTab(this, tabName, tabID)
 			index = this.JavaTabPane.getTabCount() + 1;
 			

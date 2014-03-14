@@ -1,10 +1,9 @@
 classdef ChatRoom < handle
-	%ChatRoom The ChatRoom Object that the server will hold a reference to for
-	%messaging
+	%ChatRoom The ChatRoom Object That Keeps Track Of The Users And Messaging Within A Room
 	
 	properties (SetAccess = private)
 		Users = {};
-		Permissions = {}; % Owner, Moderator, Client, Mute -> string
+		Permissions = {}; % Owner, Moderator, Client, Mute -> strings
 		Name = '';
 		ID = 0;
 		DisconnectCB = [];
@@ -39,7 +38,7 @@ classdef ChatRoom < handle
 							this.sendMessage('Server', sprintf('%s has been kicked from the chat.', user.getName()));
 						end
 					else
-					this.sendMessage('Server', sprintf('%s has left the chat', user.getName()));
+						this.sendMessage('Server', sprintf('%s has left the chat', user.getName()));
 					end
 					shouldRekey = 1;
 				end
@@ -66,7 +65,6 @@ classdef ChatRoom < handle
 					this.DisconnectCB(channel);
 				end
 			end
-			%% Propagate change - Send some message packet for room rename
 		end
 		
 		function rekey(this)
@@ -93,6 +91,7 @@ classdef ChatRoom < handle
 		end
 		
 		function selectNewOwner(this)
+			%% Try First To Pick A Moderator To Become The New Owner
 			for i = 1:1:length(this.Permissions)
 				if (strcmp(this.Permissions{i}, 'Moderator'))
 					this.Permissions{i} = 'Owner';
@@ -102,7 +101,17 @@ classdef ChatRoom < handle
 					return;
 				end
 			end
-			% Set the oldest person in the chat to be the new owner
+			%% Then Select A Client (Non-Muted User)
+			for i = 1:1:length(this.Permissions)
+				if (strcmp(this.Permissions{i}, 'Client'))
+					this.Permissions{i} = 'Owner';
+					if (~sendChatPacket(this.Users{i}.getChannel(), 'Server', this.ID, 'You are now the owner of this chat room', this.Users{i}.getKey()))
+						this.DisconnectCB(this.Users{i}.getChannel());
+					end
+					return;
+				end
+			end
+			%% Last Case, Select The Oldest User To Take Over (Won't Happen Much)
 			this.Permissions{1} = 'Owner';
 			if (~sendChatPacket(this.Users{1}.getChannel(), 'Server', this.ID, 'You are now the owner of this chat room', this.Users{1}.getKey()))
 				this.DisconnectCB(this.Users{1}.getChannel());

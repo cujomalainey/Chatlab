@@ -1,5 +1,5 @@
 classdef ChannelManager < handle
-	%ConnectionManager Manages a connection for the client
+	%ChannelManager Manages The Channel From The Client To The Server
 	
 	properties
 		ReceiveCallback;
@@ -23,7 +23,7 @@ classdef ChannelManager < handle
 		function valid = connect(this, host, port, callback)
 			this.disconnect(); % Cleanup just in case
 			this.ReceiveCallback = callback;
-			this.Channel = connect(host, port, @this.receiveMessage);
+			this.Channel = Connect(host, port, @this.receiveMessage);
 			valid = 1;
 			if (isempty(this.Channel))
 				valid = 0;

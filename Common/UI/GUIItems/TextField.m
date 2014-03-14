@@ -1,5 +1,5 @@
 classdef TextField < GUIItem
-	%TextField Creates a custom text field
+	%TextField Creates A JTextField Wrapper
 	
 	properties (Hidden)
 		JavaTextField;	% The actual text field
@@ -32,15 +32,15 @@ classdef TextField < GUIItem
 			
 			% Set the keypress callback
 			set(TF.JavaTextField,...
-					'KeyPressedCallback', @TF.keyPress,...
-					'CaretColor', java.awt.Color(1.0,0,0)...
-					);
+				'KeyPressedCallback', @TF.keyPress,...
+				'CaretColor', java.awt.Color(1.0,0,0)...
+				);
 		end
 	end
 	
 	methods (Access = private)
 		%% The callback for the text field
-		function keyPress(this, src, event) % First argument is 'this'
+		function keyPress(this, ~, event) % First argument is 'this'
 			switch event.getKeyCode
 				case 10
 					if (isa(this.EnterCallback, 'function_handle'))

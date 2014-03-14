@@ -1,5 +1,5 @@
 classdef Pane < GUIItem
-	%PANE Create a Java pane
+	%Pane Create a JPane Wrapper
 	
 	properties (SetAccess = private)
 		JavaPane;

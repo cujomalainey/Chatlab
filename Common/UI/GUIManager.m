@@ -1,11 +1,11 @@
 classdef GUIManager < handle
-	%GUIManager A class that manages the GUI
+	%GUIManager Manages Many Different GUIItem Subclasses
 	
 	properties (Hidden)
 		Elements;
 	end
 	
-	%% The designated public contructor
+	%% The Designated Public Contructor
 	methods(Static)
 		function guiManager = instance()
 			persistent uniqueInstance
@@ -19,7 +19,7 @@ classdef GUIManager < handle
 	end
 	
 	methods
-		%% Create a label
+		%% Create A label
 		function label = newLabel(this, Parent, Position, Text, Managed)
 			label = Label(Parent, Position, Text, 12);
 			if (Managed)
@@ -27,7 +27,7 @@ classdef GUIManager < handle
 			end
 		end
 		
-		%% Create a text field
+		%% Create A text field
 		function textField = newTextField(this, Parent, Position, EnterCallback, Managed)
 			textField = TextField(Parent, Position, 0, EnterCallback, @this.escape);
 			if (Managed)
@@ -35,7 +35,7 @@ classdef GUIManager < handle
 			end
 		end
 		
-		%% Create a password field
+		%% Create A password field
 		function passwordField = newPasswordField(this, Parent, Position, EnterCallback, Managed)
 			passwordField = TextField(Parent, Position, 1, EnterCallback, @this.escape);
 			if (Managed)
@@ -43,7 +43,7 @@ classdef GUIManager < handle
 			end
 		end
 		
-		%% Create a button
+		%% Create A button
 		function button = newButton(this, Parent, Position, Text, PressCallback, Managed)
 			button = Button(Parent, Position, Text, PressCallback);%, @this.escape);
 			if (Managed)
@@ -51,7 +51,7 @@ classdef GUIManager < handle
 			end
 		end
 		
-		%% Create a Pane
+		%% Create A Pane
 		function pane = newPane(this, Managed)
 			pane = Pane();
 			if (Managed)
@@ -59,6 +59,7 @@ classdef GUIManager < handle
 			end
 		end
 		
+		%% Create A Panel
 		function panel = newPanel(this, Parent, Position, Title, Managed)
 			panel = Panel(Parent, Position, Title, 12);
 			if (Managed)
@@ -66,7 +67,7 @@ classdef GUIManager < handle
 			end
 		end
 		
-		%% Create a TextPane
+		%% Create A TextPane
 		function textPane = newTextPane(this, Managed)
 			textPane = TextPane();
 			if (Managed)
@@ -74,7 +75,7 @@ classdef GUIManager < handle
 			end
 		end
 		
-		%% Create a TabPanel
+		%% Create A TabPanel
 		function tabPanel = newTabPanel(this, Parent, Position, Managed)
 			tabPanel = TabPanel(Parent, Position);
 			if (Managed)
@@ -82,7 +83,7 @@ classdef GUIManager < handle
 			end
 		end
 		
-		%% Create a ListBox
+		%% Create A ListBox
 		function listbox = newListBox(this, Parent, Position, Callback,  Managed)
 			listbox = ListBox(Parent, Position, Callback);
 			if (Managed)
@@ -90,7 +91,7 @@ classdef GUIManager < handle
 			end
 		end
 		
-		%% Remove objects
+		%% Remove Objects
 		function removeItem(this, item)
 			i = 1;
 			while (i <= length(this.Elements))
