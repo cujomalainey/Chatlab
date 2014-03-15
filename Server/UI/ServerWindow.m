@@ -60,7 +60,9 @@ ServerUI.TabPanel.addTab('Log', ServerUI.TextPane.getPane());
 Server.Servers.localhost = [];
 Server.Servers.localIP = [];
 
-Server.UserList = struct();
+% First init of user list
+Server.UserList = loadUserList();
+ServerUI.RegisteredUsersLabel.setText(length(fieldnames(Server.UserList)));
 
 Server.InviteUsers = {};
 Server.TempUsers = {};
@@ -116,6 +118,9 @@ Server.Port = 10101;
 			ServerUI.TextPane.clear();
 			ServerUI.TextPane.print('Starting Server...');
 			pause(0.1);
+			% Reaload the user list
+			Server.UserList = loadUserList();
+			ServerUI.RegisteredUsersLabel.setText(length(fieldnames(Server.UserList)));
 			try
 				Server.Servers.localhost = BindServer(char(java.net.InetAddress.getLoopbackAddress().getHostAddress())	, Server.Port, @receive, @accept);
 				Server.Servers.localIP   = BindServer(char(java.net.InetAddress.getLocalHost().getHostAddress())		, Server.Port, @receive, @accept);
@@ -327,7 +332,7 @@ Server.Port = 10101;
 		if (~isempty(username))
 			if (~isstrprop(username(1), 'alpha')) % Make sure the username doesn't start with a number
 				ServerUI.TextPane.print(sprintf('(%s) invalid login attempt as: %s', clientIP(2:end), username));
-				sendLoginResponsePacket(channel, 0)
+				sendLoginResponsePacket(channel, 0);
 				disconnectClient(channel);
 				return;
 			end
@@ -336,7 +341,13 @@ Server.Port = 10101;
 				% is longer that 1 character...
 			else
 				ServerUI.TextPane.print(sprintf('(%s) invalid login attempt as: %s', clientIP(2:end), username));
-				sendLoginResponsePacket(channel, 0)
+				sendLoginResponsePacket(channel, 0);
+				disconnectClient(channel);
+				return;
+			end
+			if (strcmpi(username, 'Server')) % Make sure the user isn't signing in as 'Server'
+				ServerUI.TextPane.print(sprintf('(%s) invalid login attempt as: %s', clientIP(2:end), username));
+				sendLoginResponsePacket(channel, 0);
 				disconnectClient(channel);
 				return;
 			end
@@ -356,7 +367,7 @@ Server.Port = 10101;
 					end
 				else % Invalid password
 					ServerUI.TextPane.print(sprintf('(%s) failed a login attempt as %s', clientIP(2:end), username));
-					sendLoginResponsePacket(channel, 0)
+					sendLoginResponsePacket(channel, 0);
 					disconnectClient(channel);
 					return;
 				end
@@ -375,6 +386,7 @@ Server.Port = 10101;
 
 	function addUser(username, tempUser, channel)
 		Server.Users{end+1} = User(username, channel, tempUser.getKey());
+		saveUserList();
 		removeTempUser(tempUser);
 		ServerUI.OnlineUsersLabel.setText(num2str(length(Server.Users)));
 	end
@@ -636,6 +648,23 @@ Server.Port = 10101;
 			end
 		end
 		ServerUI.RoomCountLabel.setText(num2str(length(Server.ChatRooms)));
+	end
+	
+	%% Saving Users
+	function saveUserList()
+		file = fopen('RegisteredUsers.userlist', 'w+');
+		fprintf(file, '%s', JSON.create(Server.UserList));
+		fclose(file);
+	end
+	
+	%% Loading Users
+	function users = loadUserList()
+		try
+			string = fileread('RegisteredUsers.userlist');
+			users = JSON.parse(string);
+		catch
+			users = struct();
+		end
 	end
 
 	function disconnectClient(channel)
