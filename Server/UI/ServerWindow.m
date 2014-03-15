@@ -2,7 +2,7 @@ function [] = ServerWindow()
 %ServerWindow Create And Display The Window For The Server
 
 %% Get a window
-ServerUI.window = NewWindow('Chat Server', 600, 218, @windowWillClose);
+ServerUI.window = NewWindow('Chat Server', 700, 218, @windowWillClose);
 
 %% Get the GUI Manager
 GUI = GUIManager.instance();
@@ -51,7 +51,7 @@ ToggleButtonPosition = [10, 10, 150, 30];
 ServerUI.ToggleButton = GUI.newButton(ServerUI.window, ToggleButtonPosition, 'Toggle Server', @toggle, 1);
 
 % Log Secion
-TabPanelPosition = [170, 0, 430, 220];
+TabPanelPosition = [170, 0, 530, 220];
 ServerUI.TabPanel = GUI.newTabPanel(ServerUI.window, TabPanelPosition, 1);
 ServerUI.TextPane = GUI.newTextPane(1);
 ServerUI.TabPanel.addTab('Log', ServerUI.TextPane.getPane());
@@ -169,9 +169,7 @@ Server.Port = 10101;
 
 	function receive(~, event)
 		channel = event.channel;
-		disp(char(event.message));
 		message = decryptMessage(channel, char(event.message));
-		disp(message);
 		try
 			packet = JSON.parse(message);
 		catch

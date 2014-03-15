@@ -204,7 +204,6 @@ Chat.Menu = uicontextmenu;
 		tempKey = Chat.Keys.Client.finishKey(packet.Key, username);
 		clientKey = Chat.Keys.Client.getKey(username);
 		chatKey = Chat.Keys.Client.getKey(id);
-		disp(chatKey);
 		if (~sendHandshakeChatDonePacket(Chat.ChannelManager.getChannel(), tempKey, username, id, Encryptor.encrypt(mat2str(chatKey), clientKey), Chat.Keys.Server))
 			serverDisconnected();
 		end
@@ -223,7 +222,6 @@ Chat.Menu = uicontextmenu;
 		tempKey = packet.Key;
 		Chat.Keys.Client.addKey(tempKey, id);
 		chatKey = str2num(Encryptor.decrypt(chatKey, Chat.Keys.Client.getKey(id))); %#ok<ST2NM>
-		disp(chatKey);
 		Chat.Keys.Client.setKey(id, chatKey);
 	end
 
