@@ -198,16 +198,22 @@ Login.Port = 10101;
 					Login.PassField.setFocus();
 				end
 			case 'Disconnect'
-				serverDisconnected();
+				disconnected();
 			otherwise
 				errordlg(sprintf('Communication got mixed up somehow.\nPlease login again later.'), 'Error', 'modal');
 		end
 	end
-
+	
+	function disconnected()
+		Login.ChannelManager.disconnect();
+		Login.Button.setText('Login');
+		GUI.enableAll();
+	end
+	
 	function serverDisconnected()
 		Login.ChannelManager.disconnect();
-		errordlg(sprintf('Could not connect to %s:%d', Login.Host, Login.Port), 'Error', 'modal');
 		Login.Button.setText('Login');
+		errordlg(sprintf('Could not connect to %s:%d', Login.Host, Login.Port), 'Error', 'modal');
 		GUI.enableAll();
 	end
 
