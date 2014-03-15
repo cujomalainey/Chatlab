@@ -145,6 +145,10 @@ Chat.Menu = uicontextmenu;
 		catch
 			return; % It was a fake message
 		end
+		if (~isfield(packet, 'Type'))
+			% Invalid packet so discard
+			return;
+		end
 		switch packet.Type
 			case 'UserList'
 				handleUserList(packet);

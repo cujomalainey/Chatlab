@@ -50,6 +50,9 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 */
 
+/** A Thread subclass that is responsible for reading data from sockets and passing it along to MATLAB
+ * @author David
+ */
 public class SocketManager extends Thread {
 	
 	private static ConcurrentHashMap<String, SocketManager> socketManagers = new ConcurrentHashMap<String, SocketManager>();
@@ -59,24 +62,53 @@ public class SocketManager extends Thread {
 	//====================================================================
 	private java.util.Vector<SocketListener> eventListeners	= new java.util.Vector<SocketListener>(4,1);
 	
+	/** Add a SocketListener to the list. Used within MATLAB
+	 * @param lis The SocketListener to add
+	 */
 	public synchronized void addListener(SocketListener lis) {
 		eventListeners.addElement(lis);
 	}
 	
+	/** Remove a SocketListener from the list. Used within MATLAB
+	 * @param lis The SocketListener to add
+	 */
 	public synchronized void removeListener(SocketListener lis) {
 		eventListeners.removeElement(lis);
 	}
 	
+	/** An EventListener subclass that MATLAB uses for callbacks
+	 * @author David
+	 */
 	public interface SocketListener extends java.util.EventListener {
+		/** Fired when we receive and read a message
+		 * @param event
+		 */
 		void receiveMessage(MessageEvent event);
+		/** Fired when a client connects to us
+		 * @param channel
+		 */
 		void acceptConnection(SocketChannel channel);
 	}
 	
+	/** An EventObject used to pass information along to MATLAB when we fire an event
+	 * @author David
+	 */
 	public class MessageEvent extends java.util.EventObject {
 		private static final long serialVersionUID = 1L;
+		/**
+		 * The SocketChannel that is sending the message
+		 */
 		public SocketChannel channel = null;
+		/**
+		 * The Message that is being sent
+		 */
 		public String message = null;
 
+		/** Create a new MessageEvent
+		 * @param source The source of the event???
+		 * @param channel The requesting channel
+		 * @param data The data to send (Converted to a string internally)
+		 */
 		public MessageEvent(Object source, SocketChannel channel, byte[] data) {
 			super(source);
 			this.channel = channel;
@@ -85,8 +117,14 @@ public class SocketManager extends Thread {
 	}
 	// End ================================================================
 	
+	/** Generated a unique integer every time .get() is called
+	 * @author David
+	 */
 	public static class UniqueInt {
 		private static int id	= 0;
+		/** Get the next unique integer
+		 * @return The next integer
+		 */
 		public static int get() {
 			id = (id == Integer.MAX_VALUE) ? 1 : id+1;
 			return id;
@@ -100,6 +138,9 @@ public class SocketManager extends Thread {
 	private HashMap<SocketChannel,ByteBuffer> buffers = new HashMap<SocketChannel,ByteBuffer>(8);
 	private List<RegisterRequest> registerRequests = new LinkedList<RegisterRequest>();
 	
+	/** Initialize and create a new SocketManager
+	 * @return A new SocketManager
+	 */
 	public static SocketManager init() {
 		String name = String.valueOf(UniqueInt.get());
 		SocketManager manager = new SocketManager(name);
@@ -109,6 +150,9 @@ public class SocketManager extends Thread {
 		return manager;
 	}
 	
+	/**
+	 * Shutdown all connections and cleanup the networking interface
+	 */
 	public static void closeAll() {
 		for (Entry<String, SocketManager> entry : socketManagers.entrySet()) {
 			entry.getValue().close();
@@ -167,34 +211,64 @@ public class SocketManager extends Thread {
 						// OP_READ
 						//==============================
 						if(key.isReadable()) {
-							
 							// Get the channel and read in the data
 							SocketChannel keyChannel = (SocketChannel)key.channel();
 							ByteBuffer buffer = buffers.get(keyChannel);
-							
 							int length	= 0;
-							
 							try {
 								length = keyChannel.read(buffer);
 							} catch ( IOException ioe) {
 								key.cancel();
 								closeChannel(keyChannel);
 							}
-							
-							if(length > 0) {
+							if (length > 0) {
 								buffer.flip();
 								// Gather the entire message before processing
-								while( buffer.remaining() > 0) {
+								if (buffer.remaining() > 0) {
 									byte[] data = new byte[buffer.remaining()];
 									buffer.get(data);
-									fireReceiveEvent(keyChannel, data);
+									buffer.rewind();
+									int index = 0;
+									int i = 0;
+									// Check for the beginning of a packet
+//									[ = 91
+//									] = 93
+//									{ = 123
+//									} = 125
+									if (data[0] == 91 || data[0] == 123) {
+										// The string we are looking for
+										byte targetByte = (byte) (data[0] + 2);
+										for (byte b : data) {
+											i += 1;
+											if (b == targetByte) {
+												index = i;
+												break;
+											}
+										}
+										if (index > 0) {
+											data = new byte[index];
+											buffer.get(data, 0, index);
+											fireReceiveEvent(keyChannel, data);
+										}
+									} else {
+										for (byte b : data) {
+											i += 1;
+											if (b == 91 || b == 123) {
+												index = i;
+												break;
+											}
+										}
+										if (index > 0) {
+											data = new byte[index];
+											buffer.get(data, 0, index); // Drain the data that we don't want
+										}
+									}
 								}
 								buffer.compact();
 							} else if (length < 0) {
 								key.cancel();
 								closeChannel(keyChannel);
 							}
-							
 						//==============================
 						// OP_ACCEPT
 						//==============================
@@ -249,6 +323,9 @@ public class SocketManager extends Thread {
 		buffers.remove(channel);
 	}
 	
+	/**
+	 * Close this SocketManager
+	 */
 	public void close() {
 		shutdown = true;
 		selector.wakeup();
@@ -263,18 +340,30 @@ public class SocketManager extends Thread {
 		socketManagers.remove(this);
 	}
 	
+	/** A Request Object for registering a new socket
+	 * @author David
+	 */
 	//====================================================
 	// class RegisterRequest
 	// Internal class to aid in grouping registration
 	// requests and the associated options.
 	//====================================================
 	public class RegisterRequest{
+		/**
+		 * The channel to register
+		 */
 		public Object channel;
 		
+		/** Register a SocketChannel
+		 * @param channel The Channel
+		 */
 		public RegisterRequest(SocketChannel channel) {
 			this.channel 			= channel;
 		}
 		
+		/** Register a ServerSocketChannel
+		 * @param channel The Channel
+		 */
 		public RegisterRequest(ServerSocketChannel channel) {
 			this.channel 		= channel;
 		}
@@ -328,6 +417,9 @@ public class SocketManager extends Thread {
 	// registration request and notify the selector thread that
 	// they are there.
 	//==========================================================
+	/** Register a channel
+	 * @param channel The channel
+	 */
 	public void register(SocketChannel channel) {
 		RegisterRequest request = new RegisterRequest(channel);
 		synchronized(registerRequests) {
@@ -337,32 +429,10 @@ public class SocketManager extends Thread {
 		selector.wakeup();
 	}
 	
-	public void register(SocketChannel channel, int msgSizePosition ) {
-		RegisterRequest request = new RegisterRequest(channel);
-		synchronized(registerRequests) {
-			registerRequests.add(request);
-		}
-		//notify the selector
-		selector.wakeup();
-	}
-	
+	/** Register a channel
+	 * @param channel The channel
+	 */
 	public void register(ServerSocketChannel channel) {
-		RegisterRequest request = new RegisterRequest(channel);
-		synchronized(registerRequests) {
-			registerRequests.add(request);
-		}
-		selector.wakeup();
-	}
-	
-	public void register(ServerSocketChannel channel, boolean autoRegister) {
-		RegisterRequest request = new RegisterRequest(channel);
-		synchronized(registerRequests) {
-			registerRequests.add(request);
-		}
-		selector.wakeup();
-	}
-	
-	public void register(ServerSocketChannel channel, int msgSizePosition) {
 		RegisterRequest request = new RegisterRequest(channel);
 		synchronized(registerRequests) {
 			registerRequests.add(request);

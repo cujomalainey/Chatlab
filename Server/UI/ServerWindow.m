@@ -175,6 +175,10 @@ Server.Port = 10101;
 		catch
 			return; % It was a fake message
 		end
+		if (~isfield(packet, 'Type'))
+			% Invalid packet so discard
+			return;
+		end
 		switch packet.Type
 			case 'Shake'
 				handleHandshake(channel, packet);
