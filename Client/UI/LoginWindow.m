@@ -197,6 +197,8 @@ Login.Port = 10101;
 					GUI.enableAll();
 					Login.PassField.setFocus();
 				end
+			case 'Disconnect'
+				serverDisconnected();
 			otherwise
 				errordlg(sprintf('Communication got mixed up somehow.\nPlease login again later.'), 'Error', 'modal');
 		end

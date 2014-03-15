@@ -2,7 +2,7 @@ function [] = ServerWindow()
 %ServerWindow Create And Display The Window For The Server
 
 %% Get a window
-ServerUI.window = NewWindow('Chat Server', 500, 218, @windowWillClose);
+ServerUI.window = NewWindow('Chat Server', 600, 218, @windowWillClose);
 
 %% Get the GUI Manager
 GUI = GUIManager.instance();
@@ -51,7 +51,7 @@ ToggleButtonPosition = [10, 10, 150, 30];
 ServerUI.ToggleButton = GUI.newButton(ServerUI.window, ToggleButtonPosition, 'Toggle Server', @toggle, 1);
 
 % Log Secion
-TabPanelPosition = [170, 0, 330, 220];
+TabPanelPosition = [170, 0, 430, 220];
 ServerUI.TabPanel = GUI.newTabPanel(ServerUI.window, TabPanelPosition, 1);
 ServerUI.TextPane = GUI.newTextPane(1);
 ServerUI.TabPanel.addTab('Log', ServerUI.TextPane.getPane());
@@ -69,8 +69,7 @@ Server.ChatRooms = {};
 
 Server.Port = 10101;
 
-%% Window Callback
-	function windowWillClose(~,~)
+	function shutdownServer()
 		try
 			Disconnect(Server.Servers.localhost);
 		catch
@@ -83,6 +82,11 @@ Server.Port = 10101;
 			disconnectClient(Server.Users{1}.getChannel());
 		end
 		ca.Skrundz.Communications.SocketManager.closeAll();
+	end
+
+%% Window Callback
+	function windowWillClose(~,~)
+		shutdownServer();
 		
 		GUI.removeItem(ServerUI.IPNameLabel);
 		GUI.removeItem(ServerUI.ServerActiveNameLabel);
@@ -136,11 +140,9 @@ Server.Port = 10101;
 			ServerUI.TextPane.print('Stopping Server...');
 			try
 				pause(0.1);
-				Server.Servers.localhost.close();
-				Server.Servers.localIP.close();
+				shutdownServer();
 				Server.Servers.localhost = [];
 				Server.Servers.localIP = [];
-				ca.Skrundz.Communications.SocketManager.closeAll();
 				ServerUI.ServerActiveLabel.setText('Inactive');
 				ServerUI.IPLabel.setText(char(java.net.InetAddress.getLocalHost().getHostAddress()));
 				ServerUI.ServerActiveLabel.setColor([1.0, 0, 0]);
@@ -362,6 +364,7 @@ Server.Port = 10101;
 				end
 			else % User doesnt exist so create
 				Server.UserList.(username) = password;
+				ServerUI.RegisteredUsersLabel.setText(length(fieldnames(Server.UserList)));
 				if (~sendLoginResponsePacket(channel, 1))
 					disconnectClient(channel);
 				else
@@ -638,6 +641,7 @@ Server.Port = 10101;
 	end
 
 	function disconnectClient(channel)
+		sendDisconnectPacket(channel);
 		user = getUserByChannel(channel);
 		i = 0;
 		while i < length(Server.ChatRooms)

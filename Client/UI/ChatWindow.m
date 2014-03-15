@@ -170,6 +170,8 @@ Chat.Menu = uicontextmenu;
 				handleChatRenamed(packet);
 			case 'ChatKicked'
 				handleChatKicked(packet);
+			case 'Disconnect'
+				serverDisconnected();
 		end
 	end
 
