@@ -59,39 +59,3 @@ warning('off', 'MATLAB:MKDIR:DirectoryExists')
 	end
 
 end
-% 
-% function makePCode(root)
-% 
-% convertDirectoriesToPCode(root);
-% 
-% function [] = convertDirectoriesToPCode(directory)
-% 	mFiles = dir([directory filesep '*.m']);
-% 	if ~isempty(mFiles);
-% 	   pcode(directory, '-inplace')
-% 	   delete([directory filesep '*.m']);
-% 	end
-% 	sub_directories = getDirectories(directory);
-% 	for ii = 1:length(sub_directories)
-% 	   subdir_directory =  [directory '\' sub_directories(ii).name]
-% 	   convertDirectoriesToPCode(subdir_directory)
-% 	end
-% 
-% 
-% 	function directories = getDirectories(directory)
-% 		directories = struct([]);
-% 		count = 1;
-% 
-% 		dirPath = dir(directory);
-% 
-% 		for ii = 1:length(dirPath)
-% 			if dirPath(ii).isdir
-% 				if strcmp(dirPath(ii).name,'.')
-% 				elseif strcmp(dirPath(ii).name,'..')
-% 				else
-% 					directories(count).name = dirPath(ii).name;
-% 					count = count+1;
-% 				end
-% 			end
-% 		end
-% 	end
-% end
