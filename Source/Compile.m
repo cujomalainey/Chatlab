@@ -10,7 +10,7 @@ warning('off', 'MATLAB:MKDIR:DirectoryExists')
 		targetPath = strrep(directory, 'Source', 'Release');
 		%% Main Directory
 		mFiles = dir([directory filesep '*.m']);
-		if ~isempty(mFiles);
+		if (~isempty(mFiles))
 			names = {mFiles.name};
 			i = 0;
 			while i < length(names)
@@ -23,6 +23,15 @@ warning('off', 'MATLAB:MKDIR:DirectoryExists')
 				pcode([directory filesep names{i}], '-inplace');
 			end
 			moveFiles(directory, targetPath);
+		end
+		%% Move the jars
+		jarFiles = dir([directory filesep '*.jar']);
+		if (~isempty(jarFiles))
+			jars = {jarFiles.name};
+			for i = 1:1:length(jars)
+				mkdir(targetPath);
+				copyfile([directory filesep jars{i}], targetPath);
+			end
 		end
 		%% Sub Directories
 		subDir = getDirectories(directory);

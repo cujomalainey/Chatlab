@@ -1,12 +1,16 @@
 MATLAB-Chat
 ===========
-MATLAB-Chat is a Client/Server encrypted chat system for communications between clients via a server.  The messages are encrypted before leaving the client, passed though the server, then finally decrypted by the receiving clients.  The messages CANNOT be decrypted by the server as it does not store nor know the keys for the message encryption.  On top of that, the connection between each client and the server is also encrypted with separate keys.
+MATLAB-Chat is a Client/Server encrypted chat system for communications between clients via a server using encryption based on RSA.  Tbe goal of this project is to allow secure communication between clients without the server being able to decryp the message.  To accomplish this, we used one layer of encryption between the clients and the server, and then a second layer of encryption between the clients in a chat room.  This implementation in MATLAB is a proof of concept, and should not be taken as absoluteky secure due to MATLAB's limitation with working with large numbers (the encryption isn't as strong as the standard).
 
-##Running MATLAB-Chat
+##Running MATLAB-Chat From The Source
+1. Obtain a copy of the software
+2. Open either `LaunchClient.m` or `LaunchServer.m` in MATLAB and run it.
+3. Select "Move to folder" when the popup appears
+
+##Running MATLAB-Chat From The Release
 1. Obtain a copy of the software
 2. Go to the `Release` folder
-3. Open either `LaunchClient.m` or `LaunchServer.m` in MATLAB and run it.
-4. Select "Move to folder" when the popup appears
+3. Run either `LaunchClient.p` or `LaunchServer.p` in MATLAB.
 
 ##License - MIT
 	Copyright (c) 2014 David Skrundz, Curtis Malainey
