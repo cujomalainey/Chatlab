@@ -2,7 +2,7 @@ function [] = ChatWindow(name, key)
 %ChatWindow Create And Display The Client-Side UI Along With All Of The Logic Behind The Client
 
 %% Get a window
-Chat.Window = NewWindow(['Chat : Logged in as ', name], 670, 439, @windowWillClose);
+Chat.Window = NewWindow(['ChatLab : Logged in as ', name], 670, 439, @windowWillClose);
 
 %% Get the channel for communication
 Chat.ChannelManager = ChannelManager.instance(); % Should carry over from the old instance

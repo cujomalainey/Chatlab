@@ -2,7 +2,7 @@ function [] = LoginWindow()
 %LoginWindow Create And Display The Client-Side Window To Authenticate Into A Server
 
 %% Get a window
-Login.Window = NewWindow('Login', 200, 118, @windowWillClose);
+Login.Window = NewWindow('ChatLab Login', 200, 118, @windowWillClose);
 set(Login.Window, 'WindowStyle', 'modal'); % Make sure it has priority
 
 %% Get the GUI Manager

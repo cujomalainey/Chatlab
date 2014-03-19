@@ -2,7 +2,7 @@ function [] = ServerWindow()
 %ServerWindow Create And Display The Window For The Server
 
 %% Get a window
-ServerUI.window = NewWindow('Chat Server', 700, 218, @windowWillClose);
+ServerUI.window = NewWindow('ChatLab Server', 700, 218, @windowWillClose);
 
 %% Get the GUI Manager
 GUI = GUIManager.instance();
