@@ -18,7 +18,7 @@ for i=1:1:length(pathlist)
 				~isempty(strfind(pathlist{i}, 'stateflow')) || ...
 				~isempty(strfind(pathlist{i}, 'instrument')) || ...
 				~isempty(strfind(pathlist{i}, 'slcontrol')))
-			rmpath(pathlist{i});
+% 			rmpath(pathlist{i});
 		end
 	end
 end

@@ -122,8 +122,8 @@ Server.Port = 10101;
 			Server.UserList = loadUserList();
 			ServerUI.RegisteredUsersLabel.setText(length(fieldnames(Server.UserList)));
 			try
-				Server.Servers.localhost = BindServer(char(java.net.InetAddress.getLoopbackAddress().getHostAddress())	, Server.Port, @receive, @accept);
-% 				Server.Servers.localIP   = BindServer(char(java.net.InetAddress.getLocalHost().getHostAddress())		, Server.Port, @receive, @accept);
+% 				Server.Servers.localhost = BindServer(char(java.net.InetAddress.getLoopbackAddress().getHostAddress())	, Server.Port, @receive, @accept);
+				Server.Servers.localIP   = BindServer(char(java.net.InetAddress.getLocalHost().getHostAddress())		, Server.Port, @receive, @accept);
 				ServerUI.ServerActiveLabel.setText('Active');
 				ServerUI.IPLabel.setText(sprintf('%s:%d', char(java.net.InetAddress.getLocalHost().getHostAddress()), Server.Port));
 				ServerUI.ServerActiveLabel.setColor([0, 0.8, 0]);
