@@ -1,6 +1,6 @@
 ChatLab
 =======
-ChatLab is a Client/Server encrypted chat system for communications between clients via a server using encryption based on RSA.  Tbe goal of this project is to allow secure communication between clients without the server being able to decryp the message.  To accomplish this, we used one layer of encryption between the clients and the server, and then a second layer of encryption between the clients in a chat room.  This implementation in MATLAB is a proof of concept, and should not be taken as absoluteky secure due to MATLAB's limitation with working with large numbers (the encryption isn't as strong as the standard).
+ChatLab is a Client/Server encrypted chat system for communications between clients via a server using encryption based on RSA.  Tbe goal of this project is to allow secure communication between clients without the server being able to decryp the message.  To accomplish this, we used one layer of encryption between the clients and the server, and then a second layer of encryption between the clients in a chat room.  This implementation in MATLAB is a proof of concept, and should not be taken as absolutely secure due to MATLAB's limitation with working with large numbers (the encryption isn't as strong as the standard).
 
 ##Running ChatLab From The Source
 1. Obtain a copy of the software
